@@ -1,0 +1,29 @@
+from collections.abc import Sequence
+
+from glyph.model.edge import Edge
+from glyph.model.graph import NodeId, Path, Subgraph
+from glyph.model.node import Node
+from glyph.store.port import GraphStore
+
+
+class _Complete:
+    def upsert_nodes(self, nodes: Sequence[Node]) -> None: ...
+    def upsert_edges(self, edges: Sequence[Edge]) -> None: ...
+    def neighbors(self, node: NodeId, hops: int) -> Subgraph: ...
+    def subgraph(self, seed: Sequence[NodeId], hops: int) -> Subgraph: ...
+    def shortest_path(self, src: NodeId, dst: NodeId) -> Path | None: ...
+
+
+class _MissingShortestPath:
+    def upsert_nodes(self, nodes: Sequence[Node]) -> None: ...
+    def upsert_edges(self, edges: Sequence[Edge]) -> None: ...
+    def neighbors(self, node: NodeId, hops: int) -> Subgraph: ...
+    def subgraph(self, seed: Sequence[NodeId], hops: int) -> Subgraph: ...
+
+
+def test_complete_implementation_satisfies_port() -> None:
+    assert isinstance(_Complete(), GraphStore)
+
+
+def test_incomplete_implementation_does_not_satisfy_port() -> None:
+    assert not isinstance(_MissingShortestPath(), GraphStore)
