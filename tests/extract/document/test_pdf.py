@@ -46,3 +46,17 @@ def test_load_extracts_text_and_lines(tmp_path: Path) -> None:
     assert "GOBLIN" in pages[0].text
     assert "GOBLIN" in pages[0].lines
     assert "O goblin resiste a fogo." in pages[0].lines
+
+
+def test_load_drops_blank_lines(tmp_path: Path) -> None:
+    pdf = tmp_path / "blank.pdf"
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 72), "GOBLIN\n   \nfim", fontsize=11)
+    doc.save(pdf)
+    doc.close()
+    pages = load(pdf)
+    assert "GOBLIN" in pages[0].lines
+    assert "fim" in pages[0].lines
+    assert "" not in pages[0].lines
+    assert all(line.strip() for line in pages[0].lines)

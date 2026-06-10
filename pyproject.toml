@@ -61,6 +61,10 @@ addopts = "-p no:asyncio --import-mode=importlib -m \"not live\" --cov=glyph --c
 markers = [
     "live: hits the live Anthropic API (requires ANTHROPIC_API_KEY); deselected by default",
 ]
+filterwarnings = [
+    "ignore::DeprecationWarning:importlib._bootstrap",
+    "ignore::DeprecationWarning:sys",
+]
 
 [tool.coverage.run]
 branch = true
