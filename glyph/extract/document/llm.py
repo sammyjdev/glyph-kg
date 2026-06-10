@@ -30,7 +30,7 @@ class AnthropicExtractor:
     def extract(self, system: str, text: str) -> tuple[ExtractionResult, Usage]:
         response = self._client.messages.parse(  # type: ignore[attr-defined]
             model=self._model,
-            max_tokens=4096,
+            max_tokens=8192,
             system=system,
             messages=[{"role": "user", "content": text}],
             output_format=ExtractionResult,

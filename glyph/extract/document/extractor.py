@@ -28,7 +28,10 @@ class DocumentExtractor:
         results: list[ExtractionResult] = []
         usages: list[Usage] = []
         for piece in chunks:
-            result, usage = self._llm.extract(system, piece.text)
+            try:
+                result, usage = self._llm.extract(system, piece.text)
+            except Exception:  # noqa: BLE001 - one failed chunk must not abort a paid run
+                continue
             results.append(result)
             usages.append(usage)
         nodes, edges = merge(results)

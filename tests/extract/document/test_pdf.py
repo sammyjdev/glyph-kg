@@ -48,6 +48,21 @@ def test_load_extracts_text_and_lines(tmp_path: Path) -> None:
     assert "O goblin resiste a fogo." in pages[0].lines
 
 
+def test_load_captures_a_font_size_per_line(tmp_path: Path) -> None:
+    pdf = tmp_path / "sized.pdf"
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 72), "GOBLIN", fontsize=16)
+    page.insert_text((72, 100), "corpo do verbete", fontsize=11)
+    doc.save(pdf)
+    doc.close()
+    pages = load(pdf)
+    assert len(pages[0].line_sizes) == len(pages[0].lines)
+    assert all(isinstance(s, float) for s in pages[0].line_sizes)
+    sizes = dict(zip(pages[0].lines, pages[0].line_sizes, strict=True))
+    assert sizes["GOBLIN"] > sizes["corpo do verbete"]
+
+
 def test_load_drops_blank_lines(tmp_path: Path) -> None:
     pdf = tmp_path / "blank.pdf"
     doc = fitz.open()

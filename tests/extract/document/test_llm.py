@@ -45,6 +45,12 @@ def test_anthropic_extractor_uses_haiku_by_default() -> None:
     assert client.messages.calls[0]["model"] == "claude-haiku-4-5"
 
 
+def test_anthropic_extractor_requests_generous_output_budget() -> None:
+    client = _FakeClient(ExtractionResult(entities=[], relations=[]))
+    AnthropicExtractor(client=client).extract("s", "t")
+    assert client.messages.calls[0]["max_tokens"] == 8192
+
+
 @pytest.mark.live
 def test_anthropic_extractor_live_smoke() -> None:
     if not os.environ.get("ANTHROPIC_API_KEY"):

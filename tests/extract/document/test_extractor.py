@@ -41,11 +41,17 @@ class _FakeLLM:
 
 
 def _make_pdf(path: Path) -> None:
+    # Headings render larger than body so the font-size gate detects them; two
+    # body lines per page keep the body font the most common (the chunk threshold).
     doc = fitz.open()
     p1 = doc.new_page()
-    p1.insert_text((72, 72), "GOBLIN\nO goblin resiste a fogo.", fontsize=11)
+    p1.insert_text((72, 72), "GOBLIN", fontsize=16)
+    p1.insert_text((72, 100), "O goblin resiste a fogo.", fontsize=11)
+    p1.insert_text((72, 120), "Pequeno e covarde.", fontsize=11)
     p2 = doc.new_page()
-    p2.insert_text((72, 72), "ORC\nO orc habita cavernas.", fontsize=11)
+    p2.insert_text((72, 72), "ORC", fontsize=16)
+    p2.insert_text((72, 100), "O orc habita cavernas.", fontsize=11)
+    p2.insert_text((72, 120), "Brutal e territorial.", fontsize=11)
     doc.save(path)
     doc.close()
 
@@ -77,3 +83,26 @@ def test_extract_with_usage_reports_one_usage_per_chunk(tmp_path: Path) -> None:
     nodes, edges, usages = DocumentExtractor(llm=_FakeLLM()).extract_with_usage(pdf)
     assert len(usages) == 2
     assert nodes and edges
+
+
+class _FlakyLLM:
+    """Raises on the Orc chunk; succeeds on the Goblin chunk."""
+
+    def extract(self, system: str, text: str) -> tuple[ExtractionResult, Usage]:
+        if "ORC" in text:
+            raise RuntimeError("simulated API failure")
+        return (
+            ExtractionResult(
+                entities=[ExtractedEntity(name="Goblin", kind="creature")],
+                relations=[],
+            ),
+            Usage(input_tokens=50, output_tokens=10),
+        )
+
+
+def test_extract_skips_chunks_that_raise(tmp_path: Path) -> None:
+    pdf = tmp_path / "mm.pdf"
+    _make_pdf(pdf)
+    nodes, _edges, usages = DocumentExtractor(llm=_FlakyLLM()).extract_with_usage(pdf)
+    assert len(usages) == 1  # the failing Orc chunk is skipped, not fatal
+    assert any(n.id == "goblin" for n in nodes)
