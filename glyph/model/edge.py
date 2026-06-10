@@ -25,6 +25,10 @@ class EdgeType(str, Enum):
     MENTIONS = "mentions"
     REQUIRES = "requires"
     RESISTS = "resists"
+    IMMUNE_TO = "immune_to"
+    VULNERABLE_TO = "vulnerable_to"
+    INHABITS = "inhabits"
+    SUMMONS = "summons"
 
 
 class Edge(BaseModel):

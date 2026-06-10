@@ -25,7 +25,16 @@ def test_edgetype_separates_code_and_document_domains() -> None:
         EdgeType.INHERITS,
         EdgeType.REFERENCES,
     }
-    document = {EdgeType.RELATES_TO, EdgeType.MENTIONS, EdgeType.REQUIRES, EdgeType.RESISTS}
+    document = {
+        EdgeType.RELATES_TO,
+        EdgeType.MENTIONS,
+        EdgeType.REQUIRES,
+        EdgeType.RESISTS,
+        EdgeType.IMMUNE_TO,
+        EdgeType.VULNERABLE_TO,
+        EdgeType.INHABITS,
+        EdgeType.SUMMONS,
+    }
     assert code.isdisjoint(document)
     assert code | document <= set(EdgeType)
 
