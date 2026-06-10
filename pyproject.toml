@@ -51,6 +51,10 @@ disallow_untyped_defs = true
 module = ["networkx.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["fitz.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-p no:asyncio --import-mode=importlib -m \"not live\" --cov=glyph --cov-report=term-missing --cov-fail-under=90"
