@@ -50,5 +50,5 @@ class GraphRetriever:
             text = f"{node.label} — {relations}" if relations else node.label
             score = 1.0 if node.id in anchors else 0.5
             segments.append(Segment(text=text, source=node.id, score=score))
-        segments.sort(key=lambda s: -s.score)
+        segments.sort(key=lambda s: (-s.score, s.source))  # source breaks score ties stably
         return segments

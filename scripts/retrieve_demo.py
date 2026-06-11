@@ -1,7 +1,7 @@
 """Run the three retrieval arms over the Monster Manual graph for manual inspection.
 
 Usage:
-    python3 scripts/retrieve_demo.py out/monster-manual.json "<Monster Manual.pdf>" "que criaturas resistem a fogo?"
+    python3 scripts/retrieve_demo.py <graph.json> <book.pdf> "<query>"
 
 Uses local sentence-transformers embeddings (no API cost). Requires:
     pip install -e ".[document,retrieval,embeddings]"

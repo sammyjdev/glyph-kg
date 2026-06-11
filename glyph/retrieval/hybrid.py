@@ -21,17 +21,19 @@ class HybridRetriever:
         return pack("hybrid", fused, token_budget)
 
     def _fuse(self, *arms: list[Segment]) -> list[Segment]:
+        # Fuse on a case-normalized key so the same creature found by both arms
+        # (graph source id "goblin" vs vector chunk label "Goblin") reinforces
+        # instead of double-counting. Ties break by source for a stable order.
         scores: dict[str, float] = {}
         first_seen: dict[str, Segment] = {}
         for segments in arms:
             for rank, segment in enumerate(segments):
-                scores[segment.source] = scores.get(segment.source, 0.0) + 1.0 / (
-                    self._rrf_k + rank + 1
-                )
-                first_seen.setdefault(segment.source, segment)
+                key = segment.source.lower()
+                scores[key] = scores.get(key, 0.0) + 1.0 / (self._rrf_k + rank + 1)
+                first_seen.setdefault(key, segment)
         merged = [
-            Segment(text=first_seen[source].text, source=source, score=score)
-            for source, score in scores.items()
+            Segment(text=first_seen[key].text, source=first_seen[key].source, score=score)
+            for key, score in scores.items()
         ]
-        merged.sort(key=lambda s: -s.score)
+        merged.sort(key=lambda s: (-s.score, s.source))
         return merged

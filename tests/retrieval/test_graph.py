@@ -61,3 +61,23 @@ def test_segment_text_includes_relations() -> None:
     goblin = next(s for s in result.segments if s.source == "goblin")
     assert "resists" in goblin.text
     assert "fogo" in goblin.text
+
+
+def test_non_anchor_neighbors_break_score_ties_by_source() -> None:
+    nodes = [
+        Node(id="goblin", type=NodeType.ENTITY, label="Goblin"),
+        Node(id="fogo", type=NodeType.CONCEPT, label="fogo"),
+        Node(id="brasa", type=NodeType.CONCEPT, label="brasa"),
+    ]
+    store = NetworkXStore()
+    store.upsert_nodes(nodes)
+    store.upsert_edges(
+        [
+            Edge(src="goblin", dst="fogo", type=EdgeType.RESISTS),
+            Edge(src="goblin", dst="brasa", type=EdgeType.IMMUNE_TO),
+        ]
+    )
+    retriever = GraphRetriever(store=store, embedder=_FakeEmbedder(), nodes=nodes, hops=1)
+    result = retriever.retrieve("goblin", token_budget=1000)
+    tied = [s.source for s in result.segments if s.score == 0.5]
+    assert tied == sorted(tied)  # deterministic order among tied neighbors
