@@ -20,6 +20,9 @@ htmlcov/
 *.graphml
 *.gpickle
 
+# Transient run logs
+out/*.log
+
 # OS / editor
 .DS_Store
 .idea/
