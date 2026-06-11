@@ -66,6 +66,19 @@ def test_request_targets_chat_completions_with_bearer_and_seed() -> None:
     assert poster.payload["response_format"] == {"type": "json_object"}
 
 
+def test_seed_is_omitted_when_send_seed_false() -> None:
+    # Some providers (Google Gemini) reject the `seed` field with HTTP 400.
+    poster = FakePoster(json.dumps({"faithfulness": 1.0, "context_precision": 1.0}))
+    judge = OpenAICompatJudge(model="gemini-2.5-flash", api_key="k", poster=poster, send_seed=False)
+    case, response = _case_and_response()
+
+    judge.score(case, response, seed=10, run=3)
+
+    assert poster.payload is not None
+    assert "seed" not in poster.payload
+    assert poster.payload["response_format"] == {"type": "json_object"}
+
+
 def test_scores_are_clamped_to_unit_interval() -> None:
     poster = FakePoster(json.dumps({"faithfulness": 1.4, "context_precision": -0.2}))
     judge = OpenAICompatJudge(model="m", api_key="k", poster=poster)

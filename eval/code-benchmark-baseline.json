@@ -1,0 +1,77 @@
+{
+  "seed": 0,
+  "judge_runs": 3,
+  "judge_model": "gemini-2.5-flash",
+  "n_cases": 14,
+  "arms": [
+    {
+      "arm": "graph",
+      "n_cases": 14,
+      "total_tokens": 14843,
+      "mean_latency_ms": 13550.56,
+      "cost_usd": 0.022411,
+      "metrics": [
+        {
+          "metric": "context_precision",
+          "mean": 0.1796,
+          "ci_low": 0.1107,
+          "ci_high": 0.2655,
+          "n": 14
+        },
+        {
+          "metric": "faithfulness",
+          "mean": 0.8393,
+          "ci_low": 0.6821,
+          "ci_high": 0.9631,
+          "n": 14
+        }
+      ]
+    },
+    {
+      "arm": "vector",
+      "n_cases": 14,
+      "total_tokens": 15507,
+      "mean_latency_ms": 6418.13,
+      "cost_usd": 0.025219,
+      "metrics": [
+        {
+          "metric": "context_precision",
+          "mean": 0.5131,
+          "ci_low": 0.2786,
+          "ci_high": 0.7369,
+          "n": 14
+        },
+        {
+          "metric": "faithfulness",
+          "mean": 0.9952,
+          "ci_low": 0.9881,
+          "ci_high": 1.0,
+          "n": 14
+        }
+      ]
+    },
+    {
+      "arm": "hybrid",
+      "n_cases": 14,
+      "total_tokens": 14910,
+      "mean_latency_ms": 9771.69,
+      "cost_usd": 0.023354,
+      "metrics": [
+        {
+          "metric": "context_precision",
+          "mean": 0.3526,
+          "ci_low": 0.1865,
+          "ci_high": 0.531,
+          "n": 14
+        },
+        {
+          "metric": "faithfulness",
+          "mean": 0.8643,
+          "ci_low": 0.6988,
+          "ci_high": 0.9881,
+          "n": 14
+        }
+      ]
+    }
+  ]
+}
