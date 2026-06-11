@@ -55,6 +55,8 @@ def test_answer_maps_contexts_and_sums_tokens() -> None:
 
     assert result.answer == "Balor."
     assert result.contexts == ["Balor — immune_to fogo", "Vrock — resists frio"]
+    assert result.input_tokens == 30
+    assert result.output_tokens == 12
     assert result.total_tokens == 42
     assert result.latency_ms >= 0.0
     assert retriever.calls == [("Quem é imune a fogo?", 500)]
@@ -118,4 +120,4 @@ def test_anthropic_generator_live_smoke() -> None:
         "Responda em uma palavra.", "Pergunta: qual a cor do céu num dia claro? Resposta:"
     )
     assert text.strip()
-    assert usage.total > 0
+    assert usage.input_tokens + usage.output_tokens > 0

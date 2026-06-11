@@ -27,10 +27,6 @@ class Usage:
     input_tokens: int
     output_tokens: int
 
-    @property
-    def total(self) -> int:
-        return self.input_tokens + self.output_tokens
-
 
 class Generator(Protocol):
     """Produces an answer string and its token usage from a system + user prompt."""
@@ -66,7 +62,8 @@ class AnswerGenerator:
         return ArmResponse(
             answer=text,
             contexts=contexts,
-            total_tokens=usage.total,
+            input_tokens=usage.input_tokens,
+            output_tokens=usage.output_tokens,
             latency_ms=latency_ms,
         )
 
