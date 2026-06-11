@@ -13,21 +13,24 @@ provable **today** from the code, and what unlocks **after** a real benchmark ru
 Backed by: `glyph/` (model, store, extract/document, extract/code, retrieval, baseline, eval,
 integration), `out/monster-manual.json`, `out/glyph-code.json`, ADRs G1–G5, CI quality gates.
 
-## Unlocks after the benchmark run (the headline number)
+## From the benchmark run (the headline number)
 
-> Benchmarked graph-aware vs vector retrieval over a real corpus with confidence intervals:
-> graph improved `context_precision` by **[X] pts [95% CI a–b]** on relation-dependent queries
-> at **[Y]% of the token cost**, while the vector baseline matched it on simple factual lookups.
+> Benchmarked graph-aware vs vector retrieval over a real 25-query corpus with bootstrap CIs
+> (judge: Llama 3.3 70B). Graph-aware retrieval posted the **highest faithfulness (0.987,
+> [0.96–1.00])** at the **lowest token cost (~12% fewer tokens than the vector baseline)**,
+> matching or beating vector on both v1 metrics. At n=25 the metric CIs overlap, so the honest
+> framing is *parity-or-better on quality at lower cost* — not a significance claim; the graph
+> did **not** lead `context_precision` (vector/hybrid nominally higher, within noise).
 
-Fill `[X]/[Y]` from `METRICS.md` after `make benchmark`. **Do not publish the number before the
-run** — the validation-first rule. Report the categories where the graph did **not** win too.
+Numbers from `eval/benchmark-baseline.json` / `METRICS.md`. The credibility is in reporting the
+overlap and the category where the graph lost, not in inflating a single number.
 
 ## CV / LinkedIn one-liner
 
 > "Built a knowledge-graph library spanning document and code domains; benchmarked graph-aware
 > vs vector retrieval with confidence intervals."
 
-Safe to use once the run lands (the capability is built today; the comparative number is the run's).
+Safe to use today — the run has landed (`eval/benchmark-baseline.json`); the comparative number is real.
 
 ## Visibility plan (P6.4)
 

@@ -1,9 +1,8 @@
 # GraphRAG vs vector retrieval over a real corpus, measured
 
 > **Validation-first draft (P6.2).** Every claim below points at the code or artifact that
-> backs it. Claims tagged **[pending run]** need the numbers from a real benchmark
-> (`make benchmark` with `GROQ_API_KEY` + `ANTHROPIC_API_KEY`) before publishing — they are
-> written as placeholders on purpose, not asserted.
+> backs it. The results table is from a real benchmark run, committed to
+> `eval/benchmark-baseline.json` and regenerable with `make benchmark`.
 
 ## Thesis
 
@@ -18,7 +17,7 @@ extractor port, and **measures** when the graph beats the vector baseline and wh
 |---|---|
 | One graph core, two extractors behind one port | `glyph/extract/port.py`, `glyph/extract/document/`, `glyph/extract/code/` |
 | Document KG from a real corpus (Monster Manual) | `out/monster-manual.json` (693 nodes, 1305 edges); cost gate in `docs/decisions/phase1-cost-gate-results.md` ($1.21 measured) |
-| Code KG, deterministic, Python + Java | `glyph/extract/code/`; self-hosted `out/glyph-code.json` (236 nodes, 369 edges) |
+| Code KG, deterministic, Python + Java | `glyph/extract/code/`; self-hosted `out/glyph-code.json` (244 nodes, 384 edges) |
 | Graph-aware retrieval + a fair vector baseline + hybrid, one output contract | `glyph/retrieval/`, `glyph/baseline/vector.py`, `glyph/model/contract.py`; ADR-G3 |
 | Benchmark against GNOMON with bootstrap CIs | `glyph/eval/` (target, judge, harness, report); ADR-G4 |
 | Frozen, reproducible query set | `eval/queries.json` (n=25), `scripts/build_query_set.py --check` |
@@ -29,22 +28,33 @@ extractor port, and **measures** when the graph beats the vector baseline and wh
 
 Three arms (graph, vector, hybrid) answer the same 25 questions over the same corpus, under the
 same token budget and embedder. Each arm generates a grounded answer over its retrieved context
-(real token + latency instrumentation). An OpenAI-compatible OSS judge (Groq) scores GNOMON's two
-v1 metrics — `faithfulness` and `context_precision` — and we aggregate per-case scores with a
-seeded percentile bootstrap. Cost is generation tokens at Haiku 4.5 rates.
+(real token + latency instrumentation). An OpenAI-compatible OSS judge (NVIDIA NIM,
+`meta/llama-3.3-70b-instruct`) scores GNOMON's two v1 metrics — `faithfulness` and
+`context_precision` — over `judge_runs=3`, and we aggregate per-case scores with a seeded
+percentile bootstrap. Cost is generation tokens at Haiku 4.5 rates. The judge is transport-agnostic
+(`--base-url`/`--api-key-env`), so any provider serving the same Llama 3.3 70B keeps the run comparable.
 
-## Results **[pending run]**
+## Results
 
-The table below is generated into `METRICS.md` by the benchmark. Until a real run fills it, no
-number is claimed. The honest report will include **every** arm's metric with its CI — explicitly
-including the queries where the graph did **not** win (the factual/attribute category, where the
-vector baseline is expected to match or beat the graph), plus token efficiency, USD cost and latency.
+Run of 2026-06-11 — n=25, judge `meta/llama-3.3-70b-instruct`, `judge_runs=3`, seed 0. Cells are
+**mean [95% percentile-bootstrap CI]**. Source: `eval/benchmark-baseline.json` / `METRICS.md`.
 
 | Metric | graph | vector | hybrid |
 |---|---|---|---|
-| faithfulness | _pending_ | _pending_ | _pending_ |
-| context_precision | _pending_ | _pending_ | _pending_ |
-| total tokens / cost / latency | _pending_ | _pending_ | _pending_ |
+| faithfulness | **0.987** [0.960, 1.000] | 0.928 [0.837, 0.995] | 0.933 [0.827, 1.000] |
+| context_precision | 0.366 [0.236, 0.509] | 0.400 [0.200, 0.600] | **0.434** [0.251, 0.617] |
+| total tokens | **30 831** | 35 074 | 42 882 |
+| cost (US$, generation) | **0.0399** | 0.0433 | 0.0511 |
+| mean latency (ms) | 1934 | 2089 | **1856** |
+
+**Honest read.** The graph arm posts the **highest faithfulness** (0.987, tightest CI) at the
+**lowest token cost** — ~12% fewer tokens than vector and ~28% fewer than hybrid. It does **not**
+win `context_precision`: vector and hybrid are nominally higher there. But at n=25 every metric's
+CIs overlap across arms, so no arm is *significantly* ahead on quality — the defensible claim is
+that graph-aware retrieval **matches or beats** the vector baseline on both metrics while being the
+**most token-efficient** arm. The hybrid buys the best `context_precision` and latency at the
+highest token cost. Where the graph loses (`context_precision`) is the factual/attribute category,
+exactly as anticipated — kept in the report rather than hidden.
 
 ## Declared limitations
 
@@ -59,6 +69,9 @@ vector baseline is expected to match or beat the graph), plus token efficiency, 
 
 ```bash
 pip install -e ".[document,retrieval,embeddings,eval]"
-export ANTHROPIC_API_KEY=... GROQ_API_KEY=...
-make benchmark BOOK="<Monster Manual PDF>"   # writes METRICS.md + eval/benchmark-baseline.json
+export ANTHROPIC_API_KEY=...        # answer generation (Claude Haiku 4.5)
+export NVIDIA_NIM_API_KEY=...        # OSS judge (NVIDIA NIM); Groq also works via --api-key-env
+python3 scripts/run_benchmark.py out/monster-manual.json "<Monster Manual PDF>" \
+  --base-url https://integrate.api.nvidia.com/v1 --api-key-env NVIDIA_NIM_API_KEY \
+  --model meta/llama-3.3-70b-instruct   # writes METRICS.md + eval/benchmark-baseline.json
 ```
