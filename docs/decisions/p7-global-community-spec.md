@@ -1,8 +1,8 @@
 # Spec P7 — Eixo global por comunidades (GLYPH)
 
 **Data:** 2026-06-11
-**Status:** Pronto para implementar
-**ADR associada:** dec-g7 (a escrever junto)
+**Status:** Implementado (lado GLYPH) — ver dec-g7. Orquestração AXON = spec-irmão pendente.
+**ADR associada:** [dec-g7](dec-g7-global-community-axis.md)
 **Fronteira:** lógica e detecção no GLYPH (lib pura, LLM injetado, espelha `DocumentExtractor`). Orquestração (hook post-commit, MCP `get_global_context`, provider/API key) é o spec-irmão no AXON — **fora deste spec**.
 
 ---
