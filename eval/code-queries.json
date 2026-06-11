@@ -1,0 +1,337 @@
+{
+  "corpus": "axon-code",
+  "queries": [
+    {
+      "id": "call-_get_session_store",
+      "question": "Quem chama a função `_get_session_store`?",
+      "category": "structural",
+      "graph_favored": true,
+      "relevant_sources": [
+        "mcp/server.py::ask",
+        "mcp/server.py::axon_capture",
+        "mcp/server.py::axon_capture_event",
+        "mcp/server.py::axon_export_now",
+        "mcp/server.py::axon_get_context",
+        "mcp/server.py::axon_handoff",
+        "mcp/server.py::axon_health",
+        "mcp/server.py::axon_mark_done",
+        "mcp/server.py::axon_search",
+        "mcp/server.py::axon_session_end",
+        "mcp/server.py::axon_session_start",
+        "mcp/server.py::axon_validation_stats",
+        "mcp/server.py::get_adrs",
+        "mcp/server.py::get_graph_context",
+        "mcp/server.py::get_graph_neighbors",
+        "mcp/server.py::get_graph_path",
+        "mcp/server.py::get_session_memory",
+        "mcp/server.py::save_adr"
+      ],
+      "relevant_labels": [
+        "ask",
+        "axon_capture",
+        "axon_capture_event",
+        "axon_export_now",
+        "axon_get_context",
+        "axon_handoff",
+        "axon_health",
+        "axon_mark_done",
+        "axon_search",
+        "axon_session_end",
+        "axon_session_start",
+        "axon_validation_stats",
+        "get_adrs",
+        "get_graph_context",
+        "get_graph_neighbors",
+        "get_graph_path",
+        "get_session_memory",
+        "save_adr"
+      ],
+      "answer_key": "ask; axon_capture; axon_capture_event; axon_export_now; axon_get_context; axon_handoff; axon_health; axon_mark_done; axon_search; axon_session_end; axon_session_start; axon_validation_stats; get_adrs; get_graph_context; get_graph_neighbors; get_graph_path; get_session_memory; save_adr"
+    },
+    {
+      "id": "call-_get_db_path",
+      "question": "Quem chama a função `_get_db_path`?",
+      "category": "structural",
+      "graph_favored": true,
+      "relevant_sources": [
+        "__main__.py::doctor._latest_decision_ts",
+        "__main__.py::export._decisions",
+        "__main__.py::init._index",
+        "__main__.py::status._decisions",
+        "cli/pb.py::adr_add._add",
+        "cli/pb.py::adr_infer_commit._run",
+        "cli/pb.py::adr_list._list",
+        "cli/pb.py::adr_review._promote",
+        "cli/pb.py::adr_sync._sync",
+        "cli/pb.py::ask._ask",
+        "cli/pb.py::graph_index._index",
+        "cli/pb.py::graph_neighbors._neighbors",
+        "cli/pb.py::graph_path._path",
+        "cli/pb.py::pending_drain._drain",
+        "cli/pb.py::session_note._note",
+        "cli/pb.py::session_save._save"
+      ],
+      "relevant_labels": [
+        "_latest_decision_ts",
+        "_decisions",
+        "_index",
+        "_decisions",
+        "_add",
+        "_run",
+        "_list",
+        "_promote",
+        "_sync",
+        "_ask",
+        "_index",
+        "_neighbors",
+        "_path",
+        "_drain",
+        "_note",
+        "_save"
+      ],
+      "answer_key": "_latest_decision_ts; _decisions; _index; _decisions; _add; _run; _list; _promote; _sync; _ask; _index; _neighbors; _path; _drain; _note; _save"
+    },
+    {
+      "id": "call-load_runtime_config",
+      "question": "Quem chama a função `load_runtime_config`?",
+      "category": "structural",
+      "graph_favored": true,
+      "relevant_sources": [
+        "adr/inference.py::_adr_model",
+        "adr/inference.py::_default_db_path",
+        "cli/pb.py::doctor",
+        "expansion/budget.py::ExpansionBudgetManager.__init__",
+        "expansion/registry.py::load_source_registry",
+        "expansion/service.py::ExpansionService.__init__",
+        "expansion/telemetry.py::ExpansionTelemetryStore.__init__",
+        "hooks/git_event.py::_default_store",
+        "observability/compression_telemetry.py::CompressionTelemetryStore.__init__",
+        "observability/trace_store.py::TraceStore.__init__",
+        "obsidian/discovery.py::_candidates",
+        "policy/core.py::PolicyRegistry.__init__",
+        "portability/exporter.py::export_portability_bundle"
+      ],
+      "relevant_labels": [
+        "_adr_model",
+        "_default_db_path",
+        "doctor",
+        "__init__",
+        "load_source_registry",
+        "__init__",
+        "__init__",
+        "_default_store",
+        "__init__",
+        "__init__",
+        "_candidates",
+        "__init__",
+        "export_portability_bundle"
+      ],
+      "answer_key": "_adr_model; _default_db_path; doctor; __init__; load_source_registry; __init__; __init__; _default_store; __init__; __init__; _candidates; __init__; export_portability_bundle"
+    },
+    {
+      "id": "call-_resolve_ctx",
+      "question": "Quem chama a função `_resolve_ctx`?",
+      "category": "structural",
+      "graph_favored": true,
+      "relevant_sources": [
+        "cli/pb.py::adr_add",
+        "cli/pb.py::adr_list",
+        "cli/pb.py::ask",
+        "cli/pb.py::expand_run",
+        "cli/pb.py::index",
+        "cli/pb.py::index_dev",
+        "cli/pb.py::search",
+        "cli/pb.py::session_root",
+        "cli/pb.py::watch"
+      ],
+      "relevant_labels": [
+        "adr_add",
+        "adr_list",
+        "ask",
+        "expand_run",
+        "index",
+        "index_dev",
+        "search",
+        "session_root",
+        "watch"
+      ],
+      "answer_key": "adr_add; adr_list; ask; expand_run; index; index_dev; search; session_root; watch"
+    },
+    {
+      "id": "call-_detect_repo",
+      "question": "Quem chama a função `_detect_repo`?",
+      "category": "structural",
+      "graph_favored": true,
+      "relevant_sources": [
+        "mcp/server.py::axon_capture",
+        "mcp/server.py::axon_capture_event",
+        "mcp/server.py::axon_export_now",
+        "mcp/server.py::axon_get_context",
+        "mcp/server.py::axon_handoff",
+        "mcp/server.py::axon_mark_done",
+        "mcp/server.py::axon_search",
+        "mcp/server.py::axon_session_start"
+      ],
+      "relevant_labels": [
+        "axon_capture",
+        "axon_capture_event",
+        "axon_export_now",
+        "axon_get_context",
+        "axon_handoff",
+        "axon_mark_done",
+        "axon_search",
+        "axon_session_start"
+      ],
+      "answer_key": "axon_capture; axon_capture_event; axon_export_now; axon_get_context; axon_handoff; axon_mark_done; axon_search; axon_session_start"
+    },
+    {
+      "id": "call-append_stage",
+      "question": "Quem chama a função `append_stage`?",
+      "category": "structural",
+      "graph_favored": true,
+      "relevant_sources": [
+        "cli/pb.py::ask._ask",
+        "cli/pb.py::search._search",
+        "hooks/git_event.py::_judge_and_export",
+        "mcp/server.py::ask",
+        "mcp/server.py::axon_validation_stats",
+        "mcp/server.py::search_code",
+        "observability/trace_store.py::TraceRecorder.append_policy_decision",
+        "observability/traced_tool.py::traced_tool.decorator.wrapper"
+      ],
+      "relevant_labels": [
+        "_ask",
+        "_search",
+        "_judge_and_export",
+        "ask",
+        "axon_validation_stats",
+        "search_code",
+        "append_policy_decision",
+        "wrapper"
+      ],
+      "answer_key": "_ask; _search; _judge_and_export; ask; axon_validation_stats; search_code; append_policy_decision; wrapper"
+    },
+    {
+      "id": "inherit-AxonError",
+      "question": "Quais classes herdam de `AxonError`?",
+      "category": "structural",
+      "graph_favored": true,
+      "relevant_sources": [
+        "exceptions.py::CodeIndexError",
+        "exceptions.py::GitAnchorError",
+        "exceptions.py::GraphError",
+        "exceptions.py::MCPError",
+        "exceptions.py::ObsidianError",
+        "exceptions.py::ValidationError"
+      ],
+      "relevant_labels": [
+        "CodeIndexError",
+        "GitAnchorError",
+        "GraphError",
+        "MCPError",
+        "ObsidianError",
+        "ValidationError"
+      ],
+      "answer_key": "CodeIndexError; GitAnchorError; GraphError; MCPError; ObsidianError; ValidationError"
+    },
+    {
+      "id": "sem-supersession-penalty",
+      "question": "Como o AXON decide que uma decisão antiga foi superseded no ranking de recall, e qual penalidade ela recebe?",
+      "category": "semantic",
+      "graph_favored": false,
+      "relevant_sources": [
+        "recall/supersession.py",
+        "recall/strategy.py"
+      ],
+      "relevant_labels": [
+        "recall/supersession.py",
+        "recall/strategy.py"
+      ],
+      "answer_key": "Soft supersession (dec-115): mesma scope + verbo de revisão EN/PT na summary mais nova OU near-duplicate cosine >= 0.93; rank x 0.02 (demote, nunca delete)."
+    },
+    {
+      "id": "sem-composite-cache-key",
+      "question": "How is the cache key for the prompt context layers built, and what components go into it?",
+      "category": "semantic",
+      "graph_favored": false,
+      "relevant_sources": [
+        "context/cache_key.py",
+        "router/engine.py"
+      ],
+      "relevant_labels": [
+        "context/cache_key.py",
+        "router/engine.py"
+      ],
+      "answer_key": "build_composite_cache_key joins sha256(content) | ctx | policy_version | model | provider-availability; the router caches static/semi-static layers with it."
+    },
+    {
+      "id": "sem-chunking-treesitter",
+      "question": "Como o chunker divide código-fonte em chunks para indexação — quais unidades viram chunks e qual o limite de tamanho?",
+      "category": "semantic",
+      "graph_favored": false,
+      "relevant_sources": [
+        "embedder/chunker.py"
+      ],
+      "relevant_labels": [
+        "embedder/chunker.py"
+      ],
+      "answer_key": "Tree-sitter (Java/Python/TS/TSX) extrai methods, constructors, classes, interfaces, enums, records e annotations; _MAX_CHUNK_LINES = 80."
+    },
+    {
+      "id": "sem-profile-model-routing",
+      "question": "Which LLM models do the FREE and PAID provider profiles map each task type to?",
+      "category": "semantic",
+      "graph_favored": false,
+      "relevant_sources": [
+        "router/profiles.py"
+      ],
+      "relevant_labels": [
+        "router/profiles.py"
+      ],
+      "answer_key": "FREE -> Groq llama-3.1-8b/3.3-70b + NVIDIA NIM llama-3.1-70b per tier; PAID -> OpenRouter Claude haiku-4/sonnet-4/opus-4; classifier groq/llama-3.1-8b-instant."
+    },
+    {
+      "id": "sem-sqlite-busy-retry",
+      "question": "O que acontece quando um write no SQLite falha com SQLITE_BUSY — como funciona o retry e o fallback?",
+      "category": "semantic",
+      "graph_favored": false,
+      "relevant_sources": [
+        "store/retry.py",
+        "store/pending.py"
+      ],
+      "relevant_labels": [
+        "store/retry.py",
+        "store/pending.py"
+      ],
+      "answer_key": "with_retry: exponential backoff com jitter dentro de um budget (10s); esgotado, serializa em .axon/pending/ via atomic rename e replay por drain, com quarantine (dec-112)."
+    },
+    {
+      "id": "sem-adr-density-gate",
+      "question": "How does the ADR density gate decide a rationale is genuine commentary rather than boilerplate or a paraphrase of the diff?",
+      "category": "semantic",
+      "graph_favored": false,
+      "relevant_sources": [
+        "adr/gates/density.py"
+      ],
+      "relevant_labels": [
+        "adr/gates/density.py"
+      ],
+      "answer_key": "Requires >=1 architectural-lexicon token absent from the diff and rejects when >85% of rationale tokens overlap the diff (checks relaxed in structural mode)."
+    },
+    {
+      "id": "sem-destructive-consent-gate",
+      "question": "Onde e como o AXON bloqueia ferramentas MCP destrutivas sem consentimento explícito do usuário?",
+      "category": "semantic",
+      "graph_favored": false,
+      "relevant_sources": [
+        "policy/core.py",
+        "observability/traced_tool.py"
+      ],
+      "relevant_labels": [
+        "policy/core.py",
+        "observability/traced_tool.py"
+      ],
+      "answer_key": "PolicyEngine.decide_tool_action nega risk=destructive (DENY_DESTRUCTIVE_NO_CONSENT) sem AXON_ALLOW_DESTRUCTIVE, e write/destructive em ctx restrito; @traced_tool re-checa a cada chamada."
+    }
+  ]
+}
