@@ -21,7 +21,7 @@ GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 # Transient-failure retry policy for the default poster. The free Groq tier rate-limits
 # (429) well below the ~225 calls a full run makes; we honour Retry-After and back off.
-_MAX_RETRIES = 6
+_MAX_RETRIES = 8
 _BACKOFF_BASE_S = 2.0
 _RETRY_CODES = (429, 500, 502, 503)
 
@@ -80,6 +80,7 @@ class OpenAICompatJudge:
         poster: JsonPoster | None = None,
         timeout_s: float = 120.0,
         temperature: float = 0.0,
+        send_seed: bool = True,
     ) -> None:
         self.model_name = model
         self._url = base_url.rstrip("/") + "/chat/completions"
@@ -87,6 +88,8 @@ class OpenAICompatJudge:
         self._post = poster or _urllib_post
         self._timeout_s = timeout_s
         self._temperature = temperature
+        # Some OpenAI-compatible providers (e.g. Google Gemini) reject the `seed` field.
+        self._send_seed = send_seed
 
     def score(
         self, case: "EvalCase", response: "RagResponse", *, seed: int, run: int
@@ -97,13 +100,15 @@ class OpenAICompatJudge:
         from gnomon.judge.prompts import build_prompt
         from gnomon.metrics.names import V1_METRICS
 
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.model_name,
             "messages": [{"role": "user", "content": build_prompt(case, response)}],
             "response_format": {"type": "json_object"},
             "temperature": self._temperature,
-            "seed": seed + run,  # deterministic sequence per declared seed, mirrors OllamaJudge
         }
+        if self._send_seed:
+            # deterministic sequence per declared seed, mirrors OllamaJudge
+            payload["seed"] = seed + run
         headers = {"Authorization": f"Bearer {self._api_key}"}
         body = self._post(self._url, payload, headers, self._timeout_s)
         try:

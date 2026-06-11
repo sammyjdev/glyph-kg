@@ -24,8 +24,14 @@ from pathlib import Path
 
 from glyph.baseline.vector import VectorBaseline
 from glyph.embed.sentence_transformers_embedder import SentenceTransformerEmbedder
+from glyph.eval.code_corpus import code_documents
 from glyph.eval.dataset import load_eval_cases
-from glyph.eval.generate import AnswerGenerator, AnthropicGenerator
+from glyph.eval.generate import (
+    AnswerGenerator,
+    AnthropicGenerator,
+    Generator,
+    OpenAICompatGenerator,
+)
 from glyph.eval.harness import ArmReport, run_benchmark
 from glyph.eval.judge import GROQ_BASE_URL, OpenAICompatJudge
 from glyph.eval.report import DEFAULT_TOLERANCE, regression_check, render_markdown, to_dict
@@ -40,24 +46,39 @@ DEFAULT_BASELINE = "eval/benchmark-baseline.json"
 DEFAULT_METRICS = "METRICS.md"
 DEFAULT_MODEL = "llama-3.3-70b-versatile"
 
+_CODE_SYSTEM = (
+    "You answer questions about the AXON codebase using ONLY the provided context "
+    "(source files and graph relations). If the context lacks the answer, say so. Be "
+    "concise and do not invent code or facts beyond the context."
+)
 
-def _precompute(retriever: Retriever, cases, generator) -> dict[str, ArmResponse]:  # type: ignore[no-untyped-def]
-    answerer = AnswerGenerator(retriever, generator)
+
+def _precompute(
+    retriever: Retriever, cases, generator: Generator, system: str | None = None
+) -> dict[str, ArmResponse]:  # type: ignore[no-untyped-def]
+    answerer = (
+        AnswerGenerator(retriever, generator, system=system)
+        if system is not None
+        else AnswerGenerator(retriever, generator)
+    )
     out: dict[str, ArmResponse] = {}
     for case in cases:
         out[case.id] = answerer.answer(case.question)
     return out
 
 
-def _build_arms(graph_path: str, book_path: str):  # type: ignore[no-untyped-def]
+def _build_arms(graph_path: str, source: str, domain: str = "document"):  # type: ignore[no-untyped-def]
     store = NetworkXStore.load(graph_path)
     payload = json.loads(Path(graph_path).read_text(encoding="utf-8"))
     nodes = store.subgraph([n["id"] for n in payload["nodes"]], hops=0).nodes
-    documents = [
-        (piece.label, piece.text)
-        for piece in chunk.by_creature(pdf.load(book_path))
-        if chunk.is_creature(piece)
-    ]
+    if domain == "code":
+        documents = code_documents(source)
+    else:
+        documents = [
+            (piece.label, piece.text)
+            for piece in chunk.by_creature(pdf.load(source))
+            if chunk.is_creature(piece)
+        ]
     embedder = SentenceTransformerEmbedder()
     graph = GraphRetriever(store=store, embedder=embedder, nodes=nodes)
     vector = VectorBaseline(embedder=embedder)
@@ -109,8 +130,11 @@ def _load_answers(path: Path, fingerprint: str) -> dict[str, dict[str, ArmRespon
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="GLYPH GraphRAG vs vector benchmark")
     parser.add_argument("graph", help="persisted KG json (e.g. out/monster-manual.json)")
-    parser.add_argument("book", help="source PDF for the vector arm's chunk texts")
-    parser.add_argument("--queries", default="eval/queries.json")
+    parser.add_argument("source", help="document: source PDF; code: repo source dir")
+    parser.add_argument(
+        "--domain", choices=["document", "code"], default="document", help="benchmark domain"
+    )
+    parser.add_argument("--queries", default=None)
     parser.add_argument("--model", default=DEFAULT_MODEL, help="judge model (OpenAI-compatible)")
     parser.add_argument(
         "--base-url", default=GROQ_BASE_URL, help="OpenAI-compatible judge endpoint (default Groq)"
@@ -118,18 +142,43 @@ def main(argv: list[str]) -> int:
     parser.add_argument(
         "--api-key-env", default="GROQ_API_KEY", help="env var holding the judge API key"
     )
+    parser.add_argument(
+        "--gen-base-url",
+        default=None,
+        help="OpenAI-compatible generation endpoint; if set, generate via it (free OSS tier) "
+        "instead of paid Anthropic",
+    )
+    parser.add_argument("--gen-api-key-env", default=None, help="env var for the generation key")
+    parser.add_argument(
+        "--gen-model",
+        default="meta/llama-3.3-70b-instruct",
+        help="generation model with --gen-base-url",
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--judge-runs", type=int, default=3)
     parser.add_argument(
+        "--judge-no-seed",
+        action="store_true",
+        help="omit the seed field from judge calls (some providers, e.g. Gemini, reject it)",
+    )
+    parser.add_argument(
         "--answers",
-        default="out/bench-answers.json",
+        default=None,
         help="cache of generated arm answers; reused if present so generation (paid) runs once",
     )
-    parser.add_argument("--out", default=DEFAULT_BASELINE)
-    parser.add_argument("--metrics", default=DEFAULT_METRICS)
+    parser.add_argument("--out", default=None)
+    parser.add_argument("--metrics", default=None)
     parser.add_argument("--tolerance", type=float, default=DEFAULT_TOLERANCE)
     parser.add_argument("--check", action="store_true", help="fail if drift exceeds tolerance")
     args = parser.parse_args(argv)
+
+    code = args.domain == "code"
+    args.queries = args.queries or ("eval/code-queries.json" if code else "eval/queries.json")
+    args.answers = args.answers or (
+        "out/code-bench-answers.json" if code else "out/bench-answers.json"
+    )
+    args.out = args.out or ("eval/code-benchmark-baseline.json" if code else DEFAULT_BASELINE)
+    args.metrics = args.metrics or ("METRICS-code.md" if code else DEFAULT_METRICS)
 
     api_key = os.environ.get(args.api_key_env)
     if not api_key:
@@ -138,20 +187,33 @@ def main(argv: list[str]) -> int:
 
     cases = load_eval_cases(args.queries)
     answers_path = Path(args.answers)
-    fingerprint = _fingerprint(Path(args.queries), args.graph, args.book)
+    fingerprint = _fingerprint(Path(args.queries), args.graph, args.source)
     cached = _load_answers(answers_path, fingerprint) if answers_path.exists() else None
     if cached is not None:
         responses_by_arm = cached
-        print(f"reusing cached answers from {answers_path} (skipping paid generation)")
+        print(f"reusing cached answers from {answers_path} (skipping generation)")
     else:
         if answers_path.exists():
-            print(f"cache {answers_path} is stale (query set/graph/book changed); regenerating")
-        if not os.environ.get("ANTHROPIC_API_KEY"):
-            print("ANTHROPIC_API_KEY not set (needed for generation)", file=sys.stderr)
-            return 2
-        arms = _build_arms(args.graph, args.book)
-        generator = AnthropicGenerator()
-        responses_by_arm = {arm: _precompute(r, cases, generator) for arm, r in arms.items()}
+            print(f"cache {answers_path} is stale (query set/graph/source changed); regenerating")
+        generator: Generator
+        if args.gen_base_url:
+            gen_key = os.environ.get(args.gen_api_key_env or "")
+            if not gen_key:
+                print(f"{args.gen_api_key_env} not set (needed for generation)", file=sys.stderr)
+                return 2
+            generator = OpenAICompatGenerator(
+                model=args.gen_model, api_key=gen_key, base_url=args.gen_base_url
+            )
+        else:
+            if not os.environ.get("ANTHROPIC_API_KEY"):
+                print("ANTHROPIC_API_KEY not set (needed for generation)", file=sys.stderr)
+                return 2
+            generator = AnthropicGenerator()
+        system = _CODE_SYSTEM if code else None
+        arms = _build_arms(args.graph, args.source, args.domain)
+        responses_by_arm = {
+            arm: _precompute(r, cases, generator, system) for arm, r in arms.items()
+        }
         _save_answers(answers_path, responses_by_arm, fingerprint)
         print(f"generated and cached answers to {answers_path}")
 
@@ -171,7 +233,12 @@ def main(argv: list[str]) -> int:
             flush=True,
         )
 
-    judge = OpenAICompatJudge(model=args.model, api_key=api_key, base_url=args.base_url)
+    judge = OpenAICompatJudge(
+        model=args.model,
+        api_key=api_key,
+        base_url=args.base_url,
+        send_seed=not args.judge_no_seed,
+    )
     report = run_benchmark(
         cases,
         responses_by_arm,
