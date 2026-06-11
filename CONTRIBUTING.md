@@ -37,6 +37,13 @@ Formato: ver os ADRs existentes (`dec-g1-...`). Status, Contexto, Decisão, Cons
 - Mensagem no imperativo, escopo pequeno por sub-task.
 - Um PR resolve uma sub-task ou um conjunto coeso.
 
+## Merge / integração
+
+- Branches integram na `main` por **rebase + fast-forward** — histórico linear, sem commits de merge.
+  Fluxo: `git rebase main` na branch, depois `git checkout main && git merge --ff-only <branch>`.
+- No GitHub, o único método habilitado é **Rebase and merge** (merge commit e squash desabilitados).
+- `git config pull.rebase true` mantém os pulls lineares também.
+
 ## Estilo
 
 - Voz ativa, prosa densa, sem fluff.
