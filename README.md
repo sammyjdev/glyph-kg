@@ -115,6 +115,7 @@ ADRs em [docs/decisions/](docs/decisions/):
 - **ADR-G4**: metodologia de eval (query set, judge OSS reference-free, bootstrap CI, custo).
 - **ADR-G5**: resolução de símbolo no code extractor (por nome único, limitação declarada).
 - **ADR-G6**: `GraphContextSource` é a fronteira de produto (satisfaz o port `Retriever`).
+- **ADR-G7**: eixo global por comunidades (Louvain seeded; isolamento por projeção de traversal podada).
 
 Resultados e reprodução: [METRICS.md](METRICS.md) (corrida real, n=25). Artigo técnico (validation-first) em [docs/article.md](docs/article.md); claims de portfólio em [docs/portfolio.md](docs/portfolio.md).
 
