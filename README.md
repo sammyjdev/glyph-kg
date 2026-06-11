@@ -114,7 +114,7 @@ ADRs em [docs/decisions/](docs/decisions/):
 
 ## Relação com AXON
 
-O AXON consome o GLYPH como dependência: o `GraphContextSource` do AXON (ADR-102 no repo do AXON) delega para esta lib. Code-graph e document-graph viram dois usos do mesmo núcleo.
+O AXON consome o GLYPH como dependência: o `GraphContextSource` do AXON (ADR-102 no repo do AXON) delega para `glyph.integration.GraphContextSource` desta lib. Code-graph e document-graph viram dois usos do mesmo núcleo. Contrato e fronteira em [docs/axon-integration.md](docs/axon-integration.md).
 
 ## Contribuindo
 
