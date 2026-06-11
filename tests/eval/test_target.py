@@ -11,7 +11,11 @@ gnomon_interfaces = pytest.importorskip("gnomon.domain.interfaces")
 
 def _arm() -> ArmResponse:
     return ArmResponse(
-        answer="Balor.", contexts=["Balor — immune_to fogo"], total_tokens=10, latency_ms=3.0
+        answer="Balor.",
+        contexts=["Balor — immune_to fogo"],
+        input_tokens=7,
+        output_tokens=3,
+        latency_ms=3.0,
     )
 
 
