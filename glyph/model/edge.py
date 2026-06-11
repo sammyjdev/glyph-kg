@@ -29,6 +29,8 @@ class EdgeType(StrEnum):
     VULNERABLE_TO = "vulnerable_to"
     INHABITS = "inhabits"
     SUMMONS = "summons"
+    # overlay (graph-derived): a community node to each of its members
+    CONTAINS = "contains"
 
 
 class Edge(BaseModel):

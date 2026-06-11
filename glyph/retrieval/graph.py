@@ -5,9 +5,15 @@ from collections.abc import Sequence
 from glyph.embed.memory_index import InMemoryVectorIndex
 from glyph.embed.port import Embedder
 from glyph.model.contract import ContextPack, Segment, pack
+from glyph.model.edge import EdgeType
 from glyph.model.graph import Subgraph
-from glyph.model.node import Node
+from glyph.model.node import Node, NodeType
 from glyph.store.port import GraphStore
+
+# The community overlay (P7) is a global-axis construct; local neighborhood expansion
+# must never traverse it, or COMMUNITY super-hubs collapse structural distances (dec-g7).
+_OVERLAY_NODE_TYPES = frozenset({NodeType.COMMUNITY})
+_OVERLAY_EDGE_TYPES = frozenset({EdgeType.CONTAINS})
 
 
 class GraphRetriever:
@@ -35,7 +41,12 @@ class GraphRetriever:
     def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
         query_vector = self._embedder.embed([query])[0]
         anchors = [key for key, _ in self._index.search(query_vector, self._anchors)]
-        subgraph = self._store.subgraph(anchors, self._hops)
+        subgraph = self._store.subgraph(
+            anchors,
+            self._hops,
+            exclude_node_types=_OVERLAY_NODE_TYPES,
+            exclude_edge_types=_OVERLAY_EDGE_TYPES,
+        )
         return pack("graph", self._segments(subgraph, set(anchors)), token_budget)
 
     def _segments(self, subgraph: Subgraph, anchors: set[str]) -> list[Segment]:

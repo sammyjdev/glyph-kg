@@ -63,6 +63,27 @@ def test_segment_text_includes_relations() -> None:
     assert "fogo" in goblin.text
 
 
+def test_retrieve_excludes_community_overlay_from_local_results() -> None:
+    # The store carries a COMMUNITY super-hub (CONTAINS goblin + a distant member).
+    # Local retrieval must not surface the overlay node nor teleport through CONTAINS.
+    nodes = _nodes()
+    store = _store(nodes)
+    store.upsert_nodes([Node(id="comm", type=NodeType.COMMUNITY, label="faction")])
+    store.upsert_edges(
+        [
+            Edge(src="comm", dst="goblin", type=EdgeType.CONTAINS),
+            Edge(src="comm", dst="caverna", type=EdgeType.CONTAINS),
+        ]
+    )
+    # anchors=1 isolates traversal from anchor selection: only goblin anchors, so
+    # caverna can appear ONLY if pulled through the CONTAINS hub (it must not).
+    retriever = GraphRetriever(store=store, embedder=_FakeEmbedder(), nodes=nodes, hops=1, anchors=1)
+    sources = {s.source for s in retriever.retrieve("goblin", token_budget=1000).segments}
+    assert "comm" not in sources  # overlay node never leaks into local context
+    assert "caverna" not in sources  # not pulled in via the CONTAINS hub
+    assert sources == {"goblin", "fogo"}
+
+
 def test_non_anchor_neighbors_break_score_ties_by_source() -> None:
     nodes = [
         Node(id="goblin", type=NodeType.ENTITY, label="Goblin"),
