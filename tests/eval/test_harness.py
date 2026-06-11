@@ -62,6 +62,51 @@ def test_score_arm_aggregates_metrics_and_cost() -> None:
     assert len(judge.calls) == 4
 
 
+def test_score_arm_streams_per_case_progress() -> None:
+    cases = [_case("q1"), _case("q2")]
+    responses = {"q1": _resp(100, 20, 10.0), "q2": _resp(300, 40, 30.0)}
+    judge = FakeJudge({"faithfulness": 0.8, "context_precision": 0.6})
+    seen: list[tuple[str, int, int, str, dict[str, float]]] = []
+
+    score_arm(
+        "graph",
+        cases,
+        responses,
+        judge,
+        seed=1,
+        judge_runs=2,
+        on_case=lambda arm, done, total, cid, sc: seen.append((arm, done, total, cid, dict(sc))),
+    )
+
+    assert [(s[0], s[1], s[2], s[3]) for s in seen] == [
+        ("graph", 1, 2, "q1"),
+        ("graph", 2, 2, "q2"),
+    ]
+    assert seen[0][4] == {"faithfulness": 0.8, "context_precision": 0.6}
+
+
+def test_run_benchmark_streams_each_arm_when_done() -> None:
+    cases = [_case("q1"), _case("q2")]
+    responses_by_arm = {
+        "graph": {"q1": _resp(100, 10, 5.0), "q2": _resp(100, 10, 5.0)},
+        "vector": {"q1": _resp(500, 10, 8.0), "q2": _resp(500, 10, 8.0)},
+    }
+    judge = FakeJudge({"faithfulness": 0.9, "context_precision": 0.5})
+    done_arms: list[str] = []
+
+    run_benchmark(
+        cases,
+        responses_by_arm,
+        judge,
+        judge_model="m",
+        seed=0,
+        judge_runs=1,
+        on_arm=lambda report: done_arms.append(report.arm),
+    )
+
+    assert done_arms == ["graph", "vector"]
+
+
 def test_run_benchmark_scores_every_arm() -> None:
     cases = [_case("q1"), _case("q2")]
     responses_by_arm = {

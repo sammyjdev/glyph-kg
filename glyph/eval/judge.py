@@ -19,6 +19,12 @@ if TYPE_CHECKING:
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
+# Transient-failure retry policy for the default poster. The free Groq tier rate-limits
+# (429) well below the ~225 calls a full run makes; we honour Retry-After and back off.
+_MAX_RETRIES = 6
+_BACKOFF_BASE_S = 2.0
+_RETRY_CODES = (429, 500, 502, 503)
+
 # poster(url, payload, headers, timeout_s) -> decoded JSON body. Injected in tests.
 JsonPoster = Callable[[str, dict[str, Any], dict[str, str], float], dict[str, Any]]
 
@@ -31,20 +37,35 @@ def _urllib_post(
     url: str, payload: dict[str, Any], headers: dict[str, str], timeout_s: float
 ) -> dict[str, Any]:  # pragma: no cover - real network wiring, exercised by the live test
     import json
+    import time
+    import urllib.error
     import urllib.request
 
     data = json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(
         url,
         data=data,
-        headers={**headers, "Content-Type": "application/json"},
+        # An explicit User-Agent is required: the default "Python-urllib/x.y" is
+        # rejected with HTTP 403 by Groq's Cloudflare edge.
+        headers={**headers, "Content-Type": "application/json", "User-Agent": "glyph-kg"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=timeout_s) as response:
-        if response.status != 200:
-            raise JudgeError(f"judge endpoint returned HTTP {response.status}")
-        body: dict[str, Any] = json.loads(response.read())
-    return body
+    for attempt in range(_MAX_RETRIES):
+        try:
+            with urllib.request.urlopen(request, timeout=timeout_s) as response:
+                body: dict[str, Any] = json.loads(response.read())
+            return body
+        except urllib.error.HTTPError as exc:
+            if exc.code not in _RETRY_CODES or attempt == _MAX_RETRIES - 1:
+                raise
+            retry_after = exc.headers.get("Retry-After")
+            time.sleep(float(retry_after) if retry_after else _BACKOFF_BASE_S * (2**attempt))
+        except (urllib.error.URLError, TimeoutError):
+            # Connection resets / read timeouts are transient under load on free tiers.
+            if attempt == _MAX_RETRIES - 1:
+                raise
+            time.sleep(_BACKOFF_BASE_S * (2**attempt))
+    raise JudgeError("judge endpoint exhausted retries")
 
 
 class OpenAICompatJudge:
@@ -57,7 +78,7 @@ class OpenAICompatJudge:
         api_key: str,
         base_url: str = GROQ_BASE_URL,
         poster: JsonPoster | None = None,
-        timeout_s: float = 60.0,
+        timeout_s: float = 120.0,
         temperature: float = 0.0,
     ) -> None:
         self.model_name = model
