@@ -36,6 +36,11 @@ embeddings = [
 eval = [
     "gnomon-eval @ git+https://github.com/sammyjdev/gnomon-eval.git",
 ]
+code = [
+    "tree-sitter>=0.23",
+    "tree-sitter-python>=0.23",
+    "tree-sitter-java>=0.23",
+]
 
 [project.urls]
 Homepage = "https://github.com/sammyjdev/glyph-kg"
@@ -70,6 +75,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["gnomon.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tree_sitter.*", "tree_sitter_python.*", "tree_sitter_java.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
