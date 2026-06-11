@@ -1,0 +1,1896 @@
+{
+  "nodes": [
+    {
+      "id": "__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "cli.py",
+      "type": "file",
+      "label": "cli.py",
+      "attrs": {}
+    },
+    {
+      "id": "cli.py::build_target",
+      "type": "function",
+      "label": "build_target",
+      "attrs": {}
+    },
+    {
+      "id": "cli.py::build_judge",
+      "type": "function",
+      "label": "build_judge",
+      "attrs": {}
+    },
+    {
+      "id": "cli.py::run_from_config",
+      "type": "function",
+      "label": "run_from_config",
+      "attrs": {}
+    },
+    {
+      "id": "cli.py::main",
+      "type": "function",
+      "label": "main",
+      "attrs": {}
+    },
+    {
+      "id": "config/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "config/config.py",
+      "type": "file",
+      "label": "config.py",
+      "attrs": {}
+    },
+    {
+      "id": "config/config.py::_coerce_bool",
+      "type": "function",
+      "label": "_coerce_bool",
+      "attrs": {}
+    },
+    {
+      "id": "config/config.py::EvalConfig",
+      "type": "class",
+      "label": "EvalConfig",
+      "attrs": {}
+    },
+    {
+      "id": "config/config.py::EvalConfig._judge_runs_meets_minimum",
+      "type": "function",
+      "label": "_judge_runs_meets_minimum",
+      "attrs": {}
+    },
+    {
+      "id": "config/config.py::EvalConfig._seed_required_in_reproducible_mode",
+      "type": "function",
+      "label": "_seed_required_in_reproducible_mode",
+      "attrs": {}
+    },
+    {
+      "id": "config/config.py::EvalConfig.from_mapping",
+      "type": "function",
+      "label": "from_mapping",
+      "attrs": {}
+    },
+    {
+      "id": "config/run_config.py",
+      "type": "file",
+      "label": "run_config.py",
+      "attrs": {}
+    },
+    {
+      "id": "config/run_config.py::TargetConfig",
+      "type": "class",
+      "label": "TargetConfig",
+      "attrs": {}
+    },
+    {
+      "id": "config/run_config.py::JudgeConfig",
+      "type": "class",
+      "label": "JudgeConfig",
+      "attrs": {}
+    },
+    {
+      "id": "config/run_config.py::GateConfig",
+      "type": "class",
+      "label": "GateConfig",
+      "attrs": {}
+    },
+    {
+      "id": "config/run_config.py::GateConfig._thresholds_in_unit_range",
+      "type": "function",
+      "label": "_thresholds_in_unit_range",
+      "attrs": {}
+    },
+    {
+      "id": "config/run_config.py::RunConfig",
+      "type": "class",
+      "label": "RunConfig",
+      "attrs": {}
+    },
+    {
+      "id": "config/run_config.py::RunConfig.from_file",
+      "type": "function",
+      "label": "from_file",
+      "attrs": {}
+    },
+    {
+      "id": "dataset/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "dataset/loader.py",
+      "type": "file",
+      "label": "loader.py",
+      "attrs": {}
+    },
+    {
+      "id": "dataset/loader.py::DatasetError",
+      "type": "class",
+      "label": "DatasetError",
+      "attrs": {}
+    },
+    {
+      "id": "dataset/loader.py::load_dataset",
+      "type": "function",
+      "label": "load_dataset",
+      "attrs": {}
+    },
+    {
+      "id": "domain/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "domain/interfaces.py",
+      "type": "file",
+      "label": "interfaces.py",
+      "attrs": {}
+    },
+    {
+      "id": "domain/interfaces.py::RagTarget",
+      "type": "class",
+      "label": "RagTarget",
+      "attrs": {}
+    },
+    {
+      "id": "domain/interfaces.py::RagTarget.query",
+      "type": "function",
+      "label": "query",
+      "attrs": {}
+    },
+    {
+      "id": "domain/interfaces.py::Judge",
+      "type": "class",
+      "label": "Judge",
+      "attrs": {}
+    },
+    {
+      "id": "domain/interfaces.py::Judge.score",
+      "type": "function",
+      "label": "score",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py",
+      "type": "file",
+      "label": "models.py",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::EvalCase",
+      "type": "class",
+      "label": "EvalCase",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::RagResponse",
+      "type": "class",
+      "label": "RagResponse",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::MetricScores",
+      "type": "class",
+      "label": "MetricScores",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::MetricScores._scores_in_unit_range",
+      "type": "function",
+      "label": "_scores_in_unit_range",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::MetricResult",
+      "type": "class",
+      "label": "MetricResult",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::MetricResult._interval_is_ordered",
+      "type": "function",
+      "label": "_interval_is_ordered",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::CaseCost",
+      "type": "class",
+      "label": "CaseCost",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::EvalReport",
+      "type": "class",
+      "label": "EvalReport",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::EvalReport.metric",
+      "type": "function",
+      "label": "metric",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::EvalReport.total_tokens",
+      "type": "function",
+      "label": "total_tokens",
+      "attrs": {}
+    },
+    {
+      "id": "domain/models.py::EvalReport.mean_latency_ms",
+      "type": "function",
+      "label": "mean_latency_ms",
+      "attrs": {}
+    },
+    {
+      "id": "gate/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "gate/gate.py",
+      "type": "file",
+      "label": "gate.py",
+      "attrs": {}
+    },
+    {
+      "id": "gate/gate.py::GateResult",
+      "type": "class",
+      "label": "GateResult",
+      "attrs": {}
+    },
+    {
+      "id": "gate/gate.py::evaluate_gate",
+      "type": "function",
+      "label": "evaluate_gate",
+      "attrs": {}
+    },
+    {
+      "id": "http.py",
+      "type": "file",
+      "label": "http.py",
+      "attrs": {}
+    },
+    {
+      "id": "http.py::TransportError",
+      "type": "class",
+      "label": "TransportError",
+      "attrs": {}
+    },
+    {
+      "id": "http.py::HttpTransport",
+      "type": "class",
+      "label": "HttpTransport",
+      "attrs": {}
+    },
+    {
+      "id": "http.py::HttpTransport.post_json",
+      "type": "function",
+      "label": "post_json",
+      "attrs": {}
+    },
+    {
+      "id": "http.py::UrllibTransport",
+      "type": "class",
+      "label": "UrllibTransport",
+      "attrs": {}
+    },
+    {
+      "id": "http.py::UrllibTransport.post_json",
+      "type": "function",
+      "label": "post_json",
+      "attrs": {}
+    },
+    {
+      "id": "judge/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "judge/cache.py",
+      "type": "file",
+      "label": "cache.py",
+      "attrs": {}
+    },
+    {
+      "id": "judge/cache.py::JudgeCache",
+      "type": "class",
+      "label": "JudgeCache",
+      "attrs": {}
+    },
+    {
+      "id": "judge/cache.py::JudgeCache.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "judge/cache.py::JudgeCache._key",
+      "type": "function",
+      "label": "_key",
+      "attrs": {}
+    },
+    {
+      "id": "judge/cache.py::JudgeCache.get",
+      "type": "function",
+      "label": "get",
+      "attrs": {}
+    },
+    {
+      "id": "judge/cache.py::JudgeCache.put",
+      "type": "function",
+      "label": "put",
+      "attrs": {}
+    },
+    {
+      "id": "judge/ollama.py",
+      "type": "file",
+      "label": "ollama.py",
+      "attrs": {}
+    },
+    {
+      "id": "judge/ollama.py::JudgeError",
+      "type": "class",
+      "label": "JudgeError",
+      "attrs": {}
+    },
+    {
+      "id": "judge/ollama.py::JudgeRuntimeError",
+      "type": "class",
+      "label": "JudgeRuntimeError",
+      "attrs": {}
+    },
+    {
+      "id": "judge/ollama.py::JudgeProtocolError",
+      "type": "class",
+      "label": "JudgeProtocolError",
+      "attrs": {}
+    },
+    {
+      "id": "judge/ollama.py::OllamaJudge",
+      "type": "class",
+      "label": "OllamaJudge",
+      "attrs": {}
+    },
+    {
+      "id": "judge/ollama.py::OllamaJudge.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "judge/ollama.py::OllamaJudge.score",
+      "type": "function",
+      "label": "score",
+      "attrs": {}
+    },
+    {
+      "id": "judge/ollama.py::OllamaJudge._score_all",
+      "type": "function",
+      "label": "_score_all",
+      "attrs": {}
+    },
+    {
+      "id": "judge/prompts.py",
+      "type": "file",
+      "label": "prompts.py",
+      "attrs": {}
+    },
+    {
+      "id": "judge/prompts.py::build_prompt",
+      "type": "function",
+      "label": "build_prompt",
+      "attrs": {}
+    },
+    {
+      "id": "judge/stub.py",
+      "type": "file",
+      "label": "stub.py",
+      "attrs": {}
+    },
+    {
+      "id": "judge/stub.py::StubJudge",
+      "type": "class",
+      "label": "StubJudge",
+      "attrs": {}
+    },
+    {
+      "id": "judge/stub.py::StubJudge.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "judge/stub.py::StubJudge.score",
+      "type": "function",
+      "label": "score",
+      "attrs": {}
+    },
+    {
+      "id": "judge/stub.py::StubJudge._derive_seed",
+      "type": "function",
+      "label": "_derive_seed",
+      "attrs": {}
+    },
+    {
+      "id": "metrics/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "metrics/confidence.py",
+      "type": "file",
+      "label": "confidence.py",
+      "attrs": {}
+    },
+    {
+      "id": "metrics/confidence.py::aggregate_metric",
+      "type": "function",
+      "label": "aggregate_metric",
+      "attrs": {}
+    },
+    {
+      "id": "metrics/names.py",
+      "type": "file",
+      "label": "names.py",
+      "attrs": {}
+    },
+    {
+      "id": "reporting/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "reporting/report.py",
+      "type": "file",
+      "label": "report.py",
+      "attrs": {}
+    },
+    {
+      "id": "reporting/report.py::to_dict",
+      "type": "function",
+      "label": "to_dict",
+      "attrs": {}
+    },
+    {
+      "id": "reporting/report.py::to_text",
+      "type": "function",
+      "label": "to_text",
+      "attrs": {}
+    },
+    {
+      "id": "runner/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "runner/runner.py",
+      "type": "file",
+      "label": "runner.py",
+      "attrs": {}
+    },
+    {
+      "id": "runner/runner.py::run_eval",
+      "type": "function",
+      "label": "run_eval",
+      "attrs": {}
+    },
+    {
+      "id": "targets/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "targets/mock.py",
+      "type": "file",
+      "label": "mock.py",
+      "attrs": {}
+    },
+    {
+      "id": "targets/mock.py::MockTarget",
+      "type": "class",
+      "label": "MockTarget",
+      "attrs": {}
+    },
+    {
+      "id": "targets/mock.py::MockTarget.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "targets/mock.py::MockTarget.query",
+      "type": "function",
+      "label": "query",
+      "attrs": {}
+    },
+    {
+      "id": "targets/openai_compat.py",
+      "type": "file",
+      "label": "openai_compat.py",
+      "attrs": {}
+    },
+    {
+      "id": "targets/openai_compat.py::OpenAICompatError",
+      "type": "class",
+      "label": "OpenAICompatError",
+      "attrs": {}
+    },
+    {
+      "id": "targets/openai_compat.py::TargetConfigError",
+      "type": "class",
+      "label": "TargetConfigError",
+      "attrs": {}
+    },
+    {
+      "id": "targets/openai_compat.py::TargetRuntimeError",
+      "type": "class",
+      "label": "TargetRuntimeError",
+      "attrs": {}
+    },
+    {
+      "id": "targets/openai_compat.py::IncompleteResponseError",
+      "type": "class",
+      "label": "IncompleteResponseError",
+      "attrs": {}
+    },
+    {
+      "id": "targets/openai_compat.py::OpenAICompatTarget",
+      "type": "class",
+      "label": "OpenAICompatTarget",
+      "attrs": {}
+    },
+    {
+      "id": "targets/openai_compat.py::OpenAICompatTarget.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "targets/openai_compat.py::OpenAICompatTarget.query",
+      "type": "function",
+      "label": "query",
+      "attrs": {}
+    },
+    {
+      "id": "module:argparse",
+      "type": "module",
+      "label": "argparse",
+      "attrs": {}
+    },
+    {
+      "id": "module:json",
+      "type": "module",
+      "label": "json",
+      "attrs": {}
+    },
+    {
+      "id": "module:os",
+      "type": "module",
+      "label": "os",
+      "attrs": {}
+    },
+    {
+      "id": "module:sys",
+      "type": "module",
+      "label": "sys",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.config.run_config",
+      "type": "module",
+      "label": "gnomon.config.run_config",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.dataset.loader",
+      "type": "module",
+      "label": "gnomon.dataset.loader",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.domain.interfaces",
+      "type": "module",
+      "label": "gnomon.domain.interfaces",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.gate.gate",
+      "type": "module",
+      "label": "gnomon.gate.gate",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.judge.cache",
+      "type": "module",
+      "label": "gnomon.judge.cache",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.judge.ollama",
+      "type": "module",
+      "label": "gnomon.judge.ollama",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.judge.stub",
+      "type": "module",
+      "label": "gnomon.judge.stub",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.reporting.report",
+      "type": "module",
+      "label": "gnomon.reporting.report",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.runner.runner",
+      "type": "module",
+      "label": "gnomon.runner.runner",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.targets.mock",
+      "type": "module",
+      "label": "gnomon.targets.mock",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.targets.openai_compat",
+      "type": "module",
+      "label": "gnomon.targets.openai_compat",
+      "attrs": {}
+    },
+    {
+      "id": "module:collections.abc",
+      "type": "module",
+      "label": "collections.abc",
+      "attrs": {}
+    },
+    {
+      "id": "module:typing",
+      "type": "module",
+      "label": "typing",
+      "attrs": {}
+    },
+    {
+      "id": "module:pydantic",
+      "type": "module",
+      "label": "pydantic",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.metrics.confidence",
+      "type": "module",
+      "label": "gnomon.metrics.confidence",
+      "attrs": {}
+    },
+    {
+      "id": "module:tomllib",
+      "type": "module",
+      "label": "tomllib",
+      "attrs": {}
+    },
+    {
+      "id": "module:pathlib",
+      "type": "module",
+      "label": "pathlib",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.config.config",
+      "type": "module",
+      "label": "gnomon.config.config",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.domain.models",
+      "type": "module",
+      "label": "gnomon.domain.models",
+      "attrs": {}
+    },
+    {
+      "id": "module:dataclasses",
+      "type": "module",
+      "label": "dataclasses",
+      "attrs": {}
+    },
+    {
+      "id": "module:urllib.error",
+      "type": "module",
+      "label": "urllib.error",
+      "attrs": {}
+    },
+    {
+      "id": "module:urllib.request",
+      "type": "module",
+      "label": "urllib.request",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.http",
+      "type": "module",
+      "label": "gnomon.http",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.judge.prompts",
+      "type": "module",
+      "label": "gnomon.judge.prompts",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.metrics.names",
+      "type": "module",
+      "label": "gnomon.metrics.names",
+      "attrs": {}
+    },
+    {
+      "id": "module:hashlib",
+      "type": "module",
+      "label": "hashlib",
+      "attrs": {}
+    },
+    {
+      "id": "module:random",
+      "type": "module",
+      "label": "random",
+      "attrs": {}
+    },
+    {
+      "id": "module:collections",
+      "type": "module",
+      "label": "collections",
+      "attrs": {}
+    },
+    {
+      "id": "module:time",
+      "type": "module",
+      "label": "time",
+      "attrs": {}
+    }
+  ],
+  "edges": [
+    {
+      "src": "cli.py",
+      "dst": "cli.py::build_target",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "cli.py::build_judge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "cli.py::run_from_config",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "cli.py::main",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py",
+      "dst": "config/config.py::_coerce_bool",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py",
+      "dst": "config/config.py::EvalConfig",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py::EvalConfig",
+      "dst": "config/config.py::EvalConfig._judge_runs_meets_minimum",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py::EvalConfig",
+      "dst": "config/config.py::EvalConfig._seed_required_in_reproducible_mode",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py::EvalConfig",
+      "dst": "config/config.py::EvalConfig.from_mapping",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "config/run_config.py::TargetConfig",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "config/run_config.py::JudgeConfig",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "config/run_config.py::GateConfig",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py::GateConfig",
+      "dst": "config/run_config.py::GateConfig._thresholds_in_unit_range",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "config/run_config.py::RunConfig",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py::RunConfig",
+      "dst": "config/run_config.py::RunConfig.from_file",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py",
+      "dst": "dataset/loader.py::DatasetError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py",
+      "dst": "dataset/loader.py::load_dataset",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/interfaces.py",
+      "dst": "domain/interfaces.py::RagTarget",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/interfaces.py::RagTarget",
+      "dst": "domain/interfaces.py::RagTarget.query",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/interfaces.py",
+      "dst": "domain/interfaces.py::Judge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/interfaces.py::Judge",
+      "dst": "domain/interfaces.py::Judge.score",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py",
+      "dst": "domain/models.py::EvalCase",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py",
+      "dst": "domain/models.py::RagResponse",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py",
+      "dst": "domain/models.py::MetricScores",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py::MetricScores",
+      "dst": "domain/models.py::MetricScores._scores_in_unit_range",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py",
+      "dst": "domain/models.py::MetricResult",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py::MetricResult",
+      "dst": "domain/models.py::MetricResult._interval_is_ordered",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py",
+      "dst": "domain/models.py::CaseCost",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py",
+      "dst": "domain/models.py::EvalReport",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py::EvalReport",
+      "dst": "domain/models.py::EvalReport.metric",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py::EvalReport",
+      "dst": "domain/models.py::EvalReport.total_tokens",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py::EvalReport",
+      "dst": "domain/models.py::EvalReport.mean_latency_ms",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "gate/gate.py",
+      "dst": "gate/gate.py::GateResult",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "gate/gate.py",
+      "dst": "gate/gate.py::evaluate_gate",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "http.py",
+      "dst": "http.py::TransportError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "http.py",
+      "dst": "http.py::HttpTransport",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "http.py::HttpTransport",
+      "dst": "http.py::HttpTransport.post_json",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "http.py",
+      "dst": "http.py::UrllibTransport",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "http.py::UrllibTransport",
+      "dst": "http.py::UrllibTransport.post_json",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py",
+      "dst": "judge/cache.py::JudgeCache",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py::JudgeCache",
+      "dst": "judge/cache.py::JudgeCache.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py::JudgeCache",
+      "dst": "judge/cache.py::JudgeCache._key",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py::JudgeCache",
+      "dst": "judge/cache.py::JudgeCache.get",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py::JudgeCache",
+      "dst": "judge/cache.py::JudgeCache.put",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "judge/ollama.py::JudgeError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "judge/ollama.py::JudgeRuntimeError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "judge/ollama.py::JudgeProtocolError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "judge/ollama.py::OllamaJudge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge",
+      "dst": "judge/ollama.py::OllamaJudge.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge",
+      "dst": "judge/ollama.py::OllamaJudge.score",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge",
+      "dst": "judge/ollama.py::OllamaJudge._score_all",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/prompts.py",
+      "dst": "judge/prompts.py::build_prompt",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py",
+      "dst": "judge/stub.py::StubJudge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py::StubJudge",
+      "dst": "judge/stub.py::StubJudge.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py::StubJudge",
+      "dst": "judge/stub.py::StubJudge.score",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py::StubJudge",
+      "dst": "judge/stub.py::StubJudge._derive_seed",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "metrics/confidence.py",
+      "dst": "metrics/confidence.py::aggregate_metric",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "reporting/report.py",
+      "dst": "reporting/report.py::to_dict",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "reporting/report.py",
+      "dst": "reporting/report.py::to_text",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py",
+      "dst": "runner/runner.py::run_eval",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/mock.py",
+      "dst": "targets/mock.py::MockTarget",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/mock.py::MockTarget",
+      "dst": "targets/mock.py::MockTarget.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/mock.py::MockTarget",
+      "dst": "targets/mock.py::MockTarget.query",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py",
+      "dst": "targets/openai_compat.py::OpenAICompatError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py",
+      "dst": "targets/openai_compat.py::TargetConfigError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py",
+      "dst": "targets/openai_compat.py::TargetRuntimeError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py",
+      "dst": "targets/openai_compat.py::IncompleteResponseError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py",
+      "dst": "targets/openai_compat.py::OpenAICompatTarget",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::OpenAICompatTarget",
+      "dst": "targets/openai_compat.py::OpenAICompatTarget.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::OpenAICompatTarget",
+      "dst": "targets/openai_compat.py::OpenAICompatTarget.query",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:argparse",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:json",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:os",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:sys",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.config.run_config",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.dataset.loader",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.domain.interfaces",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.gate.gate",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.judge.cache",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.judge.ollama",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.judge.stub",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.reporting.report",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.runner.runner",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.targets.mock",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py",
+      "dst": "module:gnomon.targets.openai_compat",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py",
+      "dst": "module:gnomon.metrics.confidence",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "module:tomllib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "module:pathlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py",
+      "dst": "module:gnomon.config.config",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py",
+      "dst": "module:json",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py",
+      "dst": "module:pathlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "domain/interfaces.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "domain/interfaces.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "domain/models.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "gate/gate.py",
+      "dst": "module:dataclasses",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "gate/gate.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "http.py",
+      "dst": "module:json",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "http.py",
+      "dst": "module:urllib.error",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "http.py",
+      "dst": "module:urllib.request",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "http.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "module:json",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "module:gnomon.http",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "module:gnomon.judge.cache",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "module:gnomon.judge.prompts",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py",
+      "dst": "module:gnomon.metrics.names",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/prompts.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/prompts.py",
+      "dst": "module:gnomon.metrics.names",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py",
+      "dst": "module:hashlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py",
+      "dst": "module:random",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py",
+      "dst": "module:gnomon.metrics.names",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "metrics/confidence.py",
+      "dst": "module:random",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "metrics/confidence.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "reporting/report.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py",
+      "dst": "module:collections",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py",
+      "dst": "module:gnomon.config.config",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py",
+      "dst": "module:gnomon.domain.interfaces",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py",
+      "dst": "module:gnomon.metrics.confidence",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "targets/mock.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py",
+      "dst": "module:time",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py",
+      "dst": "module:gnomon.http",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::build_target",
+      "dst": "targets/mock.py::MockTarget",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::build_target",
+      "dst": "judge/cache.py::JudgeCache.get",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::build_target",
+      "dst": "targets/openai_compat.py::OpenAICompatTarget",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::build_judge",
+      "dst": "judge/stub.py::StubJudge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::build_judge",
+      "dst": "judge/ollama.py::OllamaJudge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::build_judge",
+      "dst": "judge/cache.py::JudgeCache",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::run_from_config",
+      "dst": "dataset/loader.py::load_dataset",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::run_from_config",
+      "dst": "cli.py::build_target",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::run_from_config",
+      "dst": "cli.py::build_judge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::run_from_config",
+      "dst": "runner/runner.py::run_eval",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::run_from_config",
+      "dst": "gate/gate.py::evaluate_gate",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::main",
+      "dst": "config/run_config.py::RunConfig.from_file",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::main",
+      "dst": "cli.py::run_from_config",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::main",
+      "dst": "reporting/report.py::to_dict",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "cli.py::main",
+      "dst": "reporting/report.py::to_text",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "config/config.py::EvalConfig.from_mapping",
+      "dst": "config/config.py::_coerce_bool",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "config/run_config.py::RunConfig.from_file",
+      "dst": "judge/cache.py::JudgeCache.get",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py::load_dataset",
+      "dst": "dataset/loader.py::DatasetError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py::load_dataset",
+      "dst": "judge/cache.py::JudgeCache.get",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "dataset/loader.py::load_dataset",
+      "dst": "domain/models.py::EvalCase",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "gate/gate.py::evaluate_gate",
+      "dst": "domain/models.py::EvalReport.metric",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "gate/gate.py::evaluate_gate",
+      "dst": "gate/gate.py::GateResult",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "http.py::UrllibTransport.post_json",
+      "dst": "http.py::TransportError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py::JudgeCache.get",
+      "dst": "judge/cache.py::JudgeCache.get",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py::JudgeCache.get",
+      "dst": "judge/cache.py::JudgeCache._key",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/cache.py::JudgeCache.put",
+      "dst": "judge/cache.py::JudgeCache._key",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge.__init__",
+      "dst": "http.py::UrllibTransport",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge.score",
+      "dst": "judge/cache.py::JudgeCache.get",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge.score",
+      "dst": "judge/ollama.py::OllamaJudge._score_all",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge.score",
+      "dst": "judge/cache.py::JudgeCache.put",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge._score_all",
+      "dst": "judge/prompts.py::build_prompt",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge._score_all",
+      "dst": "judge/ollama.py::JudgeRuntimeError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge._score_all",
+      "dst": "judge/ollama.py::JudgeProtocolError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::OllamaJudge._score_all",
+      "dst": "domain/models.py::MetricScores",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py::StubJudge.score",
+      "dst": "judge/stub.py::StubJudge._derive_seed",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/stub.py::StubJudge.score",
+      "dst": "domain/models.py::MetricScores",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "metrics/confidence.py::aggregate_metric",
+      "dst": "domain/models.py::MetricResult",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py::run_eval",
+      "dst": "domain/models.py::CaseCost",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py::run_eval",
+      "dst": "metrics/confidence.py::aggregate_metric",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "runner/runner.py::run_eval",
+      "dst": "domain/models.py::EvalReport",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "targets/mock.py::MockTarget.__init__",
+      "dst": "domain/models.py::RagResponse",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::OpenAICompatTarget.__init__",
+      "dst": "targets/openai_compat.py::TargetConfigError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::OpenAICompatTarget.__init__",
+      "dst": "http.py::UrllibTransport",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::OpenAICompatTarget.query",
+      "dst": "targets/openai_compat.py::TargetRuntimeError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::OpenAICompatTarget.query",
+      "dst": "judge/cache.py::JudgeCache.get",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::OpenAICompatTarget.query",
+      "dst": "targets/openai_compat.py::IncompleteResponseError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::OpenAICompatTarget.query",
+      "dst": "domain/models.py::RagResponse",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::JudgeRuntimeError",
+      "dst": "judge/ollama.py::JudgeError",
+      "type": "inherits",
+      "attrs": {}
+    },
+    {
+      "src": "judge/ollama.py::JudgeProtocolError",
+      "dst": "judge/ollama.py::JudgeError",
+      "type": "inherits",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::TargetConfigError",
+      "dst": "targets/openai_compat.py::OpenAICompatError",
+      "type": "inherits",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::TargetRuntimeError",
+      "dst": "targets/openai_compat.py::OpenAICompatError",
+      "type": "inherits",
+      "attrs": {}
+    },
+    {
+      "src": "targets/openai_compat.py::IncompleteResponseError",
+      "dst": "targets/openai_compat.py::OpenAICompatError",
+      "type": "inherits",
+      "attrs": {}
+    }
+  ]
+}
