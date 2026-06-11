@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from time import perf_counter
 from typing import Protocol
 
+from glyph.eval.judge import GROQ_BASE_URL, JsonPoster, _urllib_post
 from glyph.eval.response import ArmResponse
 from glyph.retrieval.port import Retriever
 
@@ -47,17 +48,22 @@ class AnswerGenerator:
     """Retrieve context for a question, generate a grounded answer, instrument the cost."""
 
     def __init__(
-        self, retriever: Retriever, generator: Generator, token_budget: int = 1000
+        self,
+        retriever: Retriever,
+        generator: Generator,
+        token_budget: int = 1000,
+        system: str = _SYSTEM,
     ) -> None:
         self._retriever = retriever
         self._generator = generator
         self._token_budget = token_budget
+        self._system = system
 
     def answer(self, question: str) -> ArmResponse:
         start = perf_counter()
         pack = self._retriever.retrieve(question, self._token_budget)
         contexts = [segment.text for segment in pack.segments]
-        text, usage = self._generator.generate(_SYSTEM, build_prompt(question, contexts))
+        text, usage = self._generator.generate(self._system, build_prompt(question, contexts))
         latency_ms = (perf_counter() - start) * 1000.0
         return ArmResponse(
             answer=text,
@@ -90,5 +96,50 @@ class AnthropicGenerator:
         usage = Usage(
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
+        )
+        return text, usage
+
+
+class OpenAICompatGenerator:
+    """Grounded generation via any OpenAI-compatible endpoint (NVIDIA NIM, Groq, ...).
+
+    Lets the benchmark generate answers on a free OSS tier instead of paid Anthropic.
+    The arms are still compared against each other under one generator, so the
+    within-domain comparison stays fair; only the model identity differs from the
+    document baseline (declared, not assumed). Reuses the judge's HTTP transport.
+    """
+
+    def __init__(
+        self,
+        *,
+        model: str,
+        api_key: str,
+        base_url: str = GROQ_BASE_URL,
+        poster: JsonPoster | None = None,
+        timeout_s: float = 120.0,
+        max_tokens: int = 1024,
+    ) -> None:
+        self._model = model
+        self._url = base_url.rstrip("/") + "/chat/completions"
+        self._api_key = api_key
+        self._post = poster or _urllib_post
+        self._timeout_s = timeout_s
+        self._max_tokens = max_tokens
+
+    def generate(self, system: str, prompt: str) -> tuple[str, Usage]:
+        payload = {
+            "model": self._model,
+            "max_tokens": self._max_tokens,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+        }
+        headers = {"Authorization": f"Bearer {self._api_key}"}
+        body = self._post(self._url, payload, headers, self._timeout_s)
+        text: str = body["choices"][0]["message"]["content"]
+        usage = Usage(
+            input_tokens=body["usage"]["prompt_tokens"],
+            output_tokens=body["usage"]["completion_tokens"],
         )
         return text, usage
