@@ -1,0 +1,47 @@
+{
+  "_note": "Semantic (vector-favored) code queries. Authored AND oracle-verified by a Fable-5 subagent against axon src/axon: every relpath in `relevant` was read-checked to exist and be relevant. Merged with auto-generated structural queries by scripts/build_code_query_set.py.",
+  "queries": [
+    {
+      "id": "sem-supersession-penalty",
+      "question": "Como o AXON decide que uma decisão antiga foi superseded no ranking de recall, e qual penalidade ela recebe?",
+      "relevant": ["recall/supersession.py", "recall/strategy.py"],
+      "answer_key": "Soft supersession (dec-115): mesma scope + verbo de revisão EN/PT na summary mais nova OU near-duplicate cosine >= 0.93; rank x 0.02 (demote, nunca delete)."
+    },
+    {
+      "id": "sem-composite-cache-key",
+      "question": "How is the cache key for the prompt context layers built, and what components go into it?",
+      "relevant": ["context/cache_key.py", "router/engine.py"],
+      "answer_key": "build_composite_cache_key joins sha256(content) | ctx | policy_version | model | provider-availability; the router caches static/semi-static layers with it."
+    },
+    {
+      "id": "sem-chunking-treesitter",
+      "question": "Como o chunker divide código-fonte em chunks para indexação — quais unidades viram chunks e qual o limite de tamanho?",
+      "relevant": ["embedder/chunker.py"],
+      "answer_key": "Tree-sitter (Java/Python/TS/TSX) extrai methods, constructors, classes, interfaces, enums, records e annotations; _MAX_CHUNK_LINES = 80."
+    },
+    {
+      "id": "sem-profile-model-routing",
+      "question": "Which LLM models do the FREE and PAID provider profiles map each task type to?",
+      "relevant": ["router/profiles.py"],
+      "answer_key": "FREE -> Groq llama-3.1-8b/3.3-70b + NVIDIA NIM llama-3.1-70b per tier; PAID -> OpenRouter Claude haiku-4/sonnet-4/opus-4; classifier groq/llama-3.1-8b-instant."
+    },
+    {
+      "id": "sem-sqlite-busy-retry",
+      "question": "O que acontece quando um write no SQLite falha com SQLITE_BUSY — como funciona o retry e o fallback?",
+      "relevant": ["store/retry.py", "store/pending.py"],
+      "answer_key": "with_retry: exponential backoff com jitter dentro de um budget (10s); esgotado, serializa em .axon/pending/ via atomic rename e replay por drain, com quarantine (dec-112)."
+    },
+    {
+      "id": "sem-adr-density-gate",
+      "question": "How does the ADR density gate decide a rationale is genuine commentary rather than boilerplate or a paraphrase of the diff?",
+      "relevant": ["adr/gates/density.py"],
+      "answer_key": "Requires >=1 architectural-lexicon token absent from the diff and rejects when >85% of rationale tokens overlap the diff (checks relaxed in structural mode)."
+    },
+    {
+      "id": "sem-destructive-consent-gate",
+      "question": "Onde e como o AXON bloqueia ferramentas MCP destrutivas sem consentimento explícito do usuário?",
+      "relevant": ["policy/core.py", "observability/traced_tool.py"],
+      "answer_key": "PolicyEngine.decide_tool_action nega risk=destructive (DENY_DESTRUCTIVE_NO_CONSENT) sem AXON_ALLOW_DESTRUCTIVE, e write/destructive em ctx restrito; @traced_tool re-checa a cada chamada."
+    }
+  ]
+}
