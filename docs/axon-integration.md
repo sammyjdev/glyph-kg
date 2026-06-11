@@ -6,21 +6,29 @@ The matching changes inside the AXON repo (ADR-102/103) are tracked there, not h
 
 ## The seam GLYPH provides
 
-`glyph.integration.GraphContextSource` is the single entry point AXON delegates to:
+`glyph.integration.GraphContextSource` is the single entry point AXON delegates to. It
+satisfies the `Retriever` port (`retrieve(query, token_budget) -> ContextPack`), so it
+drops in anywhere a retriever is expected.
 
 ```python
 from glyph.integration import GraphContextSource
 from glyph.embed.sentence_transformers_embedder import SentenceTransformerEmbedder
 
+# Persisted graph (document or code) from disk:
 source = GraphContextSource.from_graph_file("out/monster-manual.json", SentenceTransformerEmbedder())
-pack = source.context("how does spell resistance interact with elemental damage", token_budget=1000)
+
+# Or in-memory, when the caller already holds a GraphStore + node list (AXON's case):
+# source = GraphContextSource(store, embedder, nodes)
+
+pack = source.retrieve("how does spell resistance interact with elemental damage", token_budget=1000)
 # pack.segments -> graph-aware context, the same ContextPack contract as every benchmark arm
 ```
 
-- `context(query, token_budget)` returns a `ContextPack` — the same unified output the
+- `retrieve(query, token_budget)` returns a `ContextPack` — the same unified output the
   vector and hybrid arms produce, so AXON's downstream is contract-stable.
-- `from_graph_file` loads a persisted NetworkX graph (document **or** code — both are the
-  same core), folding the load + node-listing + retriever wiring into one call.
+- `GraphContextSource(store, embedder, nodes)` is the in-memory entry; `from_graph_file`
+  loads a persisted NetworkX graph (document **or** code — both the same core), folding the
+  load + node-listing + retriever wiring into one call.
 
 ## What stays on the AXON side (out of this repo's scope)
 
@@ -34,6 +42,6 @@ pack = source.context("how does spell resistance interact with elemental damage"
 ## Why this shape
 
 The facade is deliberately thin: it adds a **stable, named boundary** so AXON depends on
-`GraphContextSource.context()` rather than on `GraphRetriever`'s constructor details (which
+`GraphContextSource.retrieve()` rather than on `GraphRetriever`'s constructor details (which
 need an embedder and a node list wired up). The boundary can evolve (hops, anchors, hybrid
 fusion) without breaking AXON.
