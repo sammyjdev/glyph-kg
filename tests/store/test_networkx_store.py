@@ -102,6 +102,65 @@ def test_shortest_path_returns_none_for_unknown_node(store: NetworkXStore) -> No
     assert store.shortest_path("a", "ghost") is None
 
 
+@pytest.fixture
+def hub_store() -> NetworkXStore:
+    # structural path a -> b -> c -> d (a and d are 3 hops apart), plus a COMMUNITY
+    # super-hub linked to a and d by CONTAINS (the overlay added by P7).
+    s = NetworkXStore()
+    s.upsert_nodes([_node("a"), _node("b"), _node("c"), _node("d")])
+    s.upsert_nodes([Node(id="comm", type=NodeType.COMMUNITY, label="faction")])
+    s.upsert_edges(
+        [
+            Edge(src="a", dst="b", type=EdgeType.RELATES_TO),
+            Edge(src="b", dst="c", type=EdgeType.RELATES_TO),
+            Edge(src="c", dst="d", type=EdgeType.RELATES_TO),
+            Edge(src="comm", dst="a", type=EdgeType.CONTAINS),
+            Edge(src="comm", dst="d", type=EdgeType.CONTAINS),
+        ]
+    )
+    return s
+
+
+def test_subgraph_without_exclusion_super_hub_collapses_distance(hub_store: NetworkXStore) -> None:
+    # WITHOUT pruning: the CONTAINS super-hub teleports a..d to 2 hops (a->comm->d)
+    # and leaks the COMMUNITY node. This documents the bug the exclusion fixes.
+    got = _ids(hub_store.subgraph(seed=["a"], hops=2).nodes)
+    assert "comm" in got
+    assert "d" in got  # structurally 3 hops, but reachable via the hub
+
+
+def test_subgraph_excludes_overlay_node_and_edge_types(hub_store: NetworkXStore) -> None:
+    # WITH pruning: COMMUNITY/CONTAINS are invisible to local traversal, so distances
+    # stay structural (d unreachable in 2 hops) and the hub never leaks.
+    got = _ids(
+        hub_store.subgraph(
+            seed=["a"],
+            hops=2,
+            exclude_node_types={NodeType.COMMUNITY},
+            exclude_edge_types={EdgeType.CONTAINS},
+        ).nodes
+    )
+    assert got == {"a", "b", "c"}
+
+
+def test_neighbors_forwards_exclusions(hub_store: NetworkXStore) -> None:
+    got = _ids(
+        hub_store.neighbors(
+            "a",
+            hops=1,
+            exclude_node_types={NodeType.COMMUNITY},
+            exclude_edge_types={EdgeType.CONTAINS},
+        ).nodes
+    )
+    assert got == {"a", "b"}  # without exclusion this would also include "comm"
+
+
+def test_shortest_path_excludes_edge_types(hub_store: NetworkXStore) -> None:
+    assert hub_store.shortest_path("comm", "d").nodes == ["comm", "d"]
+    # excluding CONTAINS removes the hub's only out-edges -> no path
+    assert hub_store.shortest_path("comm", "d", exclude_edge_types={EdgeType.CONTAINS}) is None
+
+
 def test_persistence_round_trip(store: NetworkXStore, tmp_path: FsPath) -> None:
     target = tmp_path / "graph.json"
     store.save(target)

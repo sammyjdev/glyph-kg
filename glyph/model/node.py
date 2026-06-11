@@ -23,6 +23,8 @@ class NodeType(StrEnum):
     ENTITY = "entity"
     CONCEPT = "concept"
     SECTION = "section"
+    # overlay (graph-derived, not extracted): a detected community of member nodes
+    COMMUNITY = "community"
 
 
 class Node(BaseModel):
