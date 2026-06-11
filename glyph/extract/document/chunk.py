@@ -17,6 +17,9 @@ from glyph.extract.document.pdf import Page
 # A heading's font must exceed the body font by this factor.
 HEADING_SIZE_FACTOR = 1.3
 
+# The six D&D ability abbreviations that head a creature stat block (PT-BR Monster Manual).
+_ABILITY_ROW = ("FOR", "DES", "CON", "INT", "SAB", "CAR")
+
 
 @dataclass(frozen=True)
 class Chunk:
@@ -86,3 +89,15 @@ def by_creature(pages: list[Page]) -> list[Chunk]:
     if lines:
         chunks.append(_make(label, lines, nums, book))
     return chunks
+
+
+def is_creature(chunk: Chunk, min_abilities: int = 4) -> bool:
+    """True when the chunk holds a creature stat block (its ability-score row).
+
+    Front-matter, rules, and index sections share the large heading font but have
+    no stat block; this drops them so extraction (and its cost) covers only
+    creatures. D&D/Monster-Manual specific.
+    """
+    present = {line.strip() for line in chunk.text.splitlines()}
+    hits = sum(1 for ability in _ABILITY_ROW if ability in present)
+    return hits >= min_abilities

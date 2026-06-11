@@ -2,6 +2,7 @@ from pathlib import Path
 
 import fitz
 
+from glyph.extract.document.chunk import is_creature
 from glyph.extract.document.extractor import DocumentExtractor
 from glyph.extract.document.llm import Usage
 from glyph.extract.document.schema import (
@@ -105,4 +106,29 @@ def test_extract_skips_chunks_that_raise(tmp_path: Path) -> None:
     _make_pdf(pdf)
     nodes, _edges, usages = DocumentExtractor(llm=_FlakyLLM()).extract_with_usage(pdf)
     assert len(usages) == 1  # the failing Orc chunk is skipped, not fatal
+    assert any(n.id == "goblin" for n in nodes)
+
+
+def _make_mixed_pdf(path: Path) -> None:
+    # One creature (with a stat-block ability row) and one rules section (without).
+    doc = fitz.open()
+    p1 = doc.new_page()
+    p1.insert_text((72, 72), "GOBLIN", fontsize=16)
+    p1.insert_text((72, 100), "FOR\nDES\nCON\nINT\nSAB\nCAR", fontsize=11)
+    p1.insert_text((72, 200), "O goblin resiste a fogo.", fontsize=11)
+    p2 = doc.new_page()
+    p2.insert_text((72, 72), "INTRODUÇÃO", fontsize=16)
+    p2.insert_text((72, 100), "Este capitulo explica o livro.", fontsize=11)
+    p2.insert_text((72, 120), "Mais texto introdutorio aqui.", fontsize=11)
+    doc.save(path)
+    doc.close()
+
+
+def test_extract_keep_filters_non_creature_chunks(tmp_path: Path) -> None:
+    pdf = tmp_path / "mixed.pdf"
+    _make_mixed_pdf(pdf)
+    llm = _FakeLLM()
+    nodes, _edges = DocumentExtractor(llm=llm, keep=is_creature).extract(pdf)
+    assert len(llm.seen) == 1  # only the creature chunk reaches the LLM
+    assert "GOBLIN" in llm.seen[0]
     assert any(n.id == "goblin" for n in nodes)

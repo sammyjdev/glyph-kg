@@ -10,6 +10,7 @@ import sys
 import time
 from pathlib import Path
 
+from glyph.extract.document import chunk
 from glyph.extract.document.cost import summarize
 from glyph.extract.document.extractor import DocumentExtractor
 from glyph.model.node import NodeType
@@ -23,7 +24,8 @@ def main(argv: list[str]) -> int:
     book_path, out_path = argv[1], argv[2]
 
     started = time.monotonic()
-    nodes, edges, usages = DocumentExtractor().extract_with_usage(book_path)
+    extractor = DocumentExtractor(keep=chunk.is_creature)
+    nodes, edges, usages = extractor.extract_with_usage(book_path)
     elapsed = time.monotonic() - started
 
     report = summarize(usages)

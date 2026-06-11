@@ -1,4 +1,4 @@
-from glyph.extract.document.chunk import Chunk, by_creature, is_heading
+from glyph.extract.document.chunk import Chunk, by_creature, is_creature, is_heading
 from glyph.extract.document.pdf import Page
 
 
@@ -68,6 +68,22 @@ def test_by_creature_empty_pages_returns_empty() -> None:
 def test_by_creature_page_without_lines_yields_nothing() -> None:
     page = Page(book="mm", number=1, text="", lines=(), line_sizes=())
     assert by_creature([page]) == []
+
+
+def test_is_creature_detects_the_stat_block_ability_row() -> None:
+    text = "GOBLIN\nFOR\nDES\nCON\nINT\nSAB\nCAR\nO goblin resiste a fogo."
+    assert is_creature(Chunk(label="Goblin", text=text, book="mm", pages=(1,)))
+
+
+def test_is_creature_rejects_sections_without_a_stat_block() -> None:
+    text = "INTRODUÇÃO\nEste capítulo explica como usar o livro."
+    assert not is_creature(Chunk(label="Introdução", text=text, book="mm", pages=(1,)))
+
+
+def test_is_creature_threshold_requires_enough_abilities() -> None:
+    chunk = Chunk(label="Algo", text="ALGO\nFOR\nDES\ntexto", book="mm", pages=(1,))
+    assert not is_creature(chunk)  # only 2 abilities, default minimum is 4
+    assert is_creature(chunk, min_abilities=2)
 
 
 def test_by_creature_rejects_same_size_caps_stat_labels() -> None:
