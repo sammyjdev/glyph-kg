@@ -1,0 +1,3636 @@
+{
+  "nodes": [
+    {
+      "id": "__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "baseline/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "baseline/vector.py",
+      "type": "file",
+      "label": "vector.py",
+      "attrs": {}
+    },
+    {
+      "id": "baseline/vector.py::VectorBaseline",
+      "type": "class",
+      "label": "VectorBaseline",
+      "attrs": {}
+    },
+    {
+      "id": "baseline/vector.py::VectorBaseline.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "baseline/vector.py::VectorBaseline.index",
+      "type": "function",
+      "label": "index",
+      "attrs": {}
+    },
+    {
+      "id": "baseline/vector.py::VectorBaseline.retrieve",
+      "type": "function",
+      "label": "retrieve",
+      "attrs": {}
+    },
+    {
+      "id": "embed/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "embed/memory_index.py",
+      "type": "file",
+      "label": "memory_index.py",
+      "attrs": {}
+    },
+    {
+      "id": "embed/memory_index.py::InMemoryVectorIndex",
+      "type": "class",
+      "label": "InMemoryVectorIndex",
+      "attrs": {}
+    },
+    {
+      "id": "embed/memory_index.py::InMemoryVectorIndex.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "embed/memory_index.py::InMemoryVectorIndex.add",
+      "type": "function",
+      "label": "add",
+      "attrs": {}
+    },
+    {
+      "id": "embed/memory_index.py::InMemoryVectorIndex.search",
+      "type": "function",
+      "label": "search",
+      "attrs": {}
+    },
+    {
+      "id": "embed/port.py",
+      "type": "file",
+      "label": "port.py",
+      "attrs": {}
+    },
+    {
+      "id": "embed/port.py::Embedder",
+      "type": "class",
+      "label": "Embedder",
+      "attrs": {}
+    },
+    {
+      "id": "embed/port.py::Embedder.embed",
+      "type": "function",
+      "label": "embed",
+      "attrs": {}
+    },
+    {
+      "id": "embed/port.py::VectorIndex",
+      "type": "class",
+      "label": "VectorIndex",
+      "attrs": {}
+    },
+    {
+      "id": "embed/port.py::VectorIndex.add",
+      "type": "function",
+      "label": "add",
+      "attrs": {}
+    },
+    {
+      "id": "embed/port.py::VectorIndex.search",
+      "type": "function",
+      "label": "search",
+      "attrs": {}
+    },
+    {
+      "id": "embed/sentence_transformers_embedder.py",
+      "type": "file",
+      "label": "sentence_transformers_embedder.py",
+      "attrs": {}
+    },
+    {
+      "id": "embed/sentence_transformers_embedder.py::SentenceTransformerEmbedder",
+      "type": "class",
+      "label": "SentenceTransformerEmbedder",
+      "attrs": {}
+    },
+    {
+      "id": "embed/sentence_transformers_embedder.py::SentenceTransformerEmbedder.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "embed/sentence_transformers_embedder.py::SentenceTransformerEmbedder.embed",
+      "type": "function",
+      "label": "embed",
+      "attrs": {}
+    },
+    {
+      "id": "eval/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/cost.py",
+      "type": "file",
+      "label": "cost.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/cost.py::response_cost_usd",
+      "type": "function",
+      "label": "response_cost_usd",
+      "attrs": {}
+    },
+    {
+      "id": "eval/cost.py::total_cost_usd",
+      "type": "function",
+      "label": "total_cost_usd",
+      "attrs": {}
+    },
+    {
+      "id": "eval/dataset.py",
+      "type": "file",
+      "label": "dataset.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/dataset.py::_expected_answer",
+      "type": "function",
+      "label": "_expected_answer",
+      "attrs": {}
+    },
+    {
+      "id": "eval/dataset.py::load_eval_cases",
+      "type": "function",
+      "label": "load_eval_cases",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py",
+      "type": "file",
+      "label": "generate.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::Usage",
+      "type": "class",
+      "label": "Usage",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::Generator",
+      "type": "class",
+      "label": "Generator",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::Generator.generate",
+      "type": "function",
+      "label": "generate",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::build_prompt",
+      "type": "function",
+      "label": "build_prompt",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::AnswerGenerator",
+      "type": "class",
+      "label": "AnswerGenerator",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::AnswerGenerator.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::AnswerGenerator.answer",
+      "type": "function",
+      "label": "answer",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::AnthropicGenerator",
+      "type": "class",
+      "label": "AnthropicGenerator",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::AnthropicGenerator.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "eval/generate.py::AnthropicGenerator.generate",
+      "type": "function",
+      "label": "generate",
+      "attrs": {}
+    },
+    {
+      "id": "eval/harness.py",
+      "type": "file",
+      "label": "harness.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/harness.py::Judge",
+      "type": "class",
+      "label": "Judge",
+      "attrs": {}
+    },
+    {
+      "id": "eval/harness.py::Judge.score",
+      "type": "function",
+      "label": "score",
+      "attrs": {}
+    },
+    {
+      "id": "eval/harness.py::MetricStat",
+      "type": "class",
+      "label": "MetricStat",
+      "attrs": {}
+    },
+    {
+      "id": "eval/harness.py::ArmReport",
+      "type": "class",
+      "label": "ArmReport",
+      "attrs": {}
+    },
+    {
+      "id": "eval/harness.py::BenchmarkReport",
+      "type": "class",
+      "label": "BenchmarkReport",
+      "attrs": {}
+    },
+    {
+      "id": "eval/harness.py::score_arm",
+      "type": "function",
+      "label": "score_arm",
+      "attrs": {}
+    },
+    {
+      "id": "eval/harness.py::run_benchmark",
+      "type": "function",
+      "label": "run_benchmark",
+      "attrs": {}
+    },
+    {
+      "id": "eval/judge.py",
+      "type": "file",
+      "label": "judge.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/judge.py::JudgeError",
+      "type": "class",
+      "label": "JudgeError",
+      "attrs": {}
+    },
+    {
+      "id": "eval/judge.py::_urllib_post",
+      "type": "function",
+      "label": "_urllib_post",
+      "attrs": {}
+    },
+    {
+      "id": "eval/judge.py::OpenAICompatJudge",
+      "type": "class",
+      "label": "OpenAICompatJudge",
+      "attrs": {}
+    },
+    {
+      "id": "eval/judge.py::OpenAICompatJudge.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "eval/judge.py::OpenAICompatJudge.score",
+      "type": "function",
+      "label": "score",
+      "attrs": {}
+    },
+    {
+      "id": "eval/report.py",
+      "type": "file",
+      "label": "report.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/report.py::to_dict",
+      "type": "function",
+      "label": "to_dict",
+      "attrs": {}
+    },
+    {
+      "id": "eval/report.py::_metric_means",
+      "type": "function",
+      "label": "_metric_means",
+      "attrs": {}
+    },
+    {
+      "id": "eval/report.py::regression_check",
+      "type": "function",
+      "label": "regression_check",
+      "attrs": {}
+    },
+    {
+      "id": "eval/report.py::_metric_cell",
+      "type": "function",
+      "label": "_metric_cell",
+      "attrs": {}
+    },
+    {
+      "id": "eval/report.py::render_markdown",
+      "type": "function",
+      "label": "render_markdown",
+      "attrs": {}
+    },
+    {
+      "id": "eval/response.py",
+      "type": "file",
+      "label": "response.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/response.py::ArmResponse",
+      "type": "class",
+      "label": "ArmResponse",
+      "attrs": {}
+    },
+    {
+      "id": "eval/response.py::ArmResponse.total_tokens",
+      "type": "function",
+      "label": "total_tokens",
+      "attrs": {}
+    },
+    {
+      "id": "eval/target.py",
+      "type": "file",
+      "label": "target.py",
+      "attrs": {}
+    },
+    {
+      "id": "eval/target.py::to_rag_response",
+      "type": "function",
+      "label": "to_rag_response",
+      "attrs": {}
+    },
+    {
+      "id": "eval/target.py::GlyphRagTarget",
+      "type": "class",
+      "label": "GlyphRagTarget",
+      "attrs": {}
+    },
+    {
+      "id": "eval/target.py::GlyphRagTarget.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "eval/target.py::GlyphRagTarget.query",
+      "type": "function",
+      "label": "query",
+      "attrs": {}
+    },
+    {
+      "id": "extract/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py",
+      "type": "file",
+      "label": "extractor.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py::CodeExtractor",
+      "type": "class",
+      "label": "CodeExtractor",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py::CodeExtractor.extract",
+      "type": "function",
+      "label": "extract",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py::CodeExtractor._files",
+      "type": "function",
+      "label": "_files",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py::CodeExtractor._file_id",
+      "type": "function",
+      "label": "_file_id",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py::CodeExtractor._parse",
+      "type": "function",
+      "label": "_parse",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py::CodeExtractor._walk",
+      "type": "function",
+      "label": "_walk",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py::CodeExtractor._resolve",
+      "type": "function",
+      "label": "_resolve",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/extractor.py::CodeExtractor._resolve.add",
+      "type": "function",
+      "label": "add",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py",
+      "type": "file",
+      "label": "grammar.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::_text",
+      "type": "function",
+      "label": "_text",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::_descendants_of_type",
+      "type": "function",
+      "label": "_descendants_of_type",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::Grammar",
+      "type": "class",
+      "label": "Grammar",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::Grammar.language",
+      "type": "function",
+      "label": "language",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::Grammar.name_of",
+      "type": "function",
+      "label": "name_of",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::Grammar.callee_name",
+      "type": "function",
+      "label": "callee_name",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::Grammar.import_name",
+      "type": "function",
+      "label": "import_name",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::Grammar.superclass_names",
+      "type": "function",
+      "label": "superclass_names",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::PythonGrammar",
+      "type": "class",
+      "label": "PythonGrammar",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::PythonGrammar.language",
+      "type": "function",
+      "label": "language",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::PythonGrammar.callee_name",
+      "type": "function",
+      "label": "callee_name",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::PythonGrammar.import_name",
+      "type": "function",
+      "label": "import_name",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::PythonGrammar.superclass_names",
+      "type": "function",
+      "label": "superclass_names",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::JavaGrammar",
+      "type": "class",
+      "label": "JavaGrammar",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::JavaGrammar.language",
+      "type": "function",
+      "label": "language",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::JavaGrammar.callee_name",
+      "type": "function",
+      "label": "callee_name",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::JavaGrammar.import_name",
+      "type": "function",
+      "label": "import_name",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::JavaGrammar.superclass_names",
+      "type": "function",
+      "label": "superclass_names",
+      "attrs": {}
+    },
+    {
+      "id": "extract/code/grammar.py::for_path",
+      "type": "function",
+      "label": "for_path",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/chunk.py",
+      "type": "file",
+      "label": "chunk.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/chunk.py::Chunk",
+      "type": "class",
+      "label": "Chunk",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/chunk.py::is_heading",
+      "type": "function",
+      "label": "is_heading",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/chunk.py::_make",
+      "type": "function",
+      "label": "_make",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/chunk.py::_body_size",
+      "type": "function",
+      "label": "_body_size",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/chunk.py::by_creature",
+      "type": "function",
+      "label": "by_creature",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/chunk.py::is_creature",
+      "type": "function",
+      "label": "is_creature",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/cost.py",
+      "type": "file",
+      "label": "cost.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/cost.py::CostReport",
+      "type": "class",
+      "label": "CostReport",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/cost.py::summarize",
+      "type": "function",
+      "label": "summarize",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/extractor.py",
+      "type": "file",
+      "label": "extractor.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/extractor.py::DocumentExtractor",
+      "type": "class",
+      "label": "DocumentExtractor",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/extractor.py::DocumentExtractor.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/extractor.py::DocumentExtractor.extract",
+      "type": "function",
+      "label": "extract",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/extractor.py::DocumentExtractor.extract_with_usage",
+      "type": "function",
+      "label": "extract_with_usage",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/llm.py",
+      "type": "file",
+      "label": "llm.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/llm.py::Usage",
+      "type": "class",
+      "label": "Usage",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/llm.py::LLMExtractor",
+      "type": "class",
+      "label": "LLMExtractor",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/llm.py::LLMExtractor.extract",
+      "type": "function",
+      "label": "extract",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/llm.py::AnthropicExtractor",
+      "type": "class",
+      "label": "AnthropicExtractor",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/llm.py::AnthropicExtractor.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/llm.py::AnthropicExtractor.extract",
+      "type": "function",
+      "label": "extract",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/pdf.py",
+      "type": "file",
+      "label": "pdf.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/pdf.py::Page",
+      "type": "class",
+      "label": "Page",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/pdf.py::load",
+      "type": "function",
+      "label": "load",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/prompt.py",
+      "type": "file",
+      "label": "prompt.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/prompt.py::system_prompt",
+      "type": "function",
+      "label": "system_prompt",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/schema.py",
+      "type": "file",
+      "label": "schema.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/schema.py::ExtractedEntity",
+      "type": "class",
+      "label": "ExtractedEntity",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/schema.py::ExtractedRelation",
+      "type": "class",
+      "label": "ExtractedRelation",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/schema.py::ExtractionResult",
+      "type": "class",
+      "label": "ExtractionResult",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/schema.py::_nid",
+      "type": "function",
+      "label": "_nid",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/schema.py::_attrs",
+      "type": "function",
+      "label": "_attrs",
+      "attrs": {}
+    },
+    {
+      "id": "extract/document/schema.py::merge",
+      "type": "function",
+      "label": "merge",
+      "attrs": {}
+    },
+    {
+      "id": "extract/port.py",
+      "type": "file",
+      "label": "port.py",
+      "attrs": {}
+    },
+    {
+      "id": "extract/port.py::Extractor",
+      "type": "class",
+      "label": "Extractor",
+      "attrs": {}
+    },
+    {
+      "id": "extract/port.py::Extractor.extract",
+      "type": "function",
+      "label": "extract",
+      "attrs": {}
+    },
+    {
+      "id": "model/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "model/contract.py",
+      "type": "file",
+      "label": "contract.py",
+      "attrs": {}
+    },
+    {
+      "id": "model/contract.py::estimate_tokens",
+      "type": "function",
+      "label": "estimate_tokens",
+      "attrs": {}
+    },
+    {
+      "id": "model/contract.py::Segment",
+      "type": "class",
+      "label": "Segment",
+      "attrs": {}
+    },
+    {
+      "id": "model/contract.py::ContextPack",
+      "type": "class",
+      "label": "ContextPack",
+      "attrs": {}
+    },
+    {
+      "id": "model/contract.py::pack",
+      "type": "function",
+      "label": "pack",
+      "attrs": {}
+    },
+    {
+      "id": "model/edge.py",
+      "type": "file",
+      "label": "edge.py",
+      "attrs": {}
+    },
+    {
+      "id": "model/edge.py::EdgeType",
+      "type": "class",
+      "label": "EdgeType",
+      "attrs": {}
+    },
+    {
+      "id": "model/edge.py::Edge",
+      "type": "class",
+      "label": "Edge",
+      "attrs": {}
+    },
+    {
+      "id": "model/graph.py",
+      "type": "file",
+      "label": "graph.py",
+      "attrs": {}
+    },
+    {
+      "id": "model/graph.py::Subgraph",
+      "type": "class",
+      "label": "Subgraph",
+      "attrs": {}
+    },
+    {
+      "id": "model/graph.py::Path",
+      "type": "class",
+      "label": "Path",
+      "attrs": {}
+    },
+    {
+      "id": "model/node.py",
+      "type": "file",
+      "label": "node.py",
+      "attrs": {}
+    },
+    {
+      "id": "model/node.py::NodeType",
+      "type": "class",
+      "label": "NodeType",
+      "attrs": {}
+    },
+    {
+      "id": "model/node.py::Node",
+      "type": "class",
+      "label": "Node",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/graph.py",
+      "type": "file",
+      "label": "graph.py",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/graph.py::GraphRetriever",
+      "type": "class",
+      "label": "GraphRetriever",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/graph.py::GraphRetriever.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/graph.py::GraphRetriever.retrieve",
+      "type": "function",
+      "label": "retrieve",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/graph.py::GraphRetriever._segments",
+      "type": "function",
+      "label": "_segments",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/hybrid.py",
+      "type": "file",
+      "label": "hybrid.py",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/hybrid.py::HybridRetriever",
+      "type": "class",
+      "label": "HybridRetriever",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/hybrid.py::HybridRetriever.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/hybrid.py::HybridRetriever.retrieve",
+      "type": "function",
+      "label": "retrieve",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/hybrid.py::HybridRetriever._fuse",
+      "type": "function",
+      "label": "_fuse",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/port.py",
+      "type": "file",
+      "label": "port.py",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/port.py::Retriever",
+      "type": "class",
+      "label": "Retriever",
+      "attrs": {}
+    },
+    {
+      "id": "retrieval/port.py::Retriever.retrieve",
+      "type": "function",
+      "label": "retrieve",
+      "attrs": {}
+    },
+    {
+      "id": "store/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py",
+      "type": "file",
+      "label": "networkx_store.py",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore",
+      "type": "class",
+      "label": "NetworkXStore",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore.upsert_nodes",
+      "type": "function",
+      "label": "upsert_nodes",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore.upsert_edges",
+      "type": "function",
+      "label": "upsert_edges",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore.neighbors",
+      "type": "function",
+      "label": "neighbors",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore.subgraph",
+      "type": "function",
+      "label": "subgraph",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore.shortest_path",
+      "type": "function",
+      "label": "shortest_path",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore.save",
+      "type": "function",
+      "label": "save",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore.load",
+      "type": "function",
+      "label": "load",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore._to_node",
+      "type": "function",
+      "label": "_to_node",
+      "attrs": {}
+    },
+    {
+      "id": "store/networkx_store.py::NetworkXStore._to_edge",
+      "type": "function",
+      "label": "_to_edge",
+      "attrs": {}
+    },
+    {
+      "id": "store/port.py",
+      "type": "file",
+      "label": "port.py",
+      "attrs": {}
+    },
+    {
+      "id": "store/port.py::GraphStore",
+      "type": "class",
+      "label": "GraphStore",
+      "attrs": {}
+    },
+    {
+      "id": "store/port.py::GraphStore.upsert_nodes",
+      "type": "function",
+      "label": "upsert_nodes",
+      "attrs": {}
+    },
+    {
+      "id": "store/port.py::GraphStore.upsert_edges",
+      "type": "function",
+      "label": "upsert_edges",
+      "attrs": {}
+    },
+    {
+      "id": "store/port.py::GraphStore.neighbors",
+      "type": "function",
+      "label": "neighbors",
+      "attrs": {}
+    },
+    {
+      "id": "store/port.py::GraphStore.subgraph",
+      "type": "function",
+      "label": "subgraph",
+      "attrs": {}
+    },
+    {
+      "id": "store/port.py::GraphStore.shortest_path",
+      "type": "function",
+      "label": "shortest_path",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph",
+      "type": "module",
+      "label": "glyph",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract",
+      "type": "module",
+      "label": "glyph.extract",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.model",
+      "type": "module",
+      "label": "glyph.model",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.store",
+      "type": "module",
+      "label": "glyph.store",
+      "attrs": {}
+    },
+    {
+      "id": "module:collections.abc",
+      "type": "module",
+      "label": "collections.abc",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.embed.memory_index",
+      "type": "module",
+      "label": "glyph.embed.memory_index",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.embed.port",
+      "type": "module",
+      "label": "glyph.embed.port",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.model.contract",
+      "type": "module",
+      "label": "glyph.model.contract",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.embed.sentence_transformers_embedder",
+      "type": "module",
+      "label": "glyph.embed.sentence_transformers_embedder",
+      "attrs": {}
+    },
+    {
+      "id": "module:numpy",
+      "type": "module",
+      "label": "numpy",
+      "attrs": {}
+    },
+    {
+      "id": "module:typing",
+      "type": "module",
+      "label": "typing",
+      "attrs": {}
+    },
+    {
+      "id": "module:sentence_transformers",
+      "type": "module",
+      "label": "sentence_transformers",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.eval.response",
+      "type": "module",
+      "label": "glyph.eval.response",
+      "attrs": {}
+    },
+    {
+      "id": "module:json",
+      "type": "module",
+      "label": "json",
+      "attrs": {}
+    },
+    {
+      "id": "module:pathlib",
+      "type": "module",
+      "label": "pathlib",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.domain.models",
+      "type": "module",
+      "label": "gnomon.domain.models",
+      "attrs": {}
+    },
+    {
+      "id": "module:dataclasses",
+      "type": "module",
+      "label": "dataclasses",
+      "attrs": {}
+    },
+    {
+      "id": "module:time",
+      "type": "module",
+      "label": "time",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.retrieval.port",
+      "type": "module",
+      "label": "glyph.retrieval.port",
+      "attrs": {}
+    },
+    {
+      "id": "module:anthropic",
+      "type": "module",
+      "label": "anthropic",
+      "attrs": {}
+    },
+    {
+      "id": "module:statistics",
+      "type": "module",
+      "label": "statistics",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.eval.cost",
+      "type": "module",
+      "label": "glyph.eval.cost",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.eval.target",
+      "type": "module",
+      "label": "glyph.eval.target",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.metrics.confidence",
+      "type": "module",
+      "label": "gnomon.metrics.confidence",
+      "attrs": {}
+    },
+    {
+      "id": "module:urllib.request",
+      "type": "module",
+      "label": "urllib.request",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.judge.prompts",
+      "type": "module",
+      "label": "gnomon.judge.prompts",
+      "attrs": {}
+    },
+    {
+      "id": "module:gnomon.metrics.names",
+      "type": "module",
+      "label": "gnomon.metrics.names",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.eval.harness",
+      "type": "module",
+      "label": "glyph.eval.harness",
+      "attrs": {}
+    },
+    {
+      "id": "module:pydantic",
+      "type": "module",
+      "label": "pydantic",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract.port",
+      "type": "module",
+      "label": "glyph.extract.port",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract.code.extractor",
+      "type": "module",
+      "label": "glyph.extract.code.extractor",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract.code.grammar",
+      "type": "module",
+      "label": "glyph.extract.code.grammar",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.model.edge",
+      "type": "module",
+      "label": "glyph.model.edge",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.model.node",
+      "type": "module",
+      "label": "glyph.model.node",
+      "attrs": {}
+    },
+    {
+      "id": "module:tree_sitter",
+      "type": "module",
+      "label": "tree_sitter",
+      "attrs": {}
+    },
+    {
+      "id": "module:tree_sitter_python",
+      "type": "module",
+      "label": "tree_sitter_python",
+      "attrs": {}
+    },
+    {
+      "id": "module:tree_sitter_java",
+      "type": "module",
+      "label": "tree_sitter_java",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract.document.extractor",
+      "type": "module",
+      "label": "glyph.extract.document.extractor",
+      "attrs": {}
+    },
+    {
+      "id": "module:collections",
+      "type": "module",
+      "label": "collections",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract.document.pdf",
+      "type": "module",
+      "label": "glyph.extract.document.pdf",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract.document.llm",
+      "type": "module",
+      "label": "glyph.extract.document.llm",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract.document",
+      "type": "module",
+      "label": "glyph.extract.document",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.extract.document.schema",
+      "type": "module",
+      "label": "glyph.extract.document.schema",
+      "attrs": {}
+    },
+    {
+      "id": "module:fitz",
+      "type": "module",
+      "label": "fitz",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.model.graph",
+      "type": "module",
+      "label": "glyph.model.graph",
+      "attrs": {}
+    },
+    {
+      "id": "module:enum",
+      "type": "module",
+      "label": "enum",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.store.port",
+      "type": "module",
+      "label": "glyph.store.port",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.store.networkx_store",
+      "type": "module",
+      "label": "glyph.store.networkx_store",
+      "attrs": {}
+    },
+    {
+      "id": "module:networkx",
+      "type": "module",
+      "label": "networkx",
+      "attrs": {}
+    }
+  ],
+  "edges": [
+    {
+      "src": "baseline/vector.py",
+      "dst": "baseline/vector.py::VectorBaseline",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py::VectorBaseline",
+      "dst": "baseline/vector.py::VectorBaseline.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py::VectorBaseline",
+      "dst": "baseline/vector.py::VectorBaseline.index",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py::VectorBaseline",
+      "dst": "baseline/vector.py::VectorBaseline.retrieve",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/memory_index.py",
+      "dst": "embed/memory_index.py::InMemoryVectorIndex",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/memory_index.py::InMemoryVectorIndex",
+      "dst": "embed/memory_index.py::InMemoryVectorIndex.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/memory_index.py::InMemoryVectorIndex",
+      "dst": "embed/memory_index.py::InMemoryVectorIndex.add",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/memory_index.py::InMemoryVectorIndex",
+      "dst": "embed/memory_index.py::InMemoryVectorIndex.search",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/port.py",
+      "dst": "embed/port.py::Embedder",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/port.py::Embedder",
+      "dst": "embed/port.py::Embedder.embed",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/port.py",
+      "dst": "embed/port.py::VectorIndex",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/port.py::VectorIndex",
+      "dst": "embed/port.py::VectorIndex.add",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/port.py::VectorIndex",
+      "dst": "embed/port.py::VectorIndex.search",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/sentence_transformers_embedder.py",
+      "dst": "embed/sentence_transformers_embedder.py::SentenceTransformerEmbedder",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/sentence_transformers_embedder.py::SentenceTransformerEmbedder",
+      "dst": "embed/sentence_transformers_embedder.py::SentenceTransformerEmbedder.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "embed/sentence_transformers_embedder.py::SentenceTransformerEmbedder",
+      "dst": "embed/sentence_transformers_embedder.py::SentenceTransformerEmbedder.embed",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/cost.py",
+      "dst": "eval/cost.py::response_cost_usd",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/cost.py",
+      "dst": "eval/cost.py::total_cost_usd",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/dataset.py",
+      "dst": "eval/dataset.py::_expected_answer",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/dataset.py",
+      "dst": "eval/dataset.py::load_eval_cases",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "eval/generate.py::Usage",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "eval/generate.py::Generator",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py::Generator",
+      "dst": "eval/generate.py::Generator.generate",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "eval/generate.py::build_prompt",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "eval/generate.py::AnswerGenerator",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py::AnswerGenerator",
+      "dst": "eval/generate.py::AnswerGenerator.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py::AnswerGenerator",
+      "dst": "eval/generate.py::AnswerGenerator.answer",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "eval/generate.py::AnthropicGenerator",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py::AnthropicGenerator",
+      "dst": "eval/generate.py::AnthropicGenerator.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py::AnthropicGenerator",
+      "dst": "eval/generate.py::AnthropicGenerator.generate",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "eval/harness.py::Judge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py::Judge",
+      "dst": "eval/harness.py::Judge.score",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "eval/harness.py::MetricStat",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "eval/harness.py::ArmReport",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "eval/harness.py::BenchmarkReport",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "eval/harness.py::score_arm",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "eval/harness.py::run_benchmark",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "eval/judge.py::JudgeError",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "eval/judge.py::_urllib_post",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "eval/judge.py::OpenAICompatJudge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py::OpenAICompatJudge",
+      "dst": "eval/judge.py::OpenAICompatJudge.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py::OpenAICompatJudge",
+      "dst": "eval/judge.py::OpenAICompatJudge.score",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py",
+      "dst": "eval/report.py::to_dict",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py",
+      "dst": "eval/report.py::_metric_means",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py",
+      "dst": "eval/report.py::regression_check",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py",
+      "dst": "eval/report.py::_metric_cell",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py",
+      "dst": "eval/report.py::render_markdown",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/response.py",
+      "dst": "eval/response.py::ArmResponse",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/response.py::ArmResponse",
+      "dst": "eval/response.py::ArmResponse.total_tokens",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py",
+      "dst": "eval/target.py::to_rag_response",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py",
+      "dst": "eval/target.py::GlyphRagTarget",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py::GlyphRagTarget",
+      "dst": "eval/target.py::GlyphRagTarget.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py::GlyphRagTarget",
+      "dst": "eval/target.py::GlyphRagTarget.query",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "extract/code/extractor.py::CodeExtractor",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor",
+      "dst": "extract/code/extractor.py::CodeExtractor.extract",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor",
+      "dst": "extract/code/extractor.py::CodeExtractor._files",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor",
+      "dst": "extract/code/extractor.py::CodeExtractor._file_id",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor",
+      "dst": "extract/code/extractor.py::CodeExtractor._parse",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor",
+      "dst": "extract/code/extractor.py::CodeExtractor._walk",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor",
+      "dst": "extract/code/extractor.py::CodeExtractor._resolve",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor._resolve",
+      "dst": "extract/code/extractor.py::CodeExtractor._resolve.add",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "extract/code/grammar.py::_text",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "extract/code/grammar.py::_descendants_of_type",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "extract/code/grammar.py::Grammar",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::Grammar",
+      "dst": "extract/code/grammar.py::Grammar.language",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::Grammar",
+      "dst": "extract/code/grammar.py::Grammar.name_of",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::Grammar",
+      "dst": "extract/code/grammar.py::Grammar.callee_name",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::Grammar",
+      "dst": "extract/code/grammar.py::Grammar.import_name",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::Grammar",
+      "dst": "extract/code/grammar.py::Grammar.superclass_names",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "extract/code/grammar.py::PythonGrammar",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::PythonGrammar",
+      "dst": "extract/code/grammar.py::PythonGrammar.language",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::PythonGrammar",
+      "dst": "extract/code/grammar.py::PythonGrammar.callee_name",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::PythonGrammar",
+      "dst": "extract/code/grammar.py::PythonGrammar.import_name",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::PythonGrammar",
+      "dst": "extract/code/grammar.py::PythonGrammar.superclass_names",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "extract/code/grammar.py::JavaGrammar",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar",
+      "dst": "extract/code/grammar.py::JavaGrammar.language",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar",
+      "dst": "extract/code/grammar.py::JavaGrammar.callee_name",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar",
+      "dst": "extract/code/grammar.py::JavaGrammar.import_name",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar",
+      "dst": "extract/code/grammar.py::JavaGrammar.superclass_names",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "extract/code/grammar.py::for_path",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "extract/document/chunk.py::Chunk",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "extract/document/chunk.py::is_heading",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "extract/document/chunk.py::_make",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "extract/document/chunk.py::_body_size",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "extract/document/chunk.py::by_creature",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "extract/document/chunk.py::is_creature",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/cost.py",
+      "dst": "extract/document/cost.py::CostReport",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/cost.py",
+      "dst": "extract/document/cost.py::summarize",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py",
+      "dst": "extract/document/extractor.py::DocumentExtractor",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py::DocumentExtractor",
+      "dst": "extract/document/extractor.py::DocumentExtractor.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py::DocumentExtractor",
+      "dst": "extract/document/extractor.py::DocumentExtractor.extract",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py::DocumentExtractor",
+      "dst": "extract/document/extractor.py::DocumentExtractor.extract_with_usage",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py",
+      "dst": "extract/document/llm.py::Usage",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py",
+      "dst": "extract/document/llm.py::LLMExtractor",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py::LLMExtractor",
+      "dst": "extract/document/llm.py::LLMExtractor.extract",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py",
+      "dst": "extract/document/llm.py::AnthropicExtractor",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py::AnthropicExtractor",
+      "dst": "extract/document/llm.py::AnthropicExtractor.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py::AnthropicExtractor",
+      "dst": "extract/document/llm.py::AnthropicExtractor.extract",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/pdf.py",
+      "dst": "extract/document/pdf.py::Page",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/pdf.py",
+      "dst": "extract/document/pdf.py::load",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/prompt.py",
+      "dst": "extract/document/prompt.py::system_prompt",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "extract/document/schema.py::ExtractedEntity",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "extract/document/schema.py::ExtractedRelation",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "extract/document/schema.py::ExtractionResult",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "extract/document/schema.py::_nid",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "extract/document/schema.py::_attrs",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "extract/document/schema.py::merge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/port.py",
+      "dst": "extract/port.py::Extractor",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "extract/port.py::Extractor",
+      "dst": "extract/port.py::Extractor.extract",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py",
+      "dst": "model/contract.py::estimate_tokens",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py",
+      "dst": "model/contract.py::Segment",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py",
+      "dst": "model/contract.py::ContextPack",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py",
+      "dst": "model/contract.py::pack",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/edge.py",
+      "dst": "model/edge.py::EdgeType",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/edge.py",
+      "dst": "model/edge.py::Edge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/graph.py",
+      "dst": "model/graph.py::Subgraph",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/graph.py",
+      "dst": "model/graph.py::Path",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/node.py",
+      "dst": "model/node.py::NodeType",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "model/node.py",
+      "dst": "model/node.py::Node",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py",
+      "dst": "retrieval/graph.py::GraphRetriever",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py::GraphRetriever",
+      "dst": "retrieval/graph.py::GraphRetriever.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py::GraphRetriever",
+      "dst": "retrieval/graph.py::GraphRetriever.retrieve",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py::GraphRetriever",
+      "dst": "retrieval/graph.py::GraphRetriever._segments",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py",
+      "dst": "retrieval/hybrid.py::HybridRetriever",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py::HybridRetriever",
+      "dst": "retrieval/hybrid.py::HybridRetriever.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py::HybridRetriever",
+      "dst": "retrieval/hybrid.py::HybridRetriever.retrieve",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py::HybridRetriever",
+      "dst": "retrieval/hybrid.py::HybridRetriever._fuse",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/port.py",
+      "dst": "retrieval/port.py::Retriever",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/port.py::Retriever",
+      "dst": "retrieval/port.py::Retriever.retrieve",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "store/networkx_store.py::NetworkXStore",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore.upsert_nodes",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore.upsert_edges",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore.neighbors",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore.subgraph",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore.shortest_path",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore.save",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore.load",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore._to_node",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore",
+      "dst": "store/networkx_store.py::NetworkXStore._to_edge",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py",
+      "dst": "store/port.py::GraphStore",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py::GraphStore",
+      "dst": "store/port.py::GraphStore.upsert_nodes",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py::GraphStore",
+      "dst": "store/port.py::GraphStore.upsert_edges",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py::GraphStore",
+      "dst": "store/port.py::GraphStore.neighbors",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py::GraphStore",
+      "dst": "store/port.py::GraphStore.subgraph",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py::GraphStore",
+      "dst": "store/port.py::GraphStore.shortest_path",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "__init__.py",
+      "dst": "module:glyph",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "__init__.py",
+      "dst": "module:glyph.extract",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "__init__.py",
+      "dst": "module:glyph.model",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "__init__.py",
+      "dst": "module:glyph.store",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py",
+      "dst": "module:glyph.embed.memory_index",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py",
+      "dst": "module:glyph.embed.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py",
+      "dst": "module:glyph.model.contract",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/__init__.py",
+      "dst": "module:glyph.embed.memory_index",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/__init__.py",
+      "dst": "module:glyph.embed.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/__init__.py",
+      "dst": "module:glyph.embed.sentence_transformers_embedder",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/memory_index.py",
+      "dst": "module:numpy",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/memory_index.py",
+      "dst": "module:glyph.embed.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/port.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/port.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/sentence_transformers_embedder.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/sentence_transformers_embedder.py",
+      "dst": "module:glyph.embed.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "embed/sentence_transformers_embedder.py",
+      "dst": "module:sentence_transformers",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/cost.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/cost.py",
+      "dst": "module:glyph.eval.response",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/dataset.py",
+      "dst": "module:json",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/dataset.py",
+      "dst": "module:pathlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/dataset.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/dataset.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "module:dataclasses",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "module:time",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "module:glyph.eval.response",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "module:glyph.retrieval.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py",
+      "dst": "module:anthropic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:dataclasses",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:statistics",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:glyph.eval.cost",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:glyph.eval.response",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:glyph.eval.target",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py",
+      "dst": "module:gnomon.metrics.confidence",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "module:json",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "module:urllib.request",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "module:gnomon.judge.prompts",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py",
+      "dst": "module:gnomon.metrics.names",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py",
+      "dst": "module:glyph.eval.harness",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/response.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py",
+      "dst": "module:glyph.eval.response",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py",
+      "dst": "module:gnomon.domain.models",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/__init__.py",
+      "dst": "module:glyph.extract.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/__init__.py",
+      "dst": "module:glyph.extract.code.extractor",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "module:pathlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "module:glyph.extract.code.grammar",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "module:glyph.extract.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "module:glyph.model.edge",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py",
+      "dst": "module:tree_sitter",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "module:tree_sitter",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "module:tree_sitter_python",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py",
+      "dst": "module:tree_sitter_java",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/__init__.py",
+      "dst": "module:glyph.extract.document.extractor",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "module:collections",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "module:dataclasses",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py",
+      "dst": "module:glyph.extract.document.pdf",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/cost.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/cost.py",
+      "dst": "module:dataclasses",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/cost.py",
+      "dst": "module:glyph.extract.document.llm",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py",
+      "dst": "module:glyph.extract.document",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py",
+      "dst": "module:glyph.extract.document.llm",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py",
+      "dst": "module:glyph.extract.document.schema",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py",
+      "dst": "module:glyph.extract.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py",
+      "dst": "module:glyph.model.edge",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py",
+      "dst": "module:dataclasses",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py",
+      "dst": "module:glyph.extract.document.schema",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/llm.py",
+      "dst": "module:anthropic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/pdf.py",
+      "dst": "module:dataclasses",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/pdf.py",
+      "dst": "module:pathlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/pdf.py",
+      "dst": "module:fitz",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/pdf.py",
+      "dst": "module:glyph.extract.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "module:glyph.model.edge",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/port.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/port.py",
+      "dst": "module:pathlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/port.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/port.py",
+      "dst": "module:glyph.model.edge",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "extract/port.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/__init__.py",
+      "dst": "module:glyph.model.edge",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/__init__.py",
+      "dst": "module:glyph.model.graph",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/__init__.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/edge.py",
+      "dst": "module:enum",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/edge.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/edge.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/graph.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/graph.py",
+      "dst": "module:glyph.model.edge",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/graph.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/node.py",
+      "dst": "module:enum",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/node.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "model/node.py",
+      "dst": "module:pydantic",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py",
+      "dst": "module:glyph.embed.memory_index",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py",
+      "dst": "module:glyph.embed.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py",
+      "dst": "module:glyph.model.contract",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py",
+      "dst": "module:glyph.model.graph",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py",
+      "dst": "module:glyph.store.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py",
+      "dst": "module:glyph.model.contract",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py",
+      "dst": "module:glyph.retrieval.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/port.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/port.py",
+      "dst": "module:glyph.model.contract",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/__init__.py",
+      "dst": "module:glyph.store.networkx_store",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/__init__.py",
+      "dst": "module:glyph.store.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "module:json",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "module:pathlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "module:networkx",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "module:glyph.model.edge",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "module:glyph.model.graph",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py",
+      "dst": "module:collections.abc",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py",
+      "dst": "module:typing",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py",
+      "dst": "module:glyph.model.edge",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py",
+      "dst": "module:glyph.model.graph",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "store/port.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py::VectorBaseline.__init__",
+      "dst": "embed/memory_index.py::InMemoryVectorIndex",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py::VectorBaseline.retrieve",
+      "dst": "model/contract.py::Segment",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "baseline/vector.py::VectorBaseline.retrieve",
+      "dst": "model/contract.py::pack",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/cost.py::total_cost_usd",
+      "dst": "eval/cost.py::response_cost_usd",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/dataset.py::load_eval_cases",
+      "dst": "model/graph.py::Path",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/dataset.py::load_eval_cases",
+      "dst": "eval/dataset.py::_expected_answer",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py::AnswerGenerator.answer",
+      "dst": "eval/generate.py::build_prompt",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/generate.py::AnswerGenerator.answer",
+      "dst": "eval/response.py::ArmResponse",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py::score_arm",
+      "dst": "eval/target.py::to_rag_response",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py::score_arm",
+      "dst": "eval/harness.py::MetricStat",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py::score_arm",
+      "dst": "eval/harness.py::ArmReport",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py::score_arm",
+      "dst": "eval/cost.py::total_cost_usd",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py::run_benchmark",
+      "dst": "eval/harness.py::score_arm",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/harness.py::run_benchmark",
+      "dst": "eval/harness.py::BenchmarkReport",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py::_urllib_post",
+      "dst": "eval/judge.py::JudgeError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py::OpenAICompatJudge.score",
+      "dst": "eval/generate.py::build_prompt",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/judge.py::OpenAICompatJudge.score",
+      "dst": "eval/judge.py::JudgeError",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py::regression_check",
+      "dst": "eval/report.py::_metric_means",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py::render_markdown",
+      "dst": "eval/report.py::to_dict",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/report.py::render_markdown",
+      "dst": "eval/report.py::_metric_cell",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "eval/target.py::GlyphRagTarget.query",
+      "dst": "eval/target.py::to_rag_response",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor.extract",
+      "dst": "model/graph.py::Path",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor.extract",
+      "dst": "extract/code/extractor.py::CodeExtractor._files",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor.extract",
+      "dst": "extract/code/grammar.py::for_path",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor.extract",
+      "dst": "extract/code/extractor.py::CodeExtractor._file_id",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor.extract",
+      "dst": "model/node.py::Node",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor.extract",
+      "dst": "extract/code/extractor.py::CodeExtractor._parse",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor.extract",
+      "dst": "extract/code/extractor.py::CodeExtractor._walk",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor.extract",
+      "dst": "extract/code/extractor.py::CodeExtractor._resolve",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor._files",
+      "dst": "extract/code/grammar.py::for_path",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor._file_id",
+      "dst": "model/graph.py::Path",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor._walk",
+      "dst": "extract/code/grammar.py::Grammar.name_of",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor._walk",
+      "dst": "model/node.py::Node",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor._walk",
+      "dst": "extract/code/extractor.py::CodeExtractor._walk",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor._resolve.add",
+      "dst": "model/edge.py::Edge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/extractor.py::CodeExtractor._resolve",
+      "dst": "model/node.py::Node",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::_descendants_of_type",
+      "dst": "extract/code/grammar.py::_descendants_of_type",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::Grammar.name_of",
+      "dst": "extract/code/grammar.py::_text",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::PythonGrammar.callee_name",
+      "dst": "extract/code/grammar.py::_text",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::PythonGrammar.import_name",
+      "dst": "extract/code/grammar.py::_text",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::PythonGrammar.superclass_names",
+      "dst": "extract/code/grammar.py::_text",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar.callee_name",
+      "dst": "extract/code/grammar.py::_text",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar.import_name",
+      "dst": "extract/code/grammar.py::_text",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar.superclass_names",
+      "dst": "extract/code/grammar.py::_text",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar.superclass_names",
+      "dst": "extract/code/grammar.py::_descendants_of_type",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py::_make",
+      "dst": "extract/document/chunk.py::Chunk",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py::by_creature",
+      "dst": "extract/document/chunk.py::_body_size",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py::by_creature",
+      "dst": "extract/document/chunk.py::is_heading",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/chunk.py::by_creature",
+      "dst": "extract/document/chunk.py::_make",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/cost.py::summarize",
+      "dst": "extract/document/cost.py::CostReport",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py::DocumentExtractor.__init__",
+      "dst": "extract/document/llm.py::AnthropicExtractor",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py::DocumentExtractor.extract",
+      "dst": "extract/document/extractor.py::DocumentExtractor.extract_with_usage",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py::DocumentExtractor.extract_with_usage",
+      "dst": "extract/document/chunk.py::by_creature",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py::DocumentExtractor.extract_with_usage",
+      "dst": "extract/document/prompt.py::system_prompt",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/extractor.py::DocumentExtractor.extract_with_usage",
+      "dst": "extract/document/schema.py::merge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/pdf.py::load",
+      "dst": "model/graph.py::Path",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/pdf.py::load",
+      "dst": "extract/document/pdf.py::Page",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py::merge",
+      "dst": "extract/document/schema.py::_nid",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py::merge",
+      "dst": "model/node.py::Node",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py::merge",
+      "dst": "extract/document/schema.py::_attrs",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/document/schema.py::merge",
+      "dst": "model/edge.py::Edge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py::pack",
+      "dst": "model/contract.py::estimate_tokens",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "model/contract.py::pack",
+      "dst": "model/contract.py::ContextPack",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py::GraphRetriever.__init__",
+      "dst": "embed/memory_index.py::InMemoryVectorIndex",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py::GraphRetriever.retrieve",
+      "dst": "model/contract.py::pack",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py::GraphRetriever.retrieve",
+      "dst": "retrieval/graph.py::GraphRetriever._segments",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/graph.py::GraphRetriever._segments",
+      "dst": "model/contract.py::Segment",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py::HybridRetriever.retrieve",
+      "dst": "retrieval/hybrid.py::HybridRetriever._fuse",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py::HybridRetriever.retrieve",
+      "dst": "model/contract.py::pack",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "retrieval/hybrid.py::HybridRetriever._fuse",
+      "dst": "model/contract.py::Segment",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore.subgraph",
+      "dst": "store/networkx_store.py::NetworkXStore._to_node",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore.subgraph",
+      "dst": "store/networkx_store.py::NetworkXStore._to_edge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore.subgraph",
+      "dst": "model/graph.py::Subgraph",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore.shortest_path",
+      "dst": "model/graph.py::Path",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore.save",
+      "dst": "store/networkx_store.py::NetworkXStore._to_node",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore.save",
+      "dst": "store/networkx_store.py::NetworkXStore._to_edge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore._to_node",
+      "dst": "model/node.py::Node",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore._to_node",
+      "dst": "model/node.py::NodeType",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore._to_edge",
+      "dst": "model/edge.py::Edge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "store/networkx_store.py::NetworkXStore._to_edge",
+      "dst": "model/edge.py::EdgeType",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::PythonGrammar",
+      "dst": "extract/code/grammar.py::Grammar",
+      "type": "inherits",
+      "attrs": {}
+    },
+    {
+      "src": "extract/code/grammar.py::JavaGrammar",
+      "dst": "extract/code/grammar.py::Grammar",
+      "type": "inherits",
+      "attrs": {}
+    }
+  ]
+}
