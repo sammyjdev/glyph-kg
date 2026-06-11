@@ -13,6 +13,7 @@ GLYPH = Path(__file__).resolve().parents[2] / "glyph"
 INWARD_LAYERS = (
     "glyph.extract",
     "glyph.store",
+    "glyph.embed",
     "glyph.retrieval",
     "glyph.baseline",
     "glyph.eval",
@@ -50,3 +51,22 @@ def test_extract_adapter_does_not_import_store() -> None:
     for pyfile in _modules_under("extract"):
         offenders = {m for m in _imported_modules(pyfile) if m.startswith("glyph.store")}
         assert not offenders, f"{pyfile.name} imports store: {offenders}"
+
+
+def test_embed_imports_only_external_and_its_own_package() -> None:
+    forbidden = ("glyph.model", "glyph.store", "glyph.extract", "glyph.retrieval", "glyph.baseline")
+    for pyfile in _modules_under("embed"):
+        offenders = {m for m in _imported_modules(pyfile) if m.startswith(forbidden)}
+        assert not offenders, f"{pyfile.name} imports {offenders}"
+
+
+def test_retrieval_does_not_import_baseline() -> None:
+    for pyfile in _modules_under("retrieval"):
+        offenders = {m for m in _imported_modules(pyfile) if m.startswith("glyph.baseline")}
+        assert not offenders, f"{pyfile.name} imports baseline: {offenders}"
+
+
+def test_baseline_does_not_import_retrieval() -> None:
+    for pyfile in _modules_under("baseline"):
+        offenders = {m for m in _imported_modules(pyfile) if m.startswith("glyph.retrieval")}
+        assert not offenders, f"{pyfile.name} imports retrieval: {offenders}"
