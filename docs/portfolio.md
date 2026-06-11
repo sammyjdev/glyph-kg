@@ -11,7 +11,7 @@ provable **today** from the code, and what unlocks **after** a real benchmark ru
 > intervals). Hexagonal architecture, invariants enforced in CI, 100% test coverage.
 
 Backed by: `glyph/` (model, store, extract/document, extract/code, retrieval, baseline, eval,
-integration), `out/monster-manual.json`, `out/glyph-code.json`, ADRs G1–G5, CI quality gates.
+integration), `out/monster-manual.json`, `out/glyph-code.json`, ADRs G1–G6, CI quality gates.
 
 ## From the benchmark run (the headline number)
 

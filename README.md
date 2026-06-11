@@ -114,8 +114,9 @@ ADRs em [docs/decisions/](docs/decisions/):
 - **ADR-G3**: baseline vetorial justo + contrato de saída unificado.
 - **ADR-G4**: metodologia de eval (query set, judge OSS reference-free, bootstrap CI, custo).
 - **ADR-G5**: resolução de símbolo no code extractor (por nome único, limitação declarada).
+- **ADR-G6**: `GraphContextSource` é a fronteira de produto (satisfaz o port `Retriever`).
 
-Resultados e reprodução: [METRICS.md](METRICS.md) (pendente da corrida real). Artigo técnico (validation-first) em [docs/article.md](docs/article.md); claims de portfólio em [docs/portfolio.md](docs/portfolio.md).
+Resultados e reprodução: [METRICS.md](METRICS.md) (corrida real, n=25). Artigo técnico (validation-first) em [docs/article.md](docs/article.md); claims de portfólio em [docs/portfolio.md](docs/portfolio.md).
 
 ## Relação com AXON
 

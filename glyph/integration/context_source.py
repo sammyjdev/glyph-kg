@@ -1,9 +1,17 @@
-"""P5.1: GraphContextSource — the entry point AXON's ADR-102 source delegates to.
+"""GraphContextSource — the stable product boundary for graph-aware retrieval (dec-g6).
 
-AXON's GraphContextSource stops re-implementing graph retrieval and calls this instead:
-GLYPH is the canonical graph source (ADR-G5), AXON consumes it. This is a thin, stable
-facade over graph-aware retrieval — it also folds the "load a persisted graph, list its
-nodes, build a retriever" wiring that the scripts repeat into one constructor.
+This is the named entry point external consumers (AXON, future clients) depend on instead
+of wiring ``GraphRetriever`` themselves. It is a thin facade that satisfies the
+:class:`~glyph.retrieval.port.Retriever` port (``retrieve(query, token_budget) -> ContextPack``),
+so it drops in anywhere a ``Retriever`` is expected, and the boundary can evolve (hops,
+anchors, hybrid fusion) without breaking callers.
+
+Two entry points, same object:
+
+- ``GraphContextSource(store, embedder, nodes)`` — **in-memory**: the caller already holds a
+  ``GraphStore`` and its node list (e.g. AXON builds them from its SQLite graph).
+- ``GraphContextSource.from_graph_file(path, embedder)`` — **persisted**: load a NetworkX
+  graph (document or code) from disk, folding the load + node-listing + wiring into one call.
 """
 
 import json
@@ -48,6 +56,6 @@ class GraphContextSource:
         nodes = [Node.model_validate(n) for n in payload["nodes"]]
         return cls(store, embedder, nodes, hops=hops, anchors=anchors)
 
-    def context(self, query: str, token_budget: int = 1000) -> ContextPack:
-        """The graph-aware ContextPack for ``query`` (same contract as every arm)."""
+    def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
+        """The graph-aware ContextPack for ``query`` — the ``Retriever`` port contract."""
         return self._retriever.retrieve(query, token_budget)
