@@ -23,6 +23,9 @@ htmlcov/
 # Transient run logs
 out/*.log
 
+# Benchmark answer cache (generation is paid; judging is not — cache lets re-judges skip it)
+out/bench-answers.json
+
 # OS / editor
 .DS_Store
 .idea/
