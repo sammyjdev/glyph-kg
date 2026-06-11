@@ -13,17 +13,19 @@ provable **today** from the code, and what unlocks **after** a real benchmark ru
 Backed by: `glyph/` (model, store, extract/document, extract/code, retrieval, baseline, eval,
 integration), `out/monster-manual.json`, `out/glyph-code.json`, ADRs G1–G6, CI quality gates.
 
-## From the benchmark run (the headline number)
+## From the benchmark runs (two domains, honest)
 
-> Benchmarked graph-aware vs vector retrieval over a real 25-query corpus with bootstrap CIs
-> (judge: Llama 3.3 70B). Graph-aware retrieval posted the **highest faithfulness (0.987,
-> [0.96–1.00])** at the **lowest token cost (~12% fewer tokens than the vector baseline)**,
-> matching or beating vector on both v1 metrics. At n=25 the metric CIs overlap, so the honest
-> framing is *parity-or-better on quality at lower cost* — not a significance claim; the graph
-> did **not** lead `context_precision` (vector/hybrid nominally higher, within noise).
+> Benchmarked graph-aware vs vector vs hybrid retrieval across **two real corpora** with
+> bootstrap CIs and independent LLM judges. On **documents** (Monster Manual, n=25) graph-aware
+> retrieval led faithfulness (**0.987** [0.96–1.00]) at the **lowest token cost**, parity-or-better
+> with vector on both metrics. On **code** (AXON source graph, n=14, independent Gemini judge) the
+> result inverted: the **fair vector baseline beat graph on both metrics** (faithfulness 0.995 vs
+> 0.839, context_precision 0.513 vs 0.180) — the graph's hop-expansion added noise. Reported with
+> CIs, including where graph lost and a documented judge self-evaluation bias.
 
-Numbers from `eval/benchmark-baseline.json` / `METRICS.md`. The credibility is in reporting the
-overlap and the category where the graph lost, not in inflating a single number.
+The credibility is the method, not a single number: a comparison built to let either side win,
+two domains with opposite outcomes, both reported. Numbers from `eval/benchmark-baseline.json`
+/ `METRICS.md` (documents) and `eval/code-benchmark-baseline.json` / `METRICS-code.md` (code).
 
 ## CV / LinkedIn one-liner
 

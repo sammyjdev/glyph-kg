@@ -34,7 +34,7 @@ same token budget and embedder. Each arm generates a grounded answer over its re
 percentile bootstrap. Cost is generation tokens at Haiku 4.5 rates. The judge is transport-agnostic
 (`--base-url`/`--api-key-env`), so any provider serving the same Llama 3.3 70B keeps the run comparable.
 
-## Results
+## Results — document domain (Monster Manual)
 
 Run of 2026-06-11 — n=25, judge `meta/llama-3.3-70b-instruct`, `judge_runs=3`, seed 0. Cells are
 **mean [95% percentile-bootstrap CI]**. Source: `eval/benchmark-baseline.json` / `METRICS.md`.
@@ -56,6 +56,34 @@ that graph-aware retrieval **matches or beats** the vector baseline on both metr
 highest token cost. Where the graph loses (`context_precision`) is the factual/attribute category,
 exactly as anticipated — kept in the report rather than hidden.
 
+## Results — code domain (AXON source graph)
+
+The same harness, pointed at a real code graph (AXON's `src/axon`, 1307 nodes) with a frozen
+14-query set (7 structural — callers/inheritance — + 7 semantic, the latter authored and
+oracle-verified by a second model). Generation ran on NVIDIA NIM (Llama 3.3 70B, free); the judge
+is `gemini-2.5-flash` — **independent of the generator family on purpose**. Source:
+`eval/code-benchmark-baseline.json` / `METRICS-code.md`.
+
+| Metric | graph | vector | hybrid |
+|---|---|---|---|
+| faithfulness | 0.839 [0.682, 0.963] | **0.995** [0.988, 1.000] | 0.864 [0.699, 0.988] |
+| context_precision | 0.180 [0.111, 0.266] | **0.513** [0.279, 0.737] | 0.353 [0.186, 0.531] |
+| mean latency (ms) | 13551 | **6418** | 9772 |
+
+**Honest read — the thesis did not hold here.** In the code domain the **fair vector baseline
+beats graph-aware retrieval on both metrics** (faithfulness 0.995 vs 0.839; context_precision 0.513
+vs 0.180), with hybrid in between. The graph arm anchors a symbol and expands two hops; the strict
+independent judge penalises that neighbourhood as low-precision context, while the vector arm nails
+the semantic queries. This is the validation-first rule paying its way: the comparison was built to
+let either side win, and for *this* corpus + query set + judge, vector won. The graph axis still has
+value (the document domain, and the global community axis of ADR-G7), but "graph beats vector for
+code retrieval" is **not** supported by this run.
+
+**A note on judges.** An earlier code run judged by a *Llama* model (same family as the generator)
+rated the graph arm far more leniently (context_precision ≈ 0.59 vs Gemini's 0.18) — a self-evaluation
+bias. The independent Gemini judge is the honest one; we report it. The two domains use different
+judges, so compare arms *within* a domain, not absolute numbers *across* domains.
+
 ## Declared limitations
 
 - **Relevance oracle is KG-derived, not gold.** It inherits extraction errors (e.g.
@@ -63,7 +91,9 @@ exactly as anticipated — kept in the report rather than hidden.
 - **Two metrics only.** Answer-relevance and context-recall are GNOMON v2, not built; no recall is promised.
 - **Code symbol resolution is by unqualified, unique name** (ADR-G5) — high precision, limited recall, no type inference.
 - **Token budget is char-estimated for retrieval**; generation tokens are real model counts.
-- **n = 25**, single seed unless re-run; CI width reflects judge variance plus case-to-case variance.
+- **n = 25** (documents) / **n = 14** (code), single seed unless re-run; CI width reflects judge variance plus case-to-case variance.
+- **Code vector arm is per-file**, while the graph arm is per-symbol — a declared granularity asymmetry the run measures rather than corrects.
+- **Different judges across domains** (documents: Llama 3.3 70B; code: Gemini 2.5 Flash), so arm comparisons are valid *within* a domain, not as absolute numbers *across* domains.
 
 ## Reproduce
 
@@ -74,4 +104,11 @@ export NVIDIA_NIM_API_KEY=...        # OSS judge (NVIDIA NIM); Groq also works v
 python3 scripts/run_benchmark.py out/monster-manual.json "<Monster Manual PDF>" \
   --base-url https://integrate.api.nvidia.com/v1 --api-key-env NVIDIA_NIM_API_KEY \
   --model meta/llama-3.3-70b-instruct   # writes METRICS.md + eval/benchmark-baseline.json
+
+# code domain — generation on NIM (free), independent Gemini judge:
+export GEMINI_API_KEY=...
+python3 scripts/run_benchmark.py out/axon-code.json <repo>/src/axon --domain code \
+  --gen-base-url https://integrate.api.nvidia.com/v1 --gen-api-key-env NVIDIA_NIM_API_KEY \
+  --base-url https://generativelanguage.googleapis.com/v1beta/openai \
+  --api-key-env GEMINI_API_KEY --model gemini-2.5-flash --judge-no-seed
 ```
