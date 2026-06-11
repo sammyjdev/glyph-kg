@@ -1,8 +1,8 @@
 # GLYPH
 
-![status](https://img.shields.io/badge/status-in%20development-orange) ![phase](https://img.shields.io/badge/phase-3%20benchmark-blue) ![python](https://img.shields.io/badge/python-3.11%2B-blue)
+![phases](https://img.shields.io/badge/phases-0--7%20complete-brightgreen) ![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen) ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 
-> GLYPH builds a knowledge graph from documents and code, then serves graph-aware context for retrieval. Document entities come from LLM extraction, code structure from tree-sitter, both behind one extractor port. Retrieval is benchmarked against a vector baseline with confidence intervals (in progress).
+> GLYPH builds a knowledge graph from documents and code, then serves graph-aware context for retrieval. Document entities come from LLM extraction, code structure from tree-sitter, both behind one extractor port. Retrieval is benchmarked against a fair vector baseline with bootstrap confidence intervals — across **both** the document and code domains, with the honest result reported either way.
 
 ## Por que existe
 
@@ -16,22 +16,26 @@ Retrieval por similaridade vetorial ignora a estrutura: quem cita quem, o que se
 
 ## O que NÃO faz (ainda)
 
-- Não faz type inference cross-language completa no código. A resolução de símbolo é por nome no import graph e intra-file. Limitação declarada.
-- Não usa tokenizer real nas métricas herdadas do AXON (contagem por estimativa de char). Onde aplicável, o benchmark declara isso.
-- Não substitui o parsing do AXON; quando integrado, o GLYPH é a fonte canônica de grafo e o AXON delega.
-- Benchmark ainda não publicado. Os números entram após a Fase 3. Até lá, nenhum resultado é afirmado aqui.
+- Não faz type inference cross-language completa no código. A resolução de símbolo é por nome no import graph e intra-file. Limitação declarada (ADR-G5).
+- O orçamento de tokens do *retrieval* é estimado por char; os tokens de **geração** no benchmark são contagem real do modelo.
+- Não substitui o parsing do AXON; o GLYPH é a fonte canônica de grafo e o AXON delega (dec-116 / ADR-G6).
 
 ## Estado atual
 
-Fases 0–2 completas: modelo de domínio + ports + adapter NetworkX (F0), extração documental por LLM com grafo persistido sobre o Monster Manual (F1), e retrieval graph-aware + baseline vetorial justo + híbrido sob um contrato único (F2).
+**Fases 0–7 completas.** Modelo + ports + adapter NetworkX (F0); extração documental por LLM com grafo persistido (F1); retrieval graph-aware + baseline vetorial justo + híbrido sob um contrato único (F2); benchmark contra o GNOMON com CIs de bootstrap (F3); extração de código por tree-sitter (F4); fronteira de produto `GraphContextSource` consumida pelo AXON (F5, ADR-G6); publicação (F6); eixo global por comunidades (F7, ADR-G7).
 
-Fase 3 (benchmark) em andamento: query set congelado ([eval/queries.json](eval/queries.json)), passo de geração instrumentado (tokens/latência reais), adapter `RagTarget` e judge OSS na nuvem para o GNOMON, harness que agrega com CIs de bootstrap, e o gate de regressão (`make benchmark`). Os **números ainda não foram publicados** — saem após uma corrida real com chaves; até lá [METRICS.md](METRICS.md) declara que está pendente. Metodologia em [ADR-G4](docs/decisions/dec-g4-eval-methodology.md). Plano em [docs/GLYPH_PLAN.md](docs/GLYPH_PLAN.md).
+**Números publicados (validation-first):**
+- **Documentos** (Monster Manual, n=25): o graph lidera faithfulness (0.987) ao menor custo de tokens; context_precision empata dentro dos CIs. [METRICS.md](METRICS.md).
+- **Código** (grafo do AXON, n=14, judge independente Gemini): o **baseline vetorial supera o graph** nos dois metrics (faith 0.995 vs 0.839; cp 0.513 vs 0.180) — a tese "graph ganha em código" não se sustentou aqui, e isso é reportado. [METRICS-code.md](METRICS-code.md).
+
+Metodologia em [ADR-G4](docs/decisions/dec-g4-eval-methodology.md). Plano em [docs/GLYPH_PLAN.md](docs/GLYPH_PLAN.md).
 
 ## Pré-requisitos
 
 - Python 3.11+
-- [TODO: confirmar na Fase 1] provedor de LLM para o `DocumentExtractor` (Claude ou OpenAI via env)
-- Opcional: Neo4j 5+ apenas se usar o adapter (o default NetworkX não exige servidor)
+- `ANTHROPIC_API_KEY` — só para a **extração documental** por LLM (`DocumentExtractor`, Claude Haiku 4.5). A extração de **código** (tree-sitter) e o retrieval não precisam de chave.
+- Para rodar o **benchmark**: uma chave de qualquer endpoint OpenAI-compatible para o judge/geração (NVIDIA NIM, Groq ou Gemini) — ver [Variáveis de ambiente](#variáveis-de-ambiente).
+- O backend de grafo default é NetworkX (in-process, sem servidor).
 
 ## Setup local
 
@@ -69,14 +73,16 @@ Detalhe em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Plano de execução em 
 
 ## Variáveis de ambiente
 
-| Variável | Obrigatório | Descrição | Exemplo |
-|---|---|---|---|
-| `GLYPH_LLM_PROVIDER` | sim (document) | Provedor de extração documental | `anthropic` |
-| `GLYPH_LLM_API_KEY` | sim (document) | Chave do provedor | `sk-...` |
-| `GLYPH_STORE_BACKEND` | não | Backend de grafo | `networkx` (default) / `neo4j` |
-| `GLYPH_NEO4J_URI` | só com neo4j | Conexão Neo4j | `bolt://localhost:7687` |
+O GLYPH não define env vars próprias — lê as dos SDKs/endpoints que usa, e o benchmark escolhe o provider por flag (`--base-url`/`--api-key-env`), não por variável fixa.
 
-[TODO: confirmar nomes finais quando a extração documental entrar (Fase 1)]
+| Variável | Quando | Descrição |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | extração documental por LLM | lida pelo `anthropic` SDK (`DocumentExtractor`/`AnthropicGenerator`) |
+| `NVIDIA_NIM_API_KEY` | benchmark (judge/geração OSS grátis) | usada via `--api-key-env NVIDIA_NIM_API_KEY` |
+| `GROQ_API_KEY` | benchmark (judge OSS, default) | default do `OpenAICompatJudge` |
+| `GEMINI_API_KEY` | benchmark (judge independente) | via `--api-key-env GEMINI_API_KEY` + `--judge-no-seed` |
+
+A escolha de backend de grafo é em código (`NetworkXStore` default; adapter Neo4j opcional), não por env var.
 
 ## Como rodar os testes
 
@@ -86,24 +92,30 @@ pytest --cov=glyph          # com cobertura
 pytest tests/architecture   # invariantes de arquitetura
 ```
 
-## Uso (API planejada)
+## Uso
 
 ```python
-from glyph import Glyph
-from glyph.extract import DocumentExtractor, CodeExtractor
+# 1. Construir um grafo de código (determinístico, sem LLM)
+from glyph.extract.code import CodeExtractor
+from glyph.store import NetworkXStore
 
-g = Glyph(store="networkx")
+nodes, edges = CodeExtractor().extract("path/to/src")     # Python + Java
+store = NetworkXStore()
+store.upsert_nodes(nodes)
+store.upsert_edges(edges)
+store.save("out/code.json")
 
-# domínio documento
-g.build(source="corpus/", extractor=DocumentExtractor())
-ctx = g.retrieve("how does spell resistance interact with elemental damage", hops=2)
+# 2. Servir contexto graph-aware — a fronteira de produto (ADR-G6), que satisfaz o port Retriever
+from glyph.integration import GraphContextSource
+from glyph.embed.sentence_transformers_embedder import SentenceTransformerEmbedder
 
-# domínio código
-g.build(source="repo/", extractor=CodeExtractor(languages=["python", "java"]))
-ctx = g.retrieve(symbol="module.func", hops=2)
+source = GraphContextSource.from_graph_file("out/code.json", SentenceTransformerEmbedder())
+pack = source.retrieve("how is retry handled?", token_budget=1000)   # -> ContextPack
+for segment in pack.segments:
+    print(segment.score, segment.source, segment.text)
 ```
 
-[TODO: confirmar assinatura final após Fase 2]
+Para o grafo **documental**, troque `CodeExtractor` por `glyph.extract.document.extractor.DocumentExtractor` (requer `ANTHROPIC_API_KEY`). O eixo **global** por comunidades (ADR-G7) vive em `glyph.retrieval.community`.
 
 ## Decisões de design
 

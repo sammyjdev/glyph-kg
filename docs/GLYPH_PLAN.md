@@ -1,5 +1,11 @@
 # GLYPH — Plano de Execução
 
+> **Status (2026-06-11): Fases 0–7 completas e na `main`.** Benchmark rodado nos dois domínios
+> (documento: graph lidera faithfulness ao menor custo; código: vetor supera o graph) — números em
+> [METRICS.md](../METRICS.md) e [METRICS-code.md](../METRICS-code.md). Aberto/futuro (não-bloqueante):
+> P1.5 (escalar corpus documental), backlog de qualidade (tokenizer real, casing), e follow-ups da P7
+> (rodada real de sumarização + braço de benchmark global). O plano abaixo é o registro original.
+
 > Biblioteca de knowledge graph unificada: núcleo de grafo comum, dois extractors plugáveis (documento via LLM, código via tree-sitter), retrieval graph-aware, medido contra baseline vetorial com GNOMON. Document-first (cobre as vagas), code depois (on-brand AXON).
 
 ## Arquitetura alvo
