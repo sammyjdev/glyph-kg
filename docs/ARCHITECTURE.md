@@ -68,7 +68,9 @@ Implementação real e justa em Python sobre o **mesmo** corpus: chunk + embeddi
 
 ## Eval (GNOMON)
 
-Mede os três braços (graph, vetor, híbrido) sobre um query set do corpus. Métricas: relevância de contexto, token efficiency, custo, latência. Todas com intervalo de confiança via percentile bootstrap. Resultado reproduzível de um fixture versionado.
+Mede os três braços (graph, vetor, híbrido) sobre um query set do corpus. Métricas: `faithfulness` e `context_precision` (as do GNOMON v1), token efficiency, custo e latência. Todas com intervalo de confiança via percentile bootstrap. Resultado reproduzível de um fixture versionado.
+
+O GNOMON é pull-based: `run_eval` chama `target.query(question)`. O GLYPH não inverte isso — pré-computa os resultados de cada braço e os expõe por trás de um adapter **`RagTarget`** (um por braço) que satisfaz o Protocol do GNOMON e devolve o resultado armazenado. `RagResponse` exige `total_tokens` e `latency_ms`, então os três braços instrumentam token e latência reais; o custo em US$ é derivado dos tokens no GLYPH. O adapter vive no GLYPH (`eval/`), não no GNOMON — nenhuma mudança no GNOMON é necessária para o benchmark.
 
 ## Integração AXON
 

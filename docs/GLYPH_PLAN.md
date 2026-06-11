@@ -39,7 +39,7 @@ Invariantes (ArchUnit-style):
 
 ## Dependências e bloqueios
 
-- **GNOMON não é pip-installable ainda.** Bloqueia a Fase 3. Resolvido na Fase 2.5 (empacotar ou vendorizar a lógica de eval).
+- **GNOMON (auditado): já é pip-installable** (hatchling, src-layout; `run_eval` e `aggregate_metric` importáveis, não presos em `__main__`). **Deixa de bloquear a Fase 3.** O único item é o GLYPH referenciá-lo por path/git no `pyproject` (não há PyPI/remote) — uma linha, sub-task da Fase 3, não fase própria.
 - **Corpus:** 10-15 livros DeD (150-300 pág). Dado real, denso em entidades. Extração LLM será cara no volume; medir custo em 1 livro antes de escalar (gate na Fase 1).
 - **APIs voláteis** (LLM extraction, NetworkX, Neo4j driver, lib de PDF): confirmar na doc atual antes de cada fase de implementação.
 
@@ -90,16 +90,13 @@ Entregável: três modos de retrieval funcionais sobre o mesmo corpus. Conteúdo
 
 ---
 
-## Fase 2.5 — Destravar GNOMON (bloqueio do benchmark)
+## Fase 2.5 — Destravar GNOMON (RESOLVIDO pela auditoria)
 
-Objetivo: tornar o GNOMON consumível pela lib. Pré-requisito da Fase 3.
-
-- **P2.5.1** Auditar estado do GNOMON: `pyproject.toml` com build? Vertical slice fechado? (rodar `ls` + inspecionar).
-- **P2.5.2** Caminho A (preferido): empacotar GNOMON como `pip install` (build, versionar, publicar em índice privado ou git URL).
-- **P2.5.3** Caminho B (fallback): vendorizar a lógica de eval (percentile bootstrap, CIs) como módulo interno do GLYPH, com nota de que será extraída para o GNOMON depois.
-- **Decisão:** A se o GNOMON estiver perto de publicável; B se faltar muito, para não bloquear o benchmark.
-
-Entregável: eval com CIs disponível para o GLYPH.
+A auditoria do GNOMON dissolveu esta fase: o GNOMON **já** é pip-installable e `run_eval`/
+`aggregate_metric` são importáveis de verdade. Não há empacotamento a fazer (cai a decisão A vs B).
+O que sobrou é pequeno e migra para a Fase 3 como P3.0: referenciar o GNOMON por path/git no
+`pyproject` do GLYPH e escrever o adapter `RagTarget` (ver abaixo). Esta fase deixa de ser um
+bloqueio.
 
 ---
 
@@ -107,9 +104,21 @@ Entregável: eval com CIs disponível para o GLYPH.
 
 Objetivo: o número honesto. Esta fase é o claim das vagas e o artigo.
 
+- **P3.0** Consumir o GNOMON: referenciar por path/git no `pyproject` do GLYPH; escrever um adapter
+  **`RagTarget`** (o GNOMON é pull-based — `run_eval` chama `target.query(question)`). O GLYPH
+  pré-computa os resultados de cada braço (graph, vetor, híbrido) keyed por question e expõe um
+  `RagTarget` por braço que devolve o resultado armazenado via `query(question) -> RagResponse`.
+  Roda `run_eval` uma vez por braço. (Push-based `evaluate()` no GNOMON é melhoria futura — ROADMAP
+  do GNOMON, não do GLYPH.) **Restrições de contrato do GNOMON v1, declaradas:**
+  - `RagResponse` exige `total_tokens` e `latency_ms` (validados ≥ 0) → **instrumentar token e
+    latência reais nos três braços é requisito**, não opcional (placeholder polui o relatório).
+  - Métricas v1 = **`faithfulness` e `context_precision`** apenas (answer relevance e context recall
+    são v2, não-construídos). O artigo reporta só essas duas, com CIs — não prometer recall.
+  - **Custo em moeda não existe no GNOMON**, só tokens; o GLYPH calcula US$ a partir de `total_tokens`
+    por fora.
 - **P3.1** Harness de benchmark: roda os três modos (graph, vetor, híbrido) sobre um conjunto de queries do corpus DeD.
 - **P3.2** Conjunto de queries: query set realista (perguntas que exigem relações entre entidades, onde grafo deveria ganhar; e factuais simples, onde vetor pode bastar). Reportar os dois.
-- **P3.3** Métricas via GNOMON: relevância de contexto, token efficiency, custo, latência. Todas com CI (percentile bootstrap).
+- **P3.3** Métricas via GNOMON: `faithfulness` e `context_precision` (as duas do v1), mais token efficiency, custo (calculado pelo GLYPH a partir de tokens) e latência. Todas com CI (percentile bootstrap).
 - **P3.4** Baseline reproduzível (aprendizado C1b+3c): dataset fixo versionado + `make benchmark` que regenera agregados; número de referência no `METRICS.md` com check de regressão (build falha se divergir além de tolerância). Corpus/queries em estado congelado para reprodutibilidade.
 - **P3.5** Relatório honesto: tabela com CIs incluindo onde o grafo **não** ganhou; declarar n (queries), largura de CI, e que tokens são contagem real ou estimativa.
 - **Backlog de qualidade da extração** (observado no gate P1.4): normalizar casing de labels e avaliar erros probabilísticos de relação (ex. ANKHEG `resists ácido`). Detalhe em [decisions/phase3-quality-backlog.md](decisions/phase3-quality-backlog.md).
@@ -162,11 +171,12 @@ Entregável: portfólio publicável. Cobre o gap de KG das vagas com evidência 
 ## Sequência crítica
 
 ```
-Fase 0  ->  Fase 1  ->  Fase 2  ->  Fase 2.5 (GNOMON)  ->  Fase 3 (claim das vagas)
-                                                                |
-                                          Fase 4 (code)  -------+
-                                                |
-                                          Fase 5 (AXON)  ->  Fase 6 (publicação)
+Fase 0  ->  Fase 1  ->  Fase 2  ->  Fase 3 (claim das vagas)
+                                          |    (GNOMON pronto; P3.0 = referenciar + adapter RagTarget)
+                                          |
+                    Fase 4 (code)  -------+
+                          |
+                    Fase 5 (AXON)  ->  Fase 6 (publicação)
 ```
 
 O caminho até a Fase 3 é o que cobre as vagas. Fases 4-5 fortalecem o moat e não bloqueiam o claim documental. Cada fase tem entregável publicável isolado: você acumula conteúdo sem esperar o fim.

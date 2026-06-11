@@ -23,7 +23,7 @@ Os dois domínios compartilham núcleo de grafo, store, retrieval e medição. D
    - `CodeExtractor` (tree-sitter): Python + Java, alinhado ao `graph_extractor` do AXON.
 4. **Retrieval graph-aware**: ancoragem de entidades + expansão de vizinhança por `hops`.
 5. **Baseline vetorial justo** (Python, mesmo corpus): chunk + embedding + vector store. Controle real do experimento.
-6. **Benchmark GNOMON**: graph vs vetor vs híbrido, com CIs (percentile bootstrap), custo e latência.
+6. **Benchmark GNOMON**: graph vs vetor vs híbrido, com CIs (percentile bootstrap), custo e latência. O GNOMON (auditado) já é pip-installable e é pull-based (`run_eval` chama `target.query`); o GLYPH o consome via um adapter **`RagTarget`** por braço, que devolve resultados pré-computados. Restrições do contrato v1, declaradas: `RagResponse` exige `total_tokens` e `latency_ms` (token/latência instrumentados nos três braços, requisito); métricas v1 = `faithfulness` + `context_precision` apenas (sem recall); custo em US$ calculado pelo GLYPH a partir de tokens.
 7. **Baseline reproduzível**: dataset/fixture versionado + regeneração + check de regressão no número publicado.
 
 ## Escopo OUT (honestidade de claim)
@@ -54,7 +54,7 @@ Corpus de validação documental: 10-15 livros de DeD (150-300 pág), dado real 
 
 ## Fasamento
 
-Detalhe em [GLYPH_PLAN.md](GLYPH_PLAN.md). Resumo: Fase 0 fundação → Fase 1 document extraction → Fase 2 retrieval + baseline → Fase 2.5 destravar GNOMON → Fase 3 benchmark (claim das vagas) → Fase 4 code → Fase 5 integração AXON → Fase 6 publicação. Cada fase tem entregável publicável isolado.
+Detalhe em [GLYPH_PLAN.md](GLYPH_PLAN.md). Resumo: Fase 0 fundação → Fase 1 document extraction → Fase 2 retrieval + baseline → Fase 3 benchmark (claim das vagas) → Fase 4 code → Fase 5 integração AXON → Fase 6 publicação. (A antiga Fase 2.5 "destravar GNOMON" foi dissolvida pela auditoria — o GNOMON já é pip-installable; vira a sub-task P3.0.) Cada fase tem entregável publicável isolado.
 
 ## Quality gates
 
@@ -68,5 +68,5 @@ Detalhe em [GLYPH_PLAN.md](GLYPH_PLAN.md). Resumo: Fase 0 fundação → Fase 1 
 ## Decisões abertas (não bloqueiam Fase 0)
 
 - Lib de embedding e vector store do baseline (Fase 2): definir entre sentence-transformers + pgvector ou o que GNOMON/AXON já usam, por consistência.
-- GNOMON empacotado (Fase 2.5): empacotar vs vendorizar a lógica de eval.
+- ~~GNOMON empacotado (Fase 2.5): empacotar vs vendorizar~~ — **resolvido pela auditoria:** o GNOMON já é pip-installable; o GLYPH só o referencia por path/git e consome via adapter `RagTarget`. Fase 2.5 dissolvida (vira P3.0).
 - Licença (sugerido MIT para portfólio público).
