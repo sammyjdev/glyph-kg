@@ -27,6 +27,12 @@ document = [
     "pymupdf>=1.24",
     "anthropic>=0.49",
 ]
+retrieval = [
+    "numpy>=1.26",
+]
+embeddings = [
+    "sentence-transformers>=3.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/sammyjdev/glyph-kg"
@@ -55,11 +61,16 @@ ignore_missing_imports = true
 module = ["fitz.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["sentence_transformers.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-p no:asyncio --import-mode=importlib -m \"not live\" --cov=glyph --cov-report=term-missing --cov-fail-under=90"
+addopts = "-p no:asyncio --import-mode=importlib -m \"not live and not slow\" --cov=glyph --cov-report=term-missing --cov-fail-under=90"
 markers = [
     "live: hits the live Anthropic API (requires ANTHROPIC_API_KEY); deselected by default",
+    "slow: downloads a sentence-transformers model; deselected by default",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:importlib._bootstrap",
