@@ -1,6 +1,6 @@
 # GLYPH
 
-![status](https://img.shields.io/badge/status-in%20development-orange) ![phase](https://img.shields.io/badge/phase-0%20foundation-blue) ![python](https://img.shields.io/badge/python-3.11%2B-blue)
+![status](https://img.shields.io/badge/status-in%20development-orange) ![phase](https://img.shields.io/badge/phase-3%20benchmark-blue) ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 
 > GLYPH builds a knowledge graph from documents and code, then serves graph-aware context for retrieval. Document entities come from LLM extraction, code structure from tree-sitter, both behind one extractor port. Retrieval is benchmarked against a vector baseline with confidence intervals (in progress).
 
@@ -23,7 +23,9 @@ Retrieval por similaridade vetorial ignora a estrutura: quem cita quem, o que se
 
 ## Estado atual
 
-Fase 0 (fundação): modelo de domínio, `GraphStore` port com adapter NetworkX, `Extractor` port e quality gates. Sem extração nem retrieval ainda — esses são as Fases 1+ em [docs/GLYPH_PLAN.md](docs/GLYPH_PLAN.md).
+Fases 0–2 completas: modelo de domínio + ports + adapter NetworkX (F0), extração documental por LLM com grafo persistido sobre o Monster Manual (F1), e retrieval graph-aware + baseline vetorial justo + híbrido sob um contrato único (F2).
+
+Fase 3 (benchmark) em andamento: query set congelado ([eval/queries.json](eval/queries.json)), passo de geração instrumentado (tokens/latência reais), adapter `RagTarget` e judge OSS na nuvem para o GNOMON, harness que agrega com CIs de bootstrap, e o gate de regressão (`make benchmark`). Os **números ainda não foram publicados** — saem após uma corrida real com chaves; até lá [METRICS.md](METRICS.md) declara que está pendente. Metodologia em [ADR-G4](docs/decisions/dec-g4-eval-methodology.md). Plano em [docs/GLYPH_PLAN.md](docs/GLYPH_PLAN.md).
 
 ## Pré-requisitos
 
