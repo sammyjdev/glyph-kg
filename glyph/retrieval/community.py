@@ -11,11 +11,15 @@ graph + seed → same communities → reproducible artifact (GLYPH's invariant).
 """
 
 import hashlib
-from collections.abc import Collection, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
+from typing import Protocol
 
 import networkx as nx
 
+from glyph.embed.memory_index import InMemoryVectorIndex
+from glyph.embed.port import Embedder
+from glyph.model.contract import ContextPack, Segment, pack
 from glyph.model.edge import Edge, EdgeType
 from glyph.model.node import Node, NodeType
 from glyph.store.port import GraphStore
@@ -77,6 +81,64 @@ def detect_communities(
     return communities
 
 
+@dataclass(frozen=True)
+class CommunitySummary:
+    """A community's thematic one-line title and short prose summary."""
+
+    title: str
+    summary: str
+
+
+class CommunitySummarizer(Protocol):
+    """Injected LLM boundary: GLYPH builds the prompt, the caller runs the model.
+
+    Mirrors ``DocumentExtractor``'s ``LLMExtractor`` — GLYPH owns *what* to summarize
+    and the prompt; the provider/API key stay outside the library (AXON injects them).
+    """
+
+    def summarize(self, prompt: str) -> CommunitySummary: ...
+
+
+_PROMPT_HEADER = (
+    "Summarize this group of related graph nodes as one coherent theme. "
+    "Give a short thematic title and a 1-2 sentence summary.\n\nMembers:\n"
+)
+
+
+def _summary_prompt(labels: Sequence[str]) -> str:
+    return _PROMPT_HEADER + "\n".join(f"- {label}" for label in labels)
+
+
+def summarize_communities(
+    communities: Sequence[Community],
+    member_text: Mapping[str, str],
+    summarizer: CommunitySummarizer,
+) -> list[Node]:
+    """Summarize each community via the injected LLM into a COMMUNITY node.
+
+    ``member_text`` maps a member id to the text shown to the model (labels for code).
+    To save cost on rebuilds, pass only new/changed communities — ids are stable
+    (``Community.id``), so the caller can skip the ones already summarized.
+    """
+    out: list[Node] = []
+    for community in communities:
+        labels = [member_text.get(member, member) for member in community.members]
+        result = summarizer.summarize(_summary_prompt(labels))
+        out.append(
+            Node(
+                id=community.id,
+                type=NodeType.COMMUNITY,
+                label=result.title,
+                attrs={
+                    "members": len(community.members),
+                    "title": result.title,
+                    "summary": result.summary,
+                },
+            )
+        )
+    return out
+
+
 def to_graph_elements(communities: Sequence[Community]) -> tuple[list[Node], list[Edge]]:
     """COMMUNITY nodes + CONTAINS edges (community → each member), for upsert.
 
@@ -98,3 +160,34 @@ def to_graph_elements(communities: Sequence[Community]) -> tuple[list[Node], lis
             for member in community.members
         )
     return nodes, edges
+
+
+class CommunityRetriever:
+    """Global-axis retriever: rank community summaries against a thematic query.
+
+    Satisfies the ``Retriever`` port (``retrieve(query, token_budget) -> ContextPack``)
+    like every arm, but answers "how is this organized?" from community summaries
+    instead of expanding a local neighborhood — so it never traverses the graph.
+    """
+
+    def __init__(self, community_nodes: Sequence[Node], embedder: Embedder, top_k: int = 5) -> None:
+        self._embedder = embedder
+        self._top_k = top_k
+        self._summary = {node.id: str(node.attrs.get("summary", "")) for node in community_nodes}
+        self._index = InMemoryVectorIndex()
+        ids = list(self._summary)
+        if ids:
+            vectors = embedder.embed([self._summary[cid] for cid in ids])
+            for cid, vector in zip(ids, vectors, strict=True):
+                self._index.add(cid, vector)
+
+    def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
+        if not self._summary:
+            return pack("community", [], token_budget)
+        query_vector = self._embedder.embed([query])[0]
+        hits = self._index.search(query_vector, self._top_k)
+        segments = [
+            Segment(text=self._summary[cid], source=cid, score=score) for cid, score in hits
+        ]
+        segments.sort(key=lambda s: (-s.score, s.source))  # stable, score-desc
+        return pack("community", segments, token_budget)
