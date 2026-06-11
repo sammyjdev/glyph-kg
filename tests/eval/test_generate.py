@@ -4,7 +4,13 @@ import os
 
 import pytest
 
-from glyph.eval.generate import AnswerGenerator, AnthropicGenerator, Usage, build_prompt
+from glyph.eval.generate import (
+    AnswerGenerator,
+    AnthropicGenerator,
+    OpenAICompatGenerator,
+    Usage,
+    build_prompt,
+)
 from glyph.model.contract import ContextPack, Segment
 
 
@@ -70,6 +76,38 @@ def test_answer_feeds_retrieved_context_into_the_prompt() -> None:
     assert generator.prompt is not None
     assert "Balor — immune_to fogo" in generator.prompt
     assert "Q?" in generator.prompt
+
+
+def test_answer_uses_a_custom_system_prompt_when_given() -> None:
+    generator = RecordingGenerator("ok", Usage(input_tokens=1, output_tokens=1))
+    AnswerGenerator(FakeRetriever(_segments()), generator, system="CODE DOMAIN SYSTEM").answer("Q?")
+    assert generator.system == "CODE DOMAIN SYSTEM"
+
+
+def test_openai_compat_generator_parses_text_and_usage() -> None:
+    captured: dict[str, object] = {}
+
+    def poster(url: str, payload: dict, headers: dict, timeout_s: float) -> dict:
+        captured["payload"] = payload
+        captured["headers"] = headers
+        return {
+            "choices": [{"message": {"content": "Balor is immune to fire."}}],
+            "usage": {"prompt_tokens": 40, "completion_tokens": 7},
+        }
+
+    text, usage = OpenAICompatGenerator(
+        model="meta/llama-3.3-70b-instruct", api_key="k", poster=poster
+    ).generate("sys", "prompt")
+
+    assert text == "Balor is immune to fire."
+    assert usage == Usage(input_tokens=40, output_tokens=7)
+    payload = captured["payload"]
+    assert payload["model"] == "meta/llama-3.3-70b-instruct"
+    assert payload["messages"] == [
+        {"role": "system", "content": "sys"},
+        {"role": "user", "content": "prompt"},
+    ]
+    assert captured["headers"]["Authorization"] == "Bearer k"
 
 
 class _FakeBlock:
