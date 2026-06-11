@@ -110,7 +110,12 @@ ctx = g.retrieve(symbol="module.func", hops=2)
 ADRs em [docs/decisions/](docs/decisions/):
 
 - **ADR-G1**: Extractor port + escolha de backend (NetworkX default, Neo4j adapter).
-- ADR-G2..G5: extração documental, baseline justo, metodologia de eval, resolução de símbolo no código (criados conforme as fases avançam).
+- **ADR-G2**: schema de extração documental (entidades/relações DeD).
+- **ADR-G3**: baseline vetorial justo + contrato de saída unificado.
+- **ADR-G4**: metodologia de eval (query set, judge OSS reference-free, bootstrap CI, custo).
+- **ADR-G5**: resolução de símbolo no code extractor (por nome único, limitação declarada).
+
+Resultados e reprodução: [METRICS.md](METRICS.md) (pendente da corrida real). Artigo técnico (validation-first) em [docs/article.md](docs/article.md); claims de portfólio em [docs/portfolio.md](docs/portfolio.md).
 
 ## Relação com AXON
 
