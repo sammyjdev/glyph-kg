@@ -1,10 +1,19 @@
 """P7 community detection + graph elements (deterministic, structural-only)."""
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
+from glyph.embed.port import Vector
 from glyph.model.edge import Edge, EdgeType
 from glyph.model.node import Node, NodeType
-from glyph.retrieval.community import Community, detect_communities, to_graph_elements
+from glyph.retrieval.community import (
+    Community,
+    CommunityRetriever,
+    CommunitySummary,
+    detect_communities,
+    summarize_communities,
+    to_graph_elements,
+)
+from glyph.retrieval.port import Retriever
 from glyph.store.networkx_store import NetworkXStore
 
 
@@ -84,6 +93,35 @@ def test_detect_ignores_self_loops() -> None:
     assert _members(comms) == [["a", "b", "c"]]
 
 
+class _StubSummarizer:
+    """Fake summarizer (zero LLM cost): echoes the prompt so tests can inspect it."""
+
+    def __init__(self) -> None:
+        self.prompts: list[str] = []
+
+    def summarize(self, prompt: str) -> CommunitySummary:
+        self.prompts.append(prompt)
+        return CommunitySummary(title="Fire faction", summary="Creatures around fire.")
+
+
+def test_summarize_fills_summary_title_and_label() -> None:
+    comms = [Community(members=("dragon", "salamander"))]
+    member_text = {"dragon": "Red Dragon", "salamander": "Salamander"}
+    (node,) = summarize_communities(comms, member_text, _StubSummarizer())
+    assert node.type is NodeType.COMMUNITY
+    assert node.id == comms[0].id
+    assert node.attrs["summary"] == "Creatures around fire."
+    assert node.attrs["title"] == "Fire faction"
+    assert node.attrs["members"] == 2
+    assert node.label == "Fire faction"  # the thematic one-liner is the label
+
+
+def test_summarize_prompt_is_built_from_member_text() -> None:
+    summarizer = _StubSummarizer()
+    summarize_communities([Community(members=("dragon",))], {"dragon": "Red Dragon"}, summarizer)
+    assert "Red Dragon" in summarizer.prompts[0]  # GLYPH builds the prompt from members
+
+
 def test_to_graph_elements_builds_community_nodes_and_contains_edges() -> None:
     comms = [Community(members=("a", "b", "c"))]
     comm_nodes, edges = to_graph_elements(comms)
@@ -96,3 +134,36 @@ def test_to_graph_elements_builds_community_nodes_and_contains_edges() -> None:
         (node.id, "b", EdgeType.CONTAINS),
         (node.id, "c", EdgeType.CONTAINS),
     }
+
+
+class _KeywordEmbedder:
+    """Deterministic keyword embedder over a tiny vocabulary [fire, ice, goblin]."""
+
+    _VOCAB = ("fire", "ice", "goblin")
+
+    def embed(self, texts: Sequence[str]) -> list[Vector]:
+        return [[1.0 if w in t.lower() else 0.0 for w in self._VOCAB] for t in texts]
+
+
+def _comm_node(cid: str, summary: str) -> Node:
+    return Node(id=cid, type=NodeType.COMMUNITY, label=cid, attrs={"summary": summary})
+
+
+def test_community_retriever_satisfies_the_port() -> None:
+    retriever = CommunityRetriever([_comm_node("c1", "about fire")], _KeywordEmbedder())
+    assert isinstance(retriever, Retriever)
+
+
+def test_retrieve_ranks_the_relevant_community_first() -> None:
+    nodes = [_comm_node("fire", "creatures of fire"), _comm_node("ice", "creatures of ice")]
+    retriever = CommunityRetriever(nodes, _KeywordEmbedder())
+    result = retriever.retrieve("fire monsters", token_budget=1000)
+    assert result.mode == "community"
+    assert result.segments[0].source == "fire"
+    assert result.segments[0].text == "creatures of fire"
+
+
+def test_retrieve_is_empty_when_there_are_no_communities() -> None:
+    result = CommunityRetriever([], _KeywordEmbedder()).retrieve("anything")
+    assert result.mode == "community"
+    assert result.segments == []

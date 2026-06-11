@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-Mode = Literal["graph", "vector", "hybrid"]
+Mode = Literal["graph", "vector", "hybrid", "community"]
 
 _CHARS_PER_TOKEN = 4
 
