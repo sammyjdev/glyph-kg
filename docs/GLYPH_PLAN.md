@@ -112,6 +112,7 @@ Objetivo: o número honesto. Esta fase é o claim das vagas e o artigo.
 - **P3.3** Métricas via GNOMON: relevância de contexto, token efficiency, custo, latência. Todas com CI (percentile bootstrap).
 - **P3.4** Baseline reproduzível (aprendizado C1b+3c): dataset fixo versionado + `make benchmark` que regenera agregados; número de referência no `METRICS.md` com check de regressão (build falha se divergir além de tolerância). Corpus/queries em estado congelado para reprodutibilidade.
 - **P3.5** Relatório honesto: tabela com CIs incluindo onde o grafo **não** ganhou; declarar n (queries), largura de CI, e que tokens são contagem real ou estimativa.
+- **Backlog de qualidade da extração** (observado no gate P1.4): normalizar casing de labels e avaliar erros probabilísticos de relação (ex. ANKHEG `resists ácido`). Detalhe em [decisions/phase3-quality-backlog.md](decisions/phase3-quality-backlog.md).
 - **ADR-G4**: metodologia de eval (query set, bootstrap, definição de relevância).
 
 Entregável: tabela de resultados reproduzível. Conteúdo: artigo principal ("GraphRAG vs vector retrieval sobre corpus real, medido").
