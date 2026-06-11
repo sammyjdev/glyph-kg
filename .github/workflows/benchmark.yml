@@ -1,8 +1,6 @@
 # GLYPH benchmark workflow (Phase 3, Tier 2 — on demand, not every push).
 #
-# Move this to .github/workflows/benchmark.yml to enable it. It is kept here because
-# updating files under .github/workflows/ needs the `workflow` OAuth scope, which the
-# agent session lacks — you commit it yourself.
+# Triggered manually from the Actions tab (workflow_dispatch).
 #
 # Required repository secrets:
 #   GROQ_API_KEY       — OSS judge (Groq)

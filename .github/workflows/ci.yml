@@ -17,7 +17,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install
-        run: pip install -e ".[dev,document,retrieval]"
+        run: pip install -e ".[dev,document,retrieval,code,eval]"
 
       - name: Lint (ruff)
         run: ruff check glyph tests
