@@ -829,6 +829,42 @@
       "attrs": {}
     },
     {
+      "id": "integration/__init__.py",
+      "type": "file",
+      "label": "__init__.py",
+      "attrs": {}
+    },
+    {
+      "id": "integration/context_source.py",
+      "type": "file",
+      "label": "context_source.py",
+      "attrs": {}
+    },
+    {
+      "id": "integration/context_source.py::GraphContextSource",
+      "type": "class",
+      "label": "GraphContextSource",
+      "attrs": {}
+    },
+    {
+      "id": "integration/context_source.py::GraphContextSource.__init__",
+      "type": "function",
+      "label": "__init__",
+      "attrs": {}
+    },
+    {
+      "id": "integration/context_source.py::GraphContextSource.from_graph_file",
+      "type": "function",
+      "label": "from_graph_file",
+      "attrs": {}
+    },
+    {
+      "id": "integration/context_source.py::GraphContextSource.context",
+      "type": "function",
+      "label": "context",
+      "attrs": {}
+    },
+    {
       "id": "model/__init__.py",
       "type": "file",
       "label": "__init__.py",
@@ -1387,15 +1423,21 @@
       "attrs": {}
     },
     {
-      "id": "module:glyph.model.graph",
+      "id": "module:glyph.integration.context_source",
       "type": "module",
-      "label": "glyph.model.graph",
+      "label": "glyph.integration.context_source",
       "attrs": {}
     },
     {
-      "id": "module:enum",
+      "id": "module:glyph.retrieval.graph",
       "type": "module",
-      "label": "enum",
+      "label": "glyph.retrieval.graph",
+      "attrs": {}
+    },
+    {
+      "id": "module:glyph.store.networkx_store",
+      "type": "module",
+      "label": "glyph.store.networkx_store",
       "attrs": {}
     },
     {
@@ -1405,9 +1447,15 @@
       "attrs": {}
     },
     {
-      "id": "module:glyph.store.networkx_store",
+      "id": "module:glyph.model.graph",
       "type": "module",
-      "label": "glyph.store.networkx_store",
+      "label": "glyph.model.graph",
+      "attrs": {}
+    },
+    {
+      "id": "module:enum",
+      "type": "module",
+      "label": "enum",
       "attrs": {}
     },
     {
@@ -2069,6 +2117,30 @@
     {
       "src": "extract/port.py::Extractor",
       "dst": "extract/port.py::Extractor.extract",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "integration/context_source.py::GraphContextSource",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py::GraphContextSource",
+      "dst": "integration/context_source.py::GraphContextSource.__init__",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py::GraphContextSource",
+      "dst": "integration/context_source.py::GraphContextSource.from_graph_file",
+      "type": "defines",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py::GraphContextSource",
+      "dst": "integration/context_source.py::GraphContextSource.context",
       "type": "defines",
       "attrs": {}
     },
@@ -2895,6 +2967,60 @@
       "attrs": {}
     },
     {
+      "src": "integration/__init__.py",
+      "dst": "module:glyph.integration.context_source",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "module:json",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "module:pathlib",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "module:glyph.embed.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "module:glyph.model.contract",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "module:glyph.model.node",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "module:glyph.retrieval.graph",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "module:glyph.store.networkx_store",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py",
+      "dst": "module:glyph.store.port",
+      "type": "imports",
+      "attrs": {}
+    },
+    {
       "src": "model/__init__.py",
       "dst": "module:glyph.model.edge",
       "type": "imports",
@@ -3503,6 +3629,18 @@
     {
       "src": "extract/document/schema.py::merge",
       "dst": "model/edge.py::Edge",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py::GraphContextSource.__init__",
+      "dst": "retrieval/graph.py::GraphRetriever",
+      "type": "calls",
+      "attrs": {}
+    },
+    {
+      "src": "integration/context_source.py::GraphContextSource.from_graph_file",
+      "dst": "model/graph.py::Path",
       "type": "calls",
       "attrs": {}
     },
