@@ -30,3 +30,21 @@ resistência/imunidade, e reportar a taxa de erro desse tipo como parte do núme
 O filtro `is_creature` (bloco de atributos) já removeu seções de regras/índice. Se um livro
 futuro (PHB/DMG) não tiver bloco de atributos, esse sinal não serve — schema e filtro
 próprios serão necessários (P1.5/fase futura).
+
+## 4. Retrieval (Fase 2) — declarar/observar no benchmark
+
+Do review final da Fase 2. Os itens de correção mais baratos já foram resolvidos no commit de
+hardening (unificação de identidade no híbrido por chave case-insensitive; desempate
+determinístico por `source` no grafo). Restam para a Fase 3:
+
+- **Superfície de embedding assimétrica:** o braço-grafo embeda só os labels de nó (nomes); o
+  braço-vetor embeda o texto inteiro do chunk (bloco de stats). É por design (o valor do grafo
+  está na expansão de vizinhança, não no recall da âncora), mas precisa ser **declarado no
+  artigo** para a comparação não ser lida como "só representação".
+- **Cobertura por budget difere entre braços:** os segmentos do grafo (`label — relações`) são
+  bem mais curtos que os chunks do vetor e ignoram `Node.attrs` (CR/tipo/alinhamento extraídos
+  mas não usados). Sob o mesmo budget de char, o grafo empacota mais segmentos. Não é injusto,
+  mas afeta a leitura de recall@budget — declarar, e considerar incluir attrs no segmento do grafo.
+- **Tokenizer real:** o budget é estimativa por char (ADR-G3). Trocar por contagem real onde pesar.
+- **Demo sem cache de embeddings:** `scripts/retrieve_demo.py` reembeda todos os labels de nó a
+  cada execução; lento no grafo completo com o modelo ST real. Cachear se virar uso recorrente.
