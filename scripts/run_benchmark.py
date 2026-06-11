@@ -15,6 +15,7 @@ Requires: pip install -e ".[document,retrieval,embeddings,eval]"
 """
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -65,20 +66,43 @@ def _build_arms(graph_path: str, book_path: str):  # type: ignore[no-untyped-def
     return {"graph": graph, "vector": vector, "hybrid": hybrid}
 
 
-def _save_answers(path: Path, responses_by_arm: dict[str, dict[str, ArmResponse]]) -> None:
+def _fingerprint(queries_path: Path, graph_path: str, book_path: str) -> str:
+    """Hash the inputs that determine the generated answers: query set, graph, book.
+
+    The judge model/runs are NOT included — they affect scoring, not generation, so a
+    cached answer set stays valid across judges. If any generation input changes, the
+    fingerprint changes and the stale cache is refused instead of silently reused.
+    """
+    h = hashlib.sha256()
+    h.update(queries_path.read_bytes())
+    h.update(Path(graph_path).read_bytes())
+    book = Path(book_path)
+    h.update(f"{book.name}:{book.stat().st_size}".encode())
+    return h.hexdigest()
+
+
+def _save_answers(
+    path: Path, responses_by_arm: dict[str, dict[str, ArmResponse]], fingerprint: str
+) -> None:
     data = {
-        arm: {cid: r.model_dump() for cid, r in responses.items()}
-        for arm, responses in responses_by_arm.items()
+        "_fingerprint": fingerprint,
+        "answers": {
+            arm: {cid: r.model_dump() for cid, r in responses.items()}
+            for arm, responses in responses_by_arm.items()
+        },
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def _load_answers(path: Path) -> dict[str, dict[str, ArmResponse]]:
+def _load_answers(path: Path, fingerprint: str) -> dict[str, dict[str, ArmResponse]] | None:
+    """Return the cached answers, or None if the cache is absent, stale or pre-fingerprint."""
     data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("_fingerprint") != fingerprint:
+        return None
     return {
         arm: {cid: ArmResponse.model_validate(r) for cid, r in responses.items()}
-        for arm, responses in data.items()
+        for arm, responses in data["answers"].items()
     }
 
 
@@ -114,17 +138,21 @@ def main(argv: list[str]) -> int:
 
     cases = load_eval_cases(args.queries)
     answers_path = Path(args.answers)
-    if answers_path.exists():
-        responses_by_arm = _load_answers(answers_path)
+    fingerprint = _fingerprint(Path(args.queries), args.graph, args.book)
+    cached = _load_answers(answers_path, fingerprint) if answers_path.exists() else None
+    if cached is not None:
+        responses_by_arm = cached
         print(f"reusing cached answers from {answers_path} (skipping paid generation)")
     else:
+        if answers_path.exists():
+            print(f"cache {answers_path} is stale (query set/graph/book changed); regenerating")
         if not os.environ.get("ANTHROPIC_API_KEY"):
             print("ANTHROPIC_API_KEY not set (needed for generation)", file=sys.stderr)
             return 2
         arms = _build_arms(args.graph, args.book)
         generator = AnthropicGenerator()
         responses_by_arm = {arm: _precompute(r, cases, generator) for arm, r in arms.items()}
-        _save_answers(answers_path, responses_by_arm)
+        _save_answers(answers_path, responses_by_arm, fingerprint)
         print(f"generated and cached answers to {answers_path}")
 
     def _on_case(
