@@ -77,7 +77,9 @@ def test_retrieve_excludes_community_overlay_from_local_results() -> None:
     )
     # anchors=1 isolates traversal from anchor selection: only goblin anchors, so
     # caverna can appear ONLY if pulled through the CONTAINS hub (it must not).
-    retriever = GraphRetriever(store=store, embedder=_FakeEmbedder(), nodes=nodes, hops=1, anchors=1)
+    retriever = GraphRetriever(
+        store=store, embedder=_FakeEmbedder(), nodes=nodes, hops=1, anchors=1
+    )
     sources = {s.source for s in retriever.retrieve("goblin", token_budget=1000).segments}
     assert "comm" not in sources  # overlay node never leaks into local context
     assert "caverna" not in sources  # not pulled in via the CONTAINS hub
