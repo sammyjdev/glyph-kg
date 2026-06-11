@@ -1,12 +1,12 @@
 """Graph edges shared by the code and document domains."""
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class EdgeType(str, Enum):
+class EdgeType(StrEnum):
     """Edge kinds, grouped by domain.
 
     Code edges (``CALLS``, ``IMPORTS``, ...) are facts read from an AST.

@@ -1,12 +1,12 @@
 """Graph nodes shared by the code and document domains."""
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class NodeType(str, Enum):
+class NodeType(StrEnum):
     """Node kinds, grouped by domain.
 
     Code structure is extracted deterministically; document entities are
