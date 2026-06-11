@@ -45,6 +45,9 @@ code = [
 [project.urls]
 Homepage = "https://github.com/sammyjdev/glyph-kg"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["glyph"]
 
