@@ -3,9 +3,9 @@
   "queries": [
     {
       "id": "sem-supersession-penalty",
-      "question": "Como o AXON decide que uma decisão antiga foi superseded no ranking de recall, e qual penalidade ela recebe?",
+      "question": "How does AXON decide that an old decision has been superseded in the recall ranking, and what penalty does it receive?",
       "relevant": ["recall/supersession.py", "recall/strategy.py"],
-      "answer_key": "Soft supersession (dec-115): mesma scope + verbo de revisão EN/PT na summary mais nova OU near-duplicate cosine >= 0.93; rank x 0.02 (demote, nunca delete)."
+      "answer_key": "Soft supersession (dec-115): same scope + an EN/PT revision verb in the newer summary OR near-duplicate cosine >= 0.93; rank x 0.02 (demote, never delete)."
     },
     {
       "id": "sem-composite-cache-key",
@@ -15,9 +15,9 @@
     },
     {
       "id": "sem-chunking-treesitter",
-      "question": "Como o chunker divide código-fonte em chunks para indexação — quais unidades viram chunks e qual o limite de tamanho?",
+      "question": "How does the chunker split source code into chunks for indexing — which units become chunks and what is the size limit?",
       "relevant": ["embedder/chunker.py"],
-      "answer_key": "Tree-sitter (Java/Python/TS/TSX) extrai methods, constructors, classes, interfaces, enums, records e annotations; _MAX_CHUNK_LINES = 80."
+      "answer_key": "Tree-sitter (Java/Python/TS/TSX) extracts methods, constructors, classes, interfaces, enums, records, and annotations; _MAX_CHUNK_LINES = 80."
     },
     {
       "id": "sem-profile-model-routing",
@@ -27,9 +27,9 @@
     },
     {
       "id": "sem-sqlite-busy-retry",
-      "question": "O que acontece quando um write no SQLite falha com SQLITE_BUSY — como funciona o retry e o fallback?",
+      "question": "What happens when a SQLite write fails with SQLITE_BUSY — how do the retry and fallback work?",
       "relevant": ["store/retry.py", "store/pending.py"],
-      "answer_key": "with_retry: exponential backoff com jitter dentro de um budget (10s); esgotado, serializa em .axon/pending/ via atomic rename e replay por drain, com quarantine (dec-112)."
+      "answer_key": "with_retry: exponential backoff with jitter within a budget (10s); once exhausted, it serializes to .axon/pending/ via atomic rename and replays via drain, with quarantine (dec-112)."
     },
     {
       "id": "sem-adr-density-gate",
@@ -39,9 +39,9 @@
     },
     {
       "id": "sem-destructive-consent-gate",
-      "question": "Onde e como o AXON bloqueia ferramentas MCP destrutivas sem consentimento explícito do usuário?",
+      "question": "Where and how does AXON block destructive MCP tools without explicit user consent?",
       "relevant": ["policy/core.py", "observability/traced_tool.py"],
-      "answer_key": "PolicyEngine.decide_tool_action nega risk=destructive (DENY_DESTRUCTIVE_NO_CONSENT) sem AXON_ALLOW_DESTRUCTIVE, e write/destructive em ctx restrito; @traced_tool re-checa a cada chamada."
+      "answer_key": "PolicyEngine.decide_tool_action denies risk=destructive (DENY_DESTRUCTIVE_NO_CONSENT) without AXON_ALLOW_DESTRUCTIVE, and write/destructive in a restricted ctx; @traced_tool re-checks on every call."
     }
   ]
 }

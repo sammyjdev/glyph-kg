@@ -89,7 +89,7 @@ def build(graph: Graph) -> dict[str, Any]:
         queries.append(
             _query(
                 f"call-{graph.label(target)}",
-                f"Quem chama a função `{graph.label(target)}`?",
+                f"Who calls the function `{graph.label(target)}`?",
                 callers,
                 labels,
                 "; ".join(labels),
@@ -103,7 +103,7 @@ def build(graph: Graph) -> dict[str, Any]:
         queries.append(
             _query(
                 f"inherit-{graph.label(klass)}",
-                f"Quais classes herdam de `{graph.label(klass)}`?",
+                f"Which classes inherit from `{graph.label(klass)}`?",
                 subs,
                 labels,
                 "; ".join(labels),
