@@ -1,0 +1,77 @@
+{
+  "seed": 0,
+  "judge_runs": 3,
+  "judge_model": "qwen/qwen3-next-80b-a3b-instruct",
+  "n_cases": 14,
+  "arms": [
+    {
+      "arm": "graph",
+      "n_cases": 14,
+      "total_tokens": 14843,
+      "mean_latency_ms": 13550.56,
+      "cost_usd": 0.022411,
+      "metrics": [
+        {
+          "metric": "context_precision",
+          "mean": 0.6964,
+          "ci_low": 0.5155,
+          "ci_high": 0.8655,
+          "n": 14
+        },
+        {
+          "metric": "faithfulness",
+          "mean": 0.8619,
+          "ci_low": 0.7119,
+          "ci_high": 0.969,
+          "n": 14
+        }
+      ]
+    },
+    {
+      "arm": "vector",
+      "n_cases": 14,
+      "total_tokens": 15507,
+      "mean_latency_ms": 6418.13,
+      "cost_usd": 0.025219,
+      "metrics": [
+        {
+          "metric": "context_precision",
+          "mean": 0.5571,
+          "ci_low": 0.2821,
+          "ci_high": 0.8286,
+          "n": 14
+        },
+        {
+          "metric": "faithfulness",
+          "mean": 0.9262,
+          "ci_low": 0.8667,
+          "ci_high": 0.9786,
+          "n": 14
+        }
+      ]
+    },
+    {
+      "arm": "hybrid",
+      "n_cases": 14,
+      "total_tokens": 14910,
+      "mean_latency_ms": 9771.69,
+      "cost_usd": 0.023354,
+      "metrics": [
+        {
+          "metric": "context_precision",
+          "mean": 0.8905,
+          "ci_low": 0.8286,
+          "ci_high": 0.9452,
+          "n": 14
+        },
+        {
+          "metric": "faithfulness",
+          "mean": 0.8714,
+          "ci_low": 0.7476,
+          "ci_high": 0.9643,
+          "n": 14
+        }
+      ]
+    }
+  ]
+}

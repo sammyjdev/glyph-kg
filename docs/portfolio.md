@@ -15,17 +15,19 @@ integration), `out/monster-manual.json`, `out/glyph-code.json`, ADRs G1–G6, CI
 
 ## From the benchmark runs (two domains, honest)
 
-> Benchmarked graph-aware vs vector vs hybrid retrieval across **two real corpora** with
-> bootstrap CIs and independent LLM judges. On **documents** (Monster Manual, n=25) graph-aware
-> retrieval led faithfulness (**0.987** [0.96–1.00]) at the **lowest token cost**, parity-or-better
-> with vector on both metrics. On **code** (AXON source graph, n=14, independent Gemini judge) the
-> result inverted: the **fair vector baseline beat graph on both metrics** (faithfulness 0.995 vs
-> 0.839, context_precision 0.513 vs 0.180) — the graph's hop-expansion added noise. Reported with
-> CIs, including where graph lost and a documented judge self-evaluation bias.
+> Benchmarked graph-aware vs vector vs hybrid retrieval across **two real corpora** with bootstrap
+> CIs. On **documents** (Monster Manual, n=25) graph-aware retrieval led faithfulness (**0.987**
+> [0.96–1.00]) at the **lowest token cost**, parity-or-better with vector. On **code** (AXON source
+> graph, n=14), judged by **two independent models** (Gemini + Qwen) to test robustness: the fair
+> **vector baseline led faithfulness under both judges** (vector > hybrid > graph, consistently),
+> while `context_precision` proved **judge-dependent** (the ranking inverted between judges) — so I
+> report no winner on it. Cross-family judging turned a clean single-judge result into a correctly
+> hedged one.
 
-The credibility is the method, not a single number: a comparison built to let either side win,
-two domains with opposite outcomes, both reported. Numbers from `eval/benchmark-baseline.json`
-/ `METRICS.md` (documents) and `eval/code-benchmark-baseline.json` / `METRICS-code.md` (code).
+The credibility is the method, not a single number: a comparison built to let either side win, two
+domains, a robust metric separated from a non-robust one, and a single-judge conclusion overturned
+by a second independent judge — all reported. Sources: `eval/benchmark-baseline.json` (documents),
+`eval/code-benchmark-baseline.json` + `eval/code-benchmark-qwen.json` (code, two judges).
 
 ## CV / LinkedIn one-liner
 

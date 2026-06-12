@@ -60,29 +60,36 @@ exactly as anticipated — kept in the report rather than hidden.
 
 The same harness, pointed at a real code graph (AXON's `src/axon`, 1307 nodes) with a frozen
 14-query set (7 structural — callers/inheritance — + 7 semantic, the latter authored and
-oracle-verified by a second model). Generation ran on NVIDIA NIM (Llama 3.3 70B, free); the judge
-is `gemini-2.5-flash` — **independent of the generator family on purpose**. Source:
-`eval/code-benchmark-baseline.json` / `METRICS-code.md`.
+oracle-verified by a second model). Generation ran on NVIDIA NIM (Llama 3.3 70B, free). To test
+robustness, the run was judged by **two independent models of different families** —
+`gemini-2.5-flash` and `qwen3-next-80b` (both ≠ the Llama generator). Source:
+`eval/code-benchmark-baseline.json` (Gemini) / `eval/code-benchmark-qwen.json` (Qwen).
 
-| Metric | graph | vector | hybrid |
+**faithfulness** — *robust across both judges* (same ranking: vector > hybrid > graph):
+
+| judge | graph | vector | hybrid |
 |---|---|---|---|
-| faithfulness | 0.839 [0.682, 0.963] | **0.995** [0.988, 1.000] | 0.864 [0.699, 0.988] |
-| context_precision | 0.180 [0.111, 0.266] | **0.513** [0.279, 0.737] | 0.353 [0.186, 0.531] |
-| mean latency (ms) | 13551 | **6418** | 9772 |
+| gemini-2.5-flash | 0.839 | **0.995** | 0.864 |
+| qwen3-next-80b | 0.862 | **0.926** | 0.871 |
 
-**Honest read — the thesis did not hold here.** In the code domain the **fair vector baseline
-beats graph-aware retrieval on both metrics** (faithfulness 0.995 vs 0.839; context_precision 0.513
-vs 0.180), with hybrid in between. The graph arm anchors a symbol and expands two hops; the strict
-independent judge penalises that neighbourhood as low-precision context, while the vector arm nails
-the semantic queries. This is the validation-first rule paying its way: the comparison was built to
-let either side win, and for *this* corpus + query set + judge, vector won. The graph axis still has
-value (the document domain, and the global community axis of ADR-G7), but "graph beats vector for
-code retrieval" is **not** supported by this run.
+**context_precision** — *judge-dependent; the ranking flips, so no robust winner*:
 
-**A note on judges.** An earlier code run judged by a *Llama* model (same family as the generator)
-rated the graph arm far more leniently (context_precision ≈ 0.59 vs Gemini's 0.18) — a self-evaluation
-bias. The independent Gemini judge is the honest one; we report it. The two domains use different
-judges, so compare arms *within* a domain, not absolute numbers *across* domains.
+| judge | graph | vector | hybrid |
+|---|---|---|---|
+| gemini-2.5-flash | 0.180 | **0.513** | 0.353 |
+| qwen3-next-80b | 0.696 | 0.557 | **0.890** |
+
+**Honest read — and a lesson about judges.** On the *robust* metric (faithfulness, where two
+unrelated judges agree on the ordering) the **fair vector baseline leads and graph-aware retrieval
+is last** — the graph arm's two-hop expansion adds neighbourhood that does not improve groundedness.
+`context_precision`, by contrast, is **not robust**: Gemini ranks vector first and graph last, while
+Qwen ranks hybrid first and vector last — the verdict inverts with the judge, so we draw no
+conclusion from it. (An earlier *Llama* judge — same family as the generator — was even more
+lenient to the graph arm, a self-evaluation bias; that is why the reported judges are independent.)
+The takeaway is twofold: for code retrieval here, graph-aware did **not** beat a fair vector
+baseline on the metric we can trust; and a single LLM judge is not enough — cross-family judging
+turned a clean-looking single-judge result into a correctly-hedged one. The graph axis still earns
+its place in the document domain and as the global community axis (ADR-G7).
 
 ## Declared limitations
 
