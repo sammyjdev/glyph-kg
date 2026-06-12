@@ -1,30 +1,30 @@
-# Arquitetura do GLYPH
+# GLYPH Architecture
 
-## Visão de camadas
+## Layered View
 
-GLYPH segue arquitetura hexagonal: o domínio (grafo) no centro, extração e persistência como ports com adapters intercambiáveis.
+GLYPH follows hexagonal architecture: the domain (graph) at the center, extraction and persistence as ports with interchangeable adapters.
 
 ```
 glyph/
-  model/        # domínio: Node, Edge, EdgeType, NodeType (Pydantic v2)
+  model/        # domain: Node, Edge, EdgeType, NodeType (Pydantic v2)
   extract/      # Extractor port + adapters (document, code)
   store/        # GraphStore port + adapters (networkx, neo4j)
-  retrieval/    # graph-aware retrieval sobre o port
-  baseline/     # vector baseline (controle do benchmark)
-  eval/         # integração GNOMON, métricas, CIs
+  retrieval/    # graph-aware retrieval over the port
+  baseline/     # vector baseline (benchmark control)
+  eval/         # GNOMON integration, metrics, CIs
 ```
 
-Regra de dependência: as setas apontam para dentro. `extract`, `store`, `retrieval`, `baseline` e `eval` dependem de `model`. `model` não depende de ninguém. Nenhum adapter conhece outro adapter.
+Dependency rule: arrows point inward. `extract`, `store`, `retrieval`, `baseline`, and `eval` depend on `model`. `model` depends on nothing. No adapter knows another adapter.
 
-## Núcleo de grafo (model)
+## Graph Core (model)
 
-`Node`, `Edge`, `EdgeType`, `NodeType` em Pydantic v2.
+`Node`, `Edge`, `EdgeType`, `NodeType` in Pydantic v2.
 
-Tipos separados por domínio para não criar um schema genérico que não serve a nenhum:
-- Código: `NodeType` em {File, Module, Class, Function}; `EdgeType` em {DEFINES, IMPORTS, CALLS, INHERITS, REFERENCES}.
-- Documento: `NodeType` em {Entity, Concept, Section}; `EdgeType` em {RELATES_TO, MENTIONS, REQUIRES, RESISTS, ...} conforme o domínio do corpus.
+Types separated by domain to avoid creating a generic schema that serves none:
+- Code: `NodeType` in {File, Module, Class, Function}; `EdgeType` in {DEFINES, IMPORTS, CALLS, INHERITS, REFERENCES}.
+- Document: `NodeType` in {Entity, Concept, Section}; `EdgeType` in {RELATES_TO, MENTIONS, REQUIRES, RESISTS, ...} as appropriate for corpus domain.
 
-O grafo é agnóstico de origem: depois de construído, retrieval e store tratam nós e arestas igual, independentemente de qual extractor os produziu.
+The graph is origin-agnostic: once built, retrieval and store treat nodes and edges equally, regardless of which extractor produced them.
 
 ## Extractor port
 
@@ -33,12 +33,12 @@ class Extractor(Protocol):
     def extract(self, source: Source) -> tuple[Sequence[Node], Sequence[Edge]]: ...
 ```
 
-Dois adapters:
+Two adapters:
 
-- **DocumentExtractor** (probabilístico). Ingestão de PDF (pymupdf ou similar) → chunking estrutura-aware → prompt de extração entidade/relação a um LLM → parse para `Node`/`Edge`. A extração tem erro; é por isso que o benchmark mede qualidade em vez de assumir.
-- **CodeExtractor** (determinístico). tree-sitter para Python e Java, alinhado ao `graph_extractor.py` do AXON. A relação `A CALLS B` é fato extraído da AST, não inferência. Limitação: resolução de símbolo por nome no import graph + intra-file, sem type inference cross-language completa.
+- **DocumentExtractor** (probabilistic). PDF ingestion (pymupdf or similar) → structure-aware chunking → entity/relation extraction prompt to an LLM → parse to `Node`/`Edge`. Extraction has error; this is why the benchmark measures quality instead of assuming it.
+- **CodeExtractor** (deterministic). tree-sitter for Python and Java, aligned with `graph_extractor.py` from AXON. The relation `A CALLS B` is a fact extracted from the AST, not inference. Limitation: symbol resolution by name in import graph + intra-file, without full cross-language type inference.
 
-A assimetria probabilístico/determinístico é a razão de existirem dois adapters em vez de um extractor genérico.
+The probabilistic/deterministic asymmetry is why there are two adapters instead of a generic extractor.
 
 ## GraphStore port
 
@@ -51,34 +51,34 @@ class GraphStore(Protocol):
     def shortest_path(self, src: NodeId, dst: NodeId) -> Path | None: ...
 ```
 
-- **NetworkX** (default): in-memory com persistência (graphml/pickle). Zero servidor, pip-installable. O grafo de um corpus documental cabe em memória; para código também na escala dos repos-alvo.
-- **Neo4j** (adapter): smoke-tested, openCypher. Existe pelo keyword de CV e pela história de produção, não como default. Não é serviço always-on do projeto.
+- **NetworkX** (default): in-memory with persistence (graphml/pickle). Zero server, pip-installable. The graph of a document corpus fits in memory; for code, also at the scale of target repos.
+- **Neo4j** (adapter): smoke-tested, openCypher. Exists for CV keyword and production history, not as default. Not an always-on service of the project.
 
-Ambos passam o mesmo conjunto de testes de contrato. Trocar o backend não muda resultado, só desempenho/escala.
+Both pass the same set of contract tests. Swapping the backend does not change results, only performance/scale.
 
-## Retrieval graph-aware
+## Graph-aware Retrieval
 
-Dado uma query: ancorar entidades relevantes no grafo (por match de nó ou por embedding leve do label), expandir a vizinhança por `hops`, montar o contexto a partir do subgrafo. O contexto retornado é estrutural: as entidades conectadas à âncora, não os chunks mais parecidos.
+Given a query: anchor relevant entities in the graph (by node match or light embedding of the label), expand the neighborhood by `hops`, construct context from the subgraph. The returned context is structural: the entities connected to the anchor, not the most similar chunks.
 
-Saída em contrato unificado (`Segment`/`ContextPack`) comparável token-a-token com o baseline.
+Output in unified contract (`Segment`/`ContextPack`) comparable token-for-token with the baseline.
 
-## Baseline vetorial (controle)
+## Vector Baseline (Control)
 
-Implementação real e justa em Python sobre o **mesmo** corpus: chunk + embedding + vector store + top-k por similaridade. Mesmo budget de token dos outros braços. Este é o controle do experimento; enfraquecê-lo invalida o benchmark. Existe um terceiro braço híbrido (fusão graph + vetor).
+Fair and real implementation in Python over the **same** corpus: chunk + embedding + vector store + top-k by similarity. Same token budget as the other arms. This is the experiment control; weakening it invalidates the benchmark. There is a third hybrid arm (graph + vector fusion).
 
 ## Eval (GNOMON)
 
-Mede os três braços (graph, vetor, híbrido) sobre um query set do corpus. Métricas: `faithfulness` e `context_precision` (as do GNOMON v1), token efficiency, custo e latência. Todas com intervalo de confiança via percentile bootstrap. Resultado reproduzível de um fixture versionado.
+Measures the three arms (graph, vector, hybrid) over a query set from the corpus. Metrics: `faithfulness` and `context_precision` (from GNOMON v1), token efficiency, cost, and latency. All with confidence intervals via percentile bootstrap. Reproducible result from a versioned fixture.
 
-O GNOMON é pull-based: `run_eval` chama `target.query(question)`. O GLYPH não inverte isso — pré-computa os resultados de cada braço e os expõe por trás de um adapter **`RagTarget`** (um por braço) que satisfaz o Protocol do GNOMON e devolve o resultado armazenado. `RagResponse` exige `total_tokens` e `latency_ms`, então os três braços instrumentam token e latência reais; o custo em US$ é derivado dos tokens no GLYPH. O adapter vive no GLYPH (`eval/`), não no GNOMON — nenhuma mudança no GNOMON é necessária para o benchmark.
+GNOMON is pull-based: `run_eval` calls `target.query(question)`. GLYPH does not invert this — it pre-computes the results of each arm and exposes them behind an adapter **`RagTarget`** (one per arm) that satisfies GNOMON's Protocol and returns the stored result. `RagResponse` requires `total_tokens` and `latency_ms`, so the three arms instrument real token and latency; cost in US$ is derived from tokens in GLYPH. The adapter lives in GLYPH (`eval/`), not in GNOMON — no change to GNOMON is necessary for the benchmark.
 
-## Integração AXON
+## AXON Integration
 
-O AXON consome o GLYPH como dependência. O `GraphContextSource` do AXON (ADR-102 no repo do AXON) delega para `glyph.retrieval`. O grafo de código consolidado do AXON (ADR-103) é uma das fontes que o `CodeExtractor` alimenta ou consome. Isso mantém uma única fonte canônica de lógica de grafo.
+AXON consumes GLYPH as a dependency. AXON's `GraphContextSource` (ADR-102 in AXON's repo) delegates to `glyph.retrieval`. AXON's consolidated code graph (ADR-103) is one of the sources that `CodeExtractor` feeds or consumes. This maintains a single canonical source for graph logic.
 
-## Invariantes verificados no CI
+## Invariants Verified in CI
 
-1. `model` não importa nada de `extract`, `store`, `retrieval`, `baseline`, `eval`.
-2. Nenhum adapter de extract importa adapter de store, e vice-versa.
-3. `retrieval` depende do `GraphStore` port, não de um adapter concreto.
-4. O baseline vetorial e o graph retrieval compartilham o mesmo contrato de saída e o mesmo budget de token.
+1. `model` does not import anything from `extract`, `store`, `retrieval`, `baseline`, `eval`.
+2. No extract adapter imports store adapter, and vice versa.
+3. `retrieval` depends on the `GraphStore` port, not a concrete adapter.
+4. The vector baseline and graph retrieval share the same output contract and the same token budget.

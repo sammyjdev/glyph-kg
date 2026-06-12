@@ -85,41 +85,41 @@ Create empty files `tests/embed/__init__.py`, `tests/retrieval/__init__.py`, `te
 
 Create `docs/decisions/dec-g3-fair-vector-baseline.md`:
 ```markdown
-# ADR-G3: Baseline vetorial justo e contrato de saída
+# ADR-G3: Fair vector baseline and output contract
 
-**Data:** 2026-06-10
-**Status:** Aceito
+**Date:** 2026-06-10
+**Status:** Accepted
 
-## Contexto
+## Context
 
-A tese do GLYPH é que retrieval graph-aware supera vector-only em queries que dependem de
-relações entre entidades. O experimento só é válido se o baseline vetorial for forte e justo
-— enfraquecê-lo invalida o número.
+The GLYPH thesis is that graph-aware retrieval outperforms vector-only on queries that depend on
+entity relationships. The experiment is valid only if the vector baseline is strong and fair
+— weakening it invalidates the benchmark.
 
-## Decisão
+## Decision
 
-**Mesmo corpus:** o baseline vetorial indexa o texto dos mesmos chunks por criatura
-(`chunk.by_creature` + `is_creature`) que geraram o grafo. O braço-grafo é a extração
-estruturada desses chunks; o vetor é o texto cru deles embedado.
+**Same corpus:** the vector baseline indexes text from the same per-creature chunks
+(`chunk.by_creature` + `is_creature`) that generated the graph. The graph arm is structured extraction
+of those chunks; the vector arm is the raw text embedded.
 
-**Mesmo embedder e mesmo budget:** os dois braços usam o mesmo embedder local
-(sentence-transformers multilingual) e cortam a saída no mesmo budget de token. O braço híbrido
-funde os dois sob o mesmo budget.
+**Same embedder and same budget:** both arms use the same local embedder
+(sentence-transformers multilingual) and truncate output at the same token budget. The hybrid arm
+fuses both under the same budget.
 
-**Contrato único:** `Segment`/`ContextPack` idêntico nos três modos, comparável token-a-token.
+**Single contract:** identical `Segment`/`ContextPack` across all three modes, comparable token-by-token.
 
-**Limitação declarada:** o budget é medido por estimativa de char nesta fase (não tokenizer
-real). Declarado aqui e no benchmark (Fase 3).
+**Declared limitation:** budget is measured by character estimate in this phase (not real tokenizer).
+Declared here and in the benchmark (Phase 3).
 
-## Consequências
+## Consequences
 
-**Positivas:** comparação controlada (mesma fonte, mesmo embedder, mesmo budget). O baseline é
-implementação real (chunk + embedding + vector store + top-k), não espantalho.
+**Positive:** controlled comparison (same source, same embedder, same budget). The baseline is
+real implementation (chunk + embedding + vector store + top-k), not a strawman.
 
-**Trade-offs / a observar:** a estimativa de token por char é aproximada; a Fase 3 troca por
-contagem real onde pesar. A fusão híbrida (reciprocal rank fusion) trata segmentos de grafo
-(source = id de nó) e de vetor (source = label de chunk) como fontes distintas; unificar a
-identidade entre representações fica para depois se o benchmark pedir.
+**Trade-offs / to observe:** token estimate per character is approximate; Phase 3 swaps for
+real counting where it matters. Hybrid fusion (reciprocal rank fusion) treats graph segments
+(source = node id) and vector segments (source = chunk label) as distinct sources; unifying
+identity across representations defers to later phases if the benchmark demands it.
 ```
 
 - [ ] **Step 6: Verify the suite still passes**

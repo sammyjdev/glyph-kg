@@ -1,21 +1,21 @@
-# GLYPH — Plano de Execução
+# GLYPH — Execution Plan
 
-> **Status (2026-06-11): Fases 0–7 completas e na `main`.** Benchmark rodado nos dois domínios
-> (documento: graph lidera faithfulness ao menor custo; código: vetor supera o graph) — números em
-> [METRICS.md](../METRICS.md) e [METRICS-code.md](../METRICS-code.md). Aberto/futuro (não-bloqueante):
-> P1.5 (escalar corpus documental), backlog de qualidade (tokenizer real, casing), e follow-ups da P7
-> (rodada real de sumarização + braço de benchmark global). O plano abaixo é o registro original.
+> **Status (2026-06-11): Phases 0–7 complete and in `main`.** Benchmark run across both domains
+> (document: graph leads faithfulness at lower cost; code: vector beats graph) — numbers in
+> [METRICS.md](../METRICS.md) and [METRICS-code.md](../METRICS-code.md). Open/future (non-blocking):
+> P1.5 (scale document corpus), quality backlog (real tokenizer, casing), and follow-ups from P7
+> (real summarization round + global benchmark arm). The plan below is the original record.
 
-> Biblioteca de knowledge graph unificada: núcleo de grafo comum, dois extractors plugáveis (documento via LLM, código via tree-sitter), retrieval graph-aware, medido contra baseline vetorial com GNOMON. Document-first (cobre as vagas), code depois (on-brand AXON).
+> Unified knowledge graph library: common graph core, two pluggable extractors (document via LLM, code via tree-sitter), graph-aware retrieval, measured against vector baseline with GNOMON. Document-first (covers job requirements), code later (on-brand AXON).
 
-## Arquitetura alvo
+## Target architecture
 
 ```
                       Extractor port
               +-------------+-------------+
               |                           |
      DocumentExtractor             CodeExtractor
-     (LLM, probabilístico)         (tree-sitter, determinístico)
+     (LLM, probabilistic)          (tree-sitter, deterministic)
               |                           |
               +----------> Graph <--------+
                           (Node/Edge model)
@@ -27,177 +27,176 @@
                               |
                     graph-aware retrieval
                               |
-              GNOMON benchmark  vs  vector baseline (Python, mesmo corpus)
+              GNOMON benchmark  vs  vector baseline (Python, same corpus)
 ```
 
-Invariantes (ArchUnit-style):
-- Extractors implementam o port; núcleo de grafo não conhece extractor concreto.
-- Retrieval e store dependem só do modelo de domínio, não do extractor.
-- O baseline vetorial é implementação justa e real, não espantalho.
+Invariants (ArchUnit-style):
+- Extractors implement the port; graph core does not know concrete extractor.
+- Retrieval and store depend only on domain model, not on extractor.
+- Vector baseline is fair and real implementation, not a strawman.
 
-## Decisões fechadas
+## Closed decisions
 
-- Versão forte: núcleo comum + Extractor port com dois adapters. Não um schema único servindo aos dois domínios.
-- Backend: GraphStore port, NetworkX default + Neo4j adapter (keyword de CV, smoke-tested).
-- Ordem: DocumentExtractor primeiro (driver = cobrir vagas), CodeExtractor depois.
-- Extração documental: LLM-based (justificada para prosa).
-- Consumido pelo AXON via `GraphContextSource` (ADR-102), que passa a delegar para GLYPH.
+- Strong version: common core + Extractor port with two adapters. Not a single schema serving both domains.
+- Backend: GraphStore port, NetworkX default + Neo4j adapter (CV keyword, smoke-tested).
+- Order: DocumentExtractor first (driver = cover job requirements), CodeExtractor later.
+- Document extraction: LLM-based (justified for prose).
+- Consumed by AXON via `GraphContextSource` (ADR-102), which delegates to GLYPH.
 
-## Dependências e bloqueios
+## Dependencies and blockers
 
-- **GNOMON (auditado): já é pip-installable** (hatchling, src-layout; `run_eval` e `aggregate_metric` importáveis, não presos em `__main__`). **Deixa de bloquear a Fase 3.** O único item é o GLYPH referenciá-lo por path/git no `pyproject` (não há PyPI/remote) — uma linha, sub-task da Fase 3, não fase própria.
-- **Corpus:** 10-15 livros DeD (150-300 pág). Dado real, denso em entidades. Extração LLM será cara no volume; medir custo em 1 livro antes de escalar (gate na Fase 1).
-- **APIs voláteis** (LLM extraction, NetworkX, Neo4j driver, lib de PDF): confirmar na doc atual antes de cada fase de implementação.
+- **GNOMON (audited): already pip-installable** (hatchling, src-layout; `run_eval` and `aggregate_metric` importable, not locked in `__main__`). **No longer blocks Phase 3.** The only item is GLYPH referencing it by path/git in `pyproject` (no PyPI/remote) — one line, sub-task of Phase 3, not its own phase.
+- **Corpus:** 10–15 D&D books (150–300 pages). Real data, dense in entities. LLM extraction will be expensive at scale; measure cost on 1 book before scaling (gate in Phase 1).
+- **Volatile APIs** (LLM extraction, NetworkX, Neo4j driver, PDF lib): confirm in current docs before each implementation phase.
 
 ---
 
-## Fase 0 — Fundação
+## Phase 0 — Foundation
 
-Objetivo: esqueleto da lib, modelo de domínio, ports, quality gates. Sem extração ainda.
+Goal: library skeleton, domain model, ports, quality gates. No extraction yet.
 
-- **P0.1** Scaffold do repo: `pyproject.toml` (pip-installable), estrutura hexagonal (`glyph/model`, `glyph/store`, `glyph/extract`, `glyph/retrieval`, `glyph/eval`), licença, README stub.
-- **P0.2** Modelo de domínio (Pydantic v2): `Node`, `Edge`, `EdgeType`, `NodeType`. Genérico o suficiente para código e documento, específico o suficiente para não ser sopa. Tipos de aresta separados por domínio (`CALLS`/`IMPORTS` para código; `RELATES_TO`/`MENTIONS`/etc. para documento).
+- **P0.1** Repo scaffold: `pyproject.toml` (pip-installable), hexagonal structure (`glyph/model`, `glyph/store`, `glyph/extract`, `glyph/retrieval`, `glyph/eval`), license, README stub.
+- **P0.2** Domain model (Pydantic v2): `Node`, `Edge`, `EdgeType`, `NodeType`. Generic enough for code and document, specific enough not to be soup. Edge types separated by domain (`CALLS`/`IMPORTS` for code; `RELATES_TO`/`MENTIONS`/etc. for document).
 - **P0.3** `GraphStore` port (Protocol): `upsert_nodes`, `upsert_edges`, `neighbors(node, hops)`, `subgraph(seed, hops)`, `shortest_path`.
-- **P0.4** Adapter NetworkX (default): implementa o port in-memory com persistência (pickle/graphml).
+- **P0.4** NetworkX adapter (default): implements port in-memory with persistence (pickle/graphml).
 - **P0.5** `Extractor` port (Protocol): `extract(source) -> tuple[Sequence[Node], Sequence[Edge]]`.
-- **P0.6** Quality gates: pytest + coverage gate, teste de invariante de arquitetura (núcleo não importa extractor concreto), CI (lint, types, test).
-- **ADR-G1**: Extractor port + escolha de backend (NetworkX default, Neo4j adapter, justificativa pip-installable).
+- **P0.6** Quality gates: pytest + coverage gate, architecture invariant test (core does not import concrete extractor), CI (lint, types, test).
+- **ADR-G1**: Extractor port + backend choice (NetworkX default, Neo4j adapter, pip-installable rationale).
 
-Entregável: lib instalável vazia com modelo, ports e NetworkX. Conteúdo: nenhum ainda.
-
----
-
-## Fase 1 — Document extraction (prioridade, cobre vagas)
-
-Objetivo: construir KG documental real a partir do corpus DeD.
-
-- **P1.1** Ingestão de PDF em Python (pymupdf ou similar): PDF → texto por seção/página, com metadados (livro, página).
-- **P1.2** Chunking de documento (estrutura-aware: capítulo/seção, não corte cego).
-- **P1.3** `DocumentExtractor` (LLM): prompt de extração entidade/relação, parse para `Node`/`Edge`. Schema de entidades do domínio DeD (criatura, magia, item, regra, local) e relações (resiste a, requer, pertence a, etc.).
-- **P1.4** Gate de custo/qualidade em 1 livro: rodar P1.1-1.3 num único livro, medir custo de extração (tokens × preço), latência, e amostragem manual de qualidade das relações. **Não escalar antes de aprovar este gate.**
-- **P1.5** Escalar para o corpus completo (10-15 livros), persistir o grafo via NetworkX.
-- **ADR-G2**: estratégia de extração documental (schema de entidades, modelo de prompt, limitação probabilística declarada).
-
-Entregável: KG documental persistido sobre corpus real. Conteúdo: post curto sobre extração de KG de documento.
+Deliverable: empty installable lib with model, ports, and NetworkX. Content: none yet.
 
 ---
 
-## Fase 2 — Retrieval + baseline vetorial justo
+## Phase 1 — Document extraction (priority, covers job requirements)
 
-Objetivo: retrieval graph-aware e o baseline contra o qual medir. Os dois lados da comparação.
+Goal: build real document KG from D&D corpus.
 
-- **P2.1** Retrieval graph-aware: dado uma query, ancorar entidades e expandir vizinhança por `hops`, retornar contexto estrutural.
-- **P2.2** Baseline vetorial (Python, mesmo corpus): chunk + embedding + vector store (in-memory ou pgvector). Implementação real e justa, igual cuidado do graph path. Este é o controle do experimento.
-- **P2.3** Modo híbrido: fusão graph + vetor (terceiro braço do benchmark).
-- **P2.4** Contrato de saída unificado (`Segment`/`ContextPack`) para os três modos, comparável token-a-token.
-- **ADR-G3**: desenho do baseline (por que é justo, parâmetros, igualdade de budget entre os braços).
+- **P1.1** PDF ingestion in Python (pymupdf or similar): PDF → text by section/page, with metadata (book, page).
+- **P1.2** Document chunking (structure-aware: chapter/section, not blind cut).
+- **P1.3** `DocumentExtractor` (LLM): entity/relation extraction prompt, parse to `Node`/`Edge`. D&D domain entity schema (creature, spell, item, rule, location) and relations (resists, requires, belongs to, etc.).
+- **P1.4** Cost/quality gate on 1 book: run P1.1–1.3 on single book, measure extraction cost (tokens × price), latency, and manual sampling of relation quality. **Do not scale before approving this gate.**
+- **P1.5** Scale to full corpus (10–15 books), persist graph via NetworkX.
+- **ADR-G2**: document extraction strategy (entity schema, prompt model, declared probabilistic limitation).
 
-Entregável: três modos de retrieval funcionais sobre o mesmo corpus. Conteúdo: nenhum até medir.
-
----
-
-## Fase 2.5 — Destravar GNOMON (RESOLVIDO pela auditoria)
-
-A auditoria do GNOMON dissolveu esta fase: o GNOMON **já** é pip-installable e `run_eval`/
-`aggregate_metric` são importáveis de verdade. Não há empacotamento a fazer (cai a decisão A vs B).
-O que sobrou é pequeno e migra para a Fase 3 como P3.0: referenciar o GNOMON por path/git no
-`pyproject` do GLYPH e escrever o adapter `RagTarget` (ver abaixo). Esta fase deixa de ser um
-bloqueio.
+Deliverable: document KG persisted on real corpus. Content: short post on document KG extraction.
 
 ---
 
-## Fase 3 — Benchmark + baseline reproduzível
+## Phase 2 — Retrieval + fair vector baseline
 
-Objetivo: o número honesto. Esta fase é o claim das vagas e o artigo.
+Goal: graph-aware retrieval and the baseline against which to measure. Both sides of the comparison.
 
-- **P3.0** Consumir o GNOMON: referenciar por path/git no `pyproject` do GLYPH; escrever um adapter
-  **`RagTarget`** (o GNOMON é pull-based — `run_eval` chama `target.query(question)`). O GLYPH
-  pré-computa os resultados de cada braço (graph, vetor, híbrido) keyed por question e expõe um
-  `RagTarget` por braço que devolve o resultado armazenado via `query(question) -> RagResponse`.
-  Roda `run_eval` uma vez por braço. (Push-based `evaluate()` no GNOMON é melhoria futura — ROADMAP
-  do GNOMON, não do GLYPH.) **Restrições de contrato do GNOMON v1, declaradas:**
-  - `RagResponse` exige `total_tokens` e `latency_ms` (validados ≥ 0) → **instrumentar token e
-    latência reais nos três braços é requisito**, não opcional (placeholder polui o relatório).
-  - Métricas v1 = **`faithfulness` e `context_precision`** apenas (answer relevance e context recall
-    são v2, não-construídos). O artigo reporta só essas duas, com CIs — não prometer recall.
-  - **Custo em moeda não existe no GNOMON**, só tokens; o GLYPH calcula US$ a partir de `total_tokens`
-    por fora.
-- **P3.1** Harness de benchmark: roda os três modos (graph, vetor, híbrido) sobre um conjunto de queries do corpus DeD.
-- **P3.2** Conjunto de queries: query set realista (perguntas que exigem relações entre entidades, onde grafo deveria ganhar; e factuais simples, onde vetor pode bastar). Reportar os dois.
-- **P3.3** Métricas via GNOMON: `faithfulness` e `context_precision` (as duas do v1), mais token efficiency, custo (calculado pelo GLYPH a partir de tokens) e latência. Todas com CI (percentile bootstrap).
-- **P3.4** Baseline reproduzível (aprendizado C1b+3c): dataset fixo versionado + `make benchmark` que regenera agregados; número de referência no `METRICS.md` com check de regressão (build falha se divergir além de tolerância). Corpus/queries em estado congelado para reprodutibilidade.
-- **P3.5** Relatório honesto: tabela com CIs incluindo onde o grafo **não** ganhou; declarar n (queries), largura de CI, e que tokens são contagem real ou estimativa.
-- **Backlog de qualidade da extração** (observado no gate P1.4): normalizar casing de labels e avaliar erros probabilísticos de relação (ex. ANKHEG `resists ácido`). Detalhe em [decisions/phase3-quality-backlog.md](decisions/phase3-quality-backlog.md).
-- **ADR-G4**: metodologia de eval (query set, bootstrap, definição de relevância).
+- **P2.1** Graph-aware retrieval: given a query, anchor entities and expand neighborhood by `hops`, return structural context.
+- **P2.2** Vector baseline (Python, same corpus): chunk + embedding + vector store (in-memory or pgvector). Real and fair implementation, equal care as graph path. This is the experiment control.
+- **P2.3** Hybrid mode: graph + vector fusion (third benchmark arm).
+- **P2.4** Unified output contract (`Segment`/`ContextPack`) for three modes, comparable token-to-token.
+- **ADR-G3**: baseline design (why it is fair, parameters, budget equality across arms).
 
-Entregável: tabela de resultados reproduzível. Conteúdo: artigo principal ("GraphRAG vs vector retrieval sobre corpus real, medido").
+Deliverable: three functional retrieval modes on same corpus. Content: none until measured.
 
 ---
 
-## Fase 4 — Code extraction (on-brand, AXON)
+## Phase 2.5 — Unblock GNOMON (RESOLVED by audit)
 
-Objetivo: segundo extractor, segundo domínio, segundo claim de KG.
-
-- **P4.1** `CodeExtractor` (tree-sitter): reusar/alinhar com a lógica já existente no AXON (`graph_extractor.py`) em vez de reimplementar do zero. Decisão: GLYPH passa a ser a fonte canônica e o AXON delega, ou GLYPH espelha o comportamento. Resolver na P4.1.
-- **P4.2** Linguagens-alvo: Python + Java (o set indexado do AXON), TS opcional.
-- **P4.3** Validar em repos reais num SHA fixo (AXON, GNOMON), gerar grafo de código.
-- **P4.4** Rodar o mesmo harness de benchmark (Fase 3) no domínio código: contexto estrutural vs vetorial para tarefas de agente.
-- **ADR-G5**: resolução de símbolo no code extractor (limitação por nome/import graph declarada).
-
-Entregável: KG de código validado. Conteúdo: post comparando os dois domínios no mesmo framework.
+The GNOMON audit dissolved this phase: GNOMON **already** is pip-installable and `run_eval`/
+`aggregate_metric` are truly importable. No packaging to do (decision A vs B falls away).
+What remains is small and migrates to Phase 3 as P3.0: reference GNOMON by path/git in
+GLYPH `pyproject` and write the `RagTarget` adapter (see below). This phase no longer blocks.
 
 ---
 
-## Fase 5 — Integração AXON
+## Phase 3 — Benchmark + reproducible baseline
 
-Objetivo: fechar o loop com o reescopo já especificado (ADR-102/103).
+Goal: the honest number. This phase is the job requirement claim and the article.
 
-- **P5.1** `GraphContextSource` do AXON (ADR-102) passa a delegar para a lib GLYPH como dependência.
-- **P5.2** Ajustar ADR-102/103: nota de uma linha apontando que o `GraphContextSource` é implementado pelo GLYPH.
-- **P5.3** Consolidação do grafo do AXON (ADR-103) permanece; GLYPH consome o grafo SQLite consolidado.
-- **P5.4** Teste de integração: AXON serve contexto graph-aware via GLYPH sobre MCP.
+- **P3.0** Consume GNOMON: reference by path/git in GLYPH `pyproject`; write a **`RagTarget`** adapter
+  (GNOMON is pull-based — `run_eval` calls `target.query(question)`). GLYPH
+  pre-computes results for each arm (graph, vector, hybrid) keyed by question and exposes a
+  `RagTarget` per arm that returns the stored result via `query(question) -> RagResponse`.
+  Runs `run_eval` once per arm. (Push-based `evaluate()` in GNOMON is future improvement — GNOMON
+  ROADMAP, not GLYPH.) **GNOMON v1 contract restrictions, declared:**
+  - `RagResponse` requires `total_tokens` and `latency_ms` (validated ≥ 0) → **instrumenting real token and
+    latency across three arms is required**, not optional (placeholder pollutes the report).
+  - v1 metrics = **`faithfulness` and `context_precision`** only (answer relevance and context recall
+    are v2, not built). Article reports only these two, with CIs — do not promise recall.
+  - **Currency cost does not exist in GNOMON**, only tokens; GLYPH calculates USD from `total_tokens`
+    separately.
+- **P3.1** Benchmark harness: runs three modes (graph, vector, hybrid) over a set of queries from D&D corpus.
+- **P3.2** Query set: realistic query set (questions requiring relations between entities, where graph should win; and simple factual, where vector may suffice). Report both.
+- **P3.3** Metrics via GNOMON: `faithfulness` and `context_precision` (the two from v1), plus token efficiency, cost (calculated by GLYPH from tokens) and latency. All with CI (percentile bootstrap).
+- **P3.4** Reproducible baseline (lessons C1b+3c): fixed versioned dataset + `make benchmark` that regenerates aggregates; reference number in `METRICS.md` with regression check (build fails if diverges beyond tolerance). Corpus/queries in frozen state for reproducibility.
+- **P3.5** Honest report: table with CIs including where graph **did not** win; declare n (queries), CI width, and whether tokens are real count or estimate.
+- **Extraction quality backlog** (observed at gate P1.4): normalize label casing and evaluate probabilistic relation errors (e.g., ANKHEG `resists acid`). Detail in [decisions/phase3-quality-backlog.md](decisions/phase3-quality-backlog.md).
+- **ADR-G4**: eval methodology (query set, bootstrap, relevance definition).
 
-Entregável: AXON consumindo GLYPH. Conteúdo: post sobre a integração context-source.
+Deliverable: reproducible results table. Content: main article ("GraphRAG vs vector retrieval on real corpus, measured").
 
 ---
 
-## Fase 6 — Publicação / portfólio
+## Phase 4 — Code extraction (on-brand, AXON)
 
-Objetivo: converter o trabalho em evidência verificável.
+Goal: second extractor, second domain, second KG claim.
 
-- **P6.1** README do GLYPH com métricas verificadas, limitações declaradas, link reproduzível do benchmark.
-- **P6.2** Artigo técnico (validation-first: claim checklist contra a codebase, número verificado antes de publicar).
-- **P6.3** Claim de CV/LinkedIn: "built a knowledge-graph library spanning document and code domains; benchmarked graph-aware vs vector retrieval with confidence intervals." Cobre Near e Marlabs ao pé da letra.
-- **P6.4** Endorsement/visibilidade: showcase nos Discords (Qdrant, MCP), link no primeiro comentário, não no corpo do post.
+- **P4.1** `CodeExtractor` (tree-sitter): reuse/align with existing AXON logic (`graph_extractor.py`) rather than reimplement from scratch. Decision: GLYPH becomes canonical source and AXON delegates, or GLYPH mirrors behavior. Resolve in P4.1.
+- **P4.2** Target languages: Python + Java (AXON's indexed set), TypeScript optional.
+- **P4.3** Validate on real repos at fixed SHA (AXON, GNOMON), generate code graph.
+- **P4.4** Run same benchmark harness (Phase 3) on code domain: structural context vs vector for agent tasks.
+- **ADR-G5**: symbol resolution in code extractor (limitation by name/import graph declared).
 
-Entregável: portfólio publicável. Cobre o gap de KG das vagas com evidência medida.
+Deliverable: validated code KG. Content: post comparing two domains in same framework.
 
 ---
 
-## Sequência crítica
+## Phase 5 — AXON integration
+
+Goal: close the loop with already-specified rescope (ADR-102/103).
+
+- **P5.1** AXON `GraphContextSource` (ADR-102) delegates to GLYPH lib as dependency.
+- **P5.2** Update ADR-102/103: one-line note stating `GraphContextSource` is implemented by GLYPH.
+- **P5.3** AXON graph consolidation (ADR-103) remains; GLYPH consumes consolidated SQLite graph.
+- **P5.4** Integration test: AXON serves graph-aware context via GLYPH over MCP.
+
+Deliverable: AXON consuming GLYPH. Content: post on context-source integration.
+
+---
+
+## Phase 6 — Publication / portfolio
+
+Goal: convert work into verifiable evidence.
+
+- **P6.1** GLYPH README with verified metrics, declared limitations, reproducible benchmark link.
+- **P6.2** Technical article (validation-first: claim checklist against codebase, number verified before publishing).
+- **P6.3** CV/LinkedIn claim: "built a knowledge-graph library spanning document and code domains; benchmarked graph-aware vs vector retrieval with confidence intervals." Covers Near and Marlabs to the letter.
+- **P6.4** Endorsement/visibility: showcase in Discords (Qdrant, MCP), link in first comment, not in post body.
+
+Deliverable: publishable portfolio. Covers KG gap in job requirements with measured evidence.
+
+---
+
+## Critical sequence
 
 ```
-Fase 0  ->  Fase 1  ->  Fase 2  ->  Fase 3 (claim das vagas)
-                                          |    (GNOMON pronto; P3.0 = referenciar + adapter RagTarget)
+Phase 0  ->  Phase 1  ->  Phase 2  ->  Phase 3 (job requirement claim)
+                                          |    (GNOMON ready; P3.0 = reference + RagTarget adapter)
                                           |
-                    Fase 4 (code)  -------+
+                    Phase 4 (code)  -------+
                           |
-                    Fase 5 (AXON)  ->  Fase 6 (publicação)
+                    Phase 5 (AXON)  ->  Phase 6 (publication)
 ```
 
-O caminho até a Fase 3 é o que cobre as vagas. Fases 4-5 fortalecem o moat e não bloqueiam o claim documental. Cada fase tem entregável publicável isolado: você acumula conteúdo sem esperar o fim.
+The path to Phase 3 is what covers the job requirements. Phases 4–5 strengthen the moat and do not block the document claim. Each phase has an isolated publishable deliverable: you accumulate content without waiting for the end.
 
-## Gates globais
+## Global gates
 
-- TDD por sub-task; nada entra sem teste.
-- Invariante de arquitetura verificado no CI.
-- Cada fase fecha com seu ADR antes de avançar.
-- Custo medido cedo (P1.4) antes de escalar extração.
-- Baseline justo é condição de validade do benchmark, não opcional.
-- Número publicado é reproduzível do repo (P3.4), senão não é publicado.
+- TDD per sub-task; nothing enters without test.
+- Architecture invariant verified in CI.
+- Each phase closes with its ADR before advancing.
+- Cost measured early (P1.4) before scaling extraction.
+- Fair baseline is a validity condition for the benchmark, not optional.
+- Published number is reproducible from repo (P3.4), otherwise not published.
 
-## Aberto antes da Fase 0
+## Open before Phase 0
 
-- Nome: GLYPH unificado confirmado. Manter.
-- Numeração de ADR: ADR-G1..G5 são internos do GLYPH (repo próprio); independentes do dec-NNN do AXON.
-- Lib de embedding e vector store do baseline (P2.2): definir na Fase 2 (opções: sentence-transformers + pgvector, ou o que o GNOMON/AXON já usam, para consistência).
+- Name: unified GLYPH confirmed. Keep.
+- ADR numbering: ADR-G1..G5 are internal to GLYPH (own repo); independent from AXON's dec-NNN.
+- Embedding lib and vector store for baseline (P2.2): define in Phase 2 (options: sentence-transformers + pgvector, or what GNOMON/AXON already use, for consistency).

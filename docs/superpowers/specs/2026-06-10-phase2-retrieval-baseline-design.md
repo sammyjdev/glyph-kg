@@ -1,63 +1,62 @@
-# Design — Fase 2: Retrieval graph-aware + baseline vetorial (P2.1–P2.4)
+# Design — Phase 2: Graph-aware retrieval + vector baseline (P2.1–P2.4)
 
-**Data:** 2026-06-10
-**Status:** Aprovado (brainstorming)
-**Escopo desta sessão:** P2.1–P2.4 (os três braços + contrato). A **medição** é Fase 3
-(depende de destravar o GNOMON na Fase 2.5) e fica fora desta sessão.
+**Date:** 2026-06-10
+**Status:** Approved (brainstorming)
+**Scope of this session:** P2.1–P2.4 (three retrieval arms + contract). **Measurement** is Phase 3
+(depends on unblocking GNOMON in Phase 2.5) and is out of scope for this session.
 
-## Objetivo
+## Objective
 
-Construir a maquinaria de retrieval do GLYPH: três braços — graph-aware, baseline vetorial
-justo e híbrido — produzindo um contrato de saída único (`ContextPack`) comparável token-a-token,
-sobre o mesmo corpus (o grafo do Monster Manual e os chunks que o geraram). Sem benchmark nesta
-fase; só os modos funcionando. Entregável: `retrieve(query, mode=graph|vector|hybrid) -> ContextPack`.
+Build GLYPH's retrieval machinery: three arms — graph-aware, fair vector baseline, and hybrid —
+producing a single output contract (`ContextPack`) comparable token-by-token across the same corpus
+(the Monster Manual graph and the chunks that generated it). No benchmark in this phase; just the
+modes working. Deliverable: `retrieve(query, mode=graph|vector|hybrid) -> ContextPack`.
 
-## Decisões fechadas (brainstorming)
+## Closed decisions (brainstorming)
 
-1. **Embeddings:** sentence-transformers local multilingual + índice vetorial in-memory
-   (numpy/cosine). Zero servidor, zero custo de API, lida com PT-BR. Extra opcional
-   `glyph-kg[retrieval]`. Modelo default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
-   (configurável).
-2. **Corpus justo:** o baseline vetorial indexa o texto dos **mesmos ~425 chunks de criatura**
-   (saída do `chunk.by_creature` + `is_creature`). O braço-grafo é a extração estruturada desses
-   mesmos chunks. Mesma fonte, representações diferentes — experimento controlado.
-3. **Ancoragem do grafo:** embedding leve — embeda a query e os labels dos nós, ancora nos top-k
-   labels mais próximos. Cobre query nomeando entidade ("o que o Deva resiste?") e query conceitual
-   ("que criaturas resistem a fogo?") porque a expansão de vizinhança é não-direcionada.
-4. **Budget de token:** os três braços cortam a saída no mesmo budget, medido por **estimativa
-   por char** (limitação declarada; tokenizer real é assunto da Fase 3, alinhado à honestidade do AXON).
-5. **Contrato:** `Segment`/`ContextPack` em `glyph/model/`, idêntico nos três braços.
+1. **Embeddings:** local multilingual sentence-transformers + in-memory vector index (numpy/cosine).
+   Zero server, zero API cost, supports PT-BR. Optional extra `glyph-kg[retrieval]`. Default model
+   `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` (configurable).
+2. **Fair corpus:** the vector baseline indexes the text of the **same ~425 creature chunks**
+   (output of `chunk.by_creature` + `is_creature`). The graph arm is structured extraction from those
+   same chunks. Same source, different representations — controlled experiment.
+3. **Graph anchoring:** lightweight embedding — embeds the query and node labels, anchors to top-k
+   nearest labels. Covers entity-naming queries ("what does Deva resist?") and conceptual queries
+   ("which creatures resist fire?") because neighborhood expansion is undirected.
+4. **Token budget:** all three arms truncate output at the same budget, measured by **character-based
+   estimation** (declared limitation; real tokenizer is Phase 3 scope, aligned to AXON's honesty).
+5. **Contract:** `Segment`/`ContextPack` in `glyph/model/`, identical across all three arms.
 
-## Arquitetura (hexagonal, preserva os invariantes do Phase 0)
+## Architecture (hexagonal, preserves Phase 0 invariants)
 
 ```
 glyph/
-  embed/          # infra de embedding — não importa model/store/retrieval/baseline
+  embed/          # embedding infrastructure — does not import model/store/retrieval/baseline
     port.py         # Embedder Protocol; VectorIndex Protocol
-    sentence_transformers_embedder.py   # adapter local (extra opcional)
+    sentence_transformers_embedder.py   # local adapter (optional extra)
     memory_index.py # InMemoryVectorIndex (numpy cosine)
   model/
     contract.py     # Segment, ContextPack (+ estimate_tokens helper)
-  retrieval/        # depende de store(port) + embed + model; NÃO importa baseline
+  retrieval/        # depends on store(port) + embed + model; does NOT import baseline
     port.py         # Retriever Protocol: retrieve(query, ...) -> ContextPack
     graph.py        # GraphRetriever (anchor -> subgraph(hops) -> ContextPack)
-    hybrid.py       # HybridRetriever(graph, vector) — fusão via injeção, sob o Retriever Protocol
-  baseline/         # depende de embed + model; NÃO importa retrieval
-    vector.py       # VectorBaseline (indexa chunks -> top-k cosine -> ContextPack)
+    hybrid.py       # HybridRetriever(graph, vector) — fusion via injection, under Retriever Protocol
+  baseline/         # depends on embed + model; does NOT import retrieval
+    vector.py       # VectorBaseline (indexes chunks -> top-k cosine -> ContextPack)
 ```
 
-Regra de dependência: `embed` não conhece ninguém de dentro; `retrieval` e `baseline` dependem de
-`embed`, `model` e (retrieval) do `GraphStore` port. **`retrieval` e `baseline` não se importam**:
-o `HybridRetriever` recebe dois objetos que satisfazem o `Retriever` Protocol (injeção pelo
-composition root), então funde sem acoplar as camadas. O teste de invariantes de arquitetura é
-estendido para cobrir `embed`/`retrieval`/`baseline`.
+Dependency rule: `embed` does not know anyone else; `retrieval` and `baseline` depend on `embed`,
+`model`, and (retrieval) on the `GraphStore` port. **`retrieval` and `baseline` don't care**:
+`HybridRetriever` receives two objects that satisfy the `Retriever` Protocol (injected via
+composition root), then fuses without coupling the layers. Architecture invariant tests are
+extended to cover `embed`/`retrieval`/`baseline`.
 
-## Contrato de saída
+## Output contract
 
 ```python
 class Segment(BaseModel, frozen=True):
     text: str
-    source: str          # node id (graph) ou chunk label (vector)
+    source: str          # node id (graph) or chunk label (vector)
     score: float
 
 class ContextPack(BaseModel, frozen=True):
@@ -65,51 +64,51 @@ class ContextPack(BaseModel, frozen=True):
     segments: list[Segment]
     token_estimate: int
 
-def estimate_tokens(text: str) -> int   # estimativa por char (declarada)
+def estimate_tokens(text: str) -> int   # character-based estimation (declared)
 ```
 
-O `ContextPack` é montado adicionando segmentos (ordenados por score) até o budget de token; o
-`token_estimate` reflete o total incluído. Mesmo budget nos três braços = comparação justa.
+The `ContextPack` is assembled by adding segments (ordered by score) until the token budget is reached;
+`token_estimate` reflects the total included. Same budget across all three arms = fair comparison.
 
-## Fluxo de dados por braço
+## Data flow per arm
 
-- **GraphRetriever(store, embedder, node_labels_index):** embeda a query → top-k âncoras (cosine vs
-  labels) → `store.subgraph(anchor_ids, hops)` → para cada nó do subgrafo monta um `Segment`
-  (label + atributos + suas arestas, ex.: "Deva — resists radiante; immune_to enfeitiçado") →
-  ordena por proximidade da âncora → corta ao budget.
-- **VectorBaseline(embedder):** `index(chunks)` embeda cada texto de chunk no `InMemoryVectorIndex`
-  → `retrieve(query, budget)` embeda a query, busca top-k, monta `Segment` por chunk → corta ao budget.
-- **HybridRetriever(graph, vector):** roda os dois, funde por **reciprocal rank fusion** sobre
-  `Segment.source`, deduplica, corta ao budget compartilhado.
+- **GraphRetriever(store, embedder, node_labels_index):** embeds the query → top-k anchors (cosine vs
+  labels) → `store.subgraph(anchor_ids, hops)` → for each node in the subgraph assembles a `Segment`
+  (label + attributes + its edges, e.g., "Deva — resists radiant; immune_to enchanted") →
+  sorts by anchor proximity → truncates to budget.
+- **VectorBaseline(embedder):** `index(chunks)` embeds each chunk text into `InMemoryVectorIndex`
+  → `retrieve(query, budget)` embeds the query, searches top-k, assembles `Segment` per chunk → truncates to budget.
+- **HybridRetriever(graph, vector):** runs both, fuses via **reciprocal rank fusion** on
+  `Segment.source`, deduplicates, truncates to shared budget.
 
-## ADR-G3 (a registrar antes da implementação)
+## ADR-G3 (to be recorded before implementation)
 
-Baseline justo: mesmos chunks, mesmo embedder, mesmo budget, implementação real (chunk + embedding
-+ vector store + top-k), não espantalho. Documenta a igualdade de budget entre os braços e a
-limitação da contagem de token por char nesta fase.
+Fair baseline: same chunks, same embedder, same budget, real implementation (chunk + embedding
++ vector store + top-k), not a strawman. Documents budget equality across arms and the
+character-based token counting limitation in this phase.
 
-## Estratégia de teste (TDD)
+## Test strategy (TDD)
 
-- Toda a lógica — anchoring, montagem do `ContextPack`, corte por budget, fusão RRF, busca cosine
-  do `InMemoryVectorIndex` — testada com um **fake embedder determinístico** (vetores fixos por
-  texto). Sem download de modelo, sem rede.
-- `InMemoryVectorIndex`: testes de cosine/top-k com vetores conhecidos.
-- O adapter `SentenceTransformerEmbedder` real ganha um smoke test **opt-in** (`@pytest.mark.slow`,
-  fora do CI default — baixa o modelo) que embeda duas frases PT-BR e checa que a mais similar
-  rankeia primeiro. Espelha o padrão do fake-LLM/`@pytest.mark.live` da Fase 1.
-- Validação manual (sem CI): um script de wiring carrega `out/monster-manual.json` num
-  `NetworkXStore` + os chunks do MM, e roda algumas queries nos três modos para inspeção.
+- All logic — anchoring, `ContextPack` assembly, budget truncation, RRF fusion, cosine search
+  in `InMemoryVectorIndex` — tested with a **deterministic fake embedder** (fixed vectors per
+  text). No model downloads, no network.
+- `InMemoryVectorIndex`: cosine/top-k tests with known vectors.
+- The real `SentenceTransformerEmbedder` adapter gets an **opt-in** smoke test (`@pytest.mark.slow`,
+  outside default CI — downloads the model) that embeds two PT-BR sentences and verifies the most
+  similar ranks first. Mirrors the fake-LLM/`@pytest.mark.live` pattern from Phase 1.
+- Manual validation (outside CI): a wiring script loads `out/monster-manual.json` into a
+  `NetworkXStore` + MM chunks, and runs a few queries in all three modes for inspection.
 
-## Critérios de done da Fase 2
+## Phase 2 done criteria
 
-- ADR-G3 commitado antes da implementação.
+- ADR-G3 committed before implementation.
 - `embed` (port + ST adapter + InMemoryVectorIndex), `Segment`/`ContextPack`, `GraphRetriever`,
-  `VectorBaseline`, `HybridRetriever` implementados com TDD; suíte verde; invariantes de arquitetura
-  estendidos e verdes.
-- Os três modos rodam sobre o grafo/chunks reais do MM via script de wiring (inspeção manual).
-- CI verde (lint, types, test, coverage, invariantes). Testes que baixam modelo ficam fora do default.
+  `VectorBaseline`, `HybridRetriever` implemented with TDD; test suite green; architecture invariants
+  extended and green.
+- All three modes run against real MM graph/chunks via wiring script (manual inspection).
+- CI green (lint, types, test, coverage, invariants). Tests that download models stay out of default.
 
-## Fora de escopo
+## Out of scope
 
-Benchmark/medição (Fase 3), GNOMON (Fase 2.5), tokenizer real, integração AXON, facade `Glyph`
-completa do README (os três retrievers + script de wiring bastam; o facade entra quando agregar valor).
+Benchmark/measurement (Phase 3), GNOMON (Phase 2.5), real tokenizer, AXON integration, complete `Glyph`
+facade from README (the three retrievers + wiring script suffice; the facade enters when it adds value).

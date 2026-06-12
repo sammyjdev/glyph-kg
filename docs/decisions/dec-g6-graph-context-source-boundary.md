@@ -1,42 +1,42 @@
-# ADR-G6: GraphContextSource é a fronteira de produto do GLYPH
+# ADR-G6: GraphContextSource is the product boundary of GLYPH
 
-**Data:** 2026-06-11
-**Status:** Aceito
+**Date:** 2026-06-11
+**Status:** Accepted
 
-## Contexto
+## Context
 
-O GLYPH passa a ser usado como **biblioteca de produto** por consumidores externos (o AXON,
-via dec-116, e clientes futuros), não só pelo próprio benchmark. Um consumidor precisa de uma
-fronteira **nomeada e estável** para retrieval graph-aware, em vez de depender dos detalhes de
-construção do `GraphRetriever` (embedder + lista de nós + `hops`/`anchors`), que são internos e
-podem evoluir (fusão híbrida, anchoring diferente, mudança no node-listing).
+GLYPH is now used as a **product library** by external consumers (AXON via dec-116, and future
+clients), not just by its own benchmark. A consumer needs a **named and stable** boundary for
+graph-aware retrieval, rather than depending on the construction details of `GraphRetriever`
+(embedder + node list + `hops`/`anchors`), which are internal and may evolve (hybrid fusion,
+different anchoring, node-listing changes).
 
-O `glyph.integration.GraphContextSource` já existia como facade fino, mas expunha o método
-`context()`, paralelo — e portanto **não satisfazia** o port canônico
-`glyph.retrieval.port.Retriever` (`retrieve(query, token_budget) -> ContextPack`). Dois nomes
-para o mesmo contrato é justamente a incoerência que uma biblioteca de produto não deve ter.
+The `glyph.integration.GraphContextSource` already existed as a thin facade, but exposed the
+`context()` method, which was parallel — and therefore **did not satisfy** the canonical port
+`glyph.retrieval.port.Retriever` (`retrieve(query, token_budget) -> ContextPack`). Two names
+for the same contract is precisely the incoherence that a product library should not have.
 
-## Decisão
+## Decision
 
-- `GraphContextSource` **satisfaz o port `Retriever`**: o método externo é `retrieve(query,
-  token_budget) -> ContextPack`, idêntico ao contrato de todos os braços. Assim o facade é um
-  `Retriever` estrutural e entra onde quer que um `Retriever` seja esperado. Um teste trava a
-  conformância (`isinstance(source, Retriever)`).
-- **Duas entradas, o mesmo objeto:**
-  - `GraphContextSource(store, embedder, nodes)` — **in-memory**: o chamador já tem um
-    `GraphStore` e a lista de nós (caso do AXON, que os monta a partir do grafo SQLite).
-  - `GraphContextSource.from_graph_file(path, embedder)` — **persistido**: carrega um grafo
-    NetworkX (documento ou código) do disco, dobrando load + node-listing + wiring numa chamada.
-- A fronteira pode evoluir por trás de `retrieve()` sem quebrar consumidores. O `nodes` segue
-  explícito no construtor (o `GraphStore` port não enumera nós, e o `GraphRetriever` já os exige);
-  não inventamos um método de listagem no port só para esconder esse argumento.
+- `GraphContextSource` **satisfies the `Retriever` port**: the external method is `retrieve(query,
+  token_budget) -> ContextPack`, identical to the contract of all branches. Thus the facade is a
+  structural `Retriever` and fits wherever a `Retriever` is expected. A test locks in the
+  conformance (`isinstance(source, Retriever)`).
+- **Two entry points, same object:**
+  - `GraphContextSource(store, embedder, nodes)` — **in-memory**: the caller already has a
+    `GraphStore` and node list (as in AXON, which builds them from a SQLite graph).
+  - `GraphContextSource.from_graph_file(path, embedder)` — **persisted**: loads a NetworkX graph
+    (file or code) from disk, folding load + node-listing + wiring into one call.
+- The boundary can evolve behind `retrieve()` without breaking consumers. `nodes` remains explicit
+  in the constructor (the `GraphStore` port does not enumerate nodes, and `GraphRetriever` already
+  requires them); we do not invent a listing method on the port just to hide this argument.
 
-## Consequências
+## Consequences
 
-- O GLYPH expõe **um** contrato de retrieval (`Retriever`), sem método paralelo.
-- O AXON (dec-116) passa a delegar a `GraphContextSource(...).retrieve(...)` em vez de instanciar
-  o `GraphRetriever` direto — depende da fronteira, não dos internals (mudança rastreada no repo
-  do AXON).
-- Renomear `context()` → `retrieve()` é uma quebra de API; como o único consumidor (AXON) ainda
-  não usava o facade, não há compatibilidade a manter. Mudanças futuras na fronteira passam a ser
-  decisões conscientes registradas aqui.
+- GLYPH exposes **one** retrieval contract (`Retriever`), without a parallel method.
+- AXON (dec-116) now delegates to `GraphContextSource(...).retrieve(...)` instead of instantiating
+  `GraphRetriever` directly — it depends on the boundary, not on internals (change tracked in the
+  AXON repo).
+- Renaming `context()` → `retrieve()` is an API break; since the only consumer (AXON) was not yet
+  using the facade, there is no compatibility to maintain. Future boundary changes become
+  conscious decisions recorded here.

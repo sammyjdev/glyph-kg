@@ -1,59 +1,60 @@
-# ADR-G4: Metodologia de avaliação (benchmark GraphRAG vs vetor)
+# ADR-G4: Evaluation Methodology (GraphRAG vs Vector Benchmark)
 
-**Data:** 2026-06-11
-**Status:** Aceito
+**Date:** 2026-06-11
+**Status:** Accepted
 
-## Contexto
+## Context
 
-A Fase 3 produz o número honesto: retrieval graph-aware vs baseline vetorial vs híbrido,
-medido sobre o mesmo corpus, com intervalos de confiança. O GNOMON foi auditado e é
-pip-installable; este ADR fixa **como** medimos.
+Phase 3 produces the honest number: graph-aware retrieval vs vector baseline vs hybrid,
+measured over the same corpus, with confidence intervals. GNOMON has been audited and is
+pip-installable; this ADR fixes **how** we measure.
 
-## Decisões
+## Decisions
 
-**Query set (P3.2).** 25 perguntas autorais sobre o grafo do Monster Manual, congeladas em
-`eval/queries.json` e versionadas. Balanceadas por hipótese: relacionais (single/multi/
-entity-relation, onde o grafo deveria ganhar) e factuais (atributo/descrição, onde o vetor
-deveria bastar). Cada query traz um oráculo de relevância **derivado do KG** — candidato, não
-gold verificado: herda erros de extração (ex. `ankheg → resists ácido`), mantidos de propósito
-para o relatório expor ruído (P3.5). `n=25` é declarado; ampliável.
+**Query set (P3.2).** 25 authored questions over the Monster Manual graph, frozen in
+`eval/queries.json` and versioned. Balanced by hypothesis: relational (single/multi/
+entity-relation, where the graph should win) and factual (attribute/description, where vector
+should suffice). Each query brings a relevance oracle **derived from the KG** — candidate, not
+gold-verified: inherits extraction errors (ex. `ankheg → resists ácido`), kept intentionally
+so the report exposes noise (P3.5). `n=25` is declared; expandable.
 
-**Passo de geração.** O `faithfulness` do GNOMON nota o quão ancorada a resposta está nos
-contextos, então cada braço gera uma resposta sobre o seu contexto recuperado (prompt grounded:
-"responda só pelo contexto"). Sem geração não há `faithfulness`. Tokens e latência são reais.
+**Generation step.** GNOMON's `faithfulness` measures how anchored the answer is in the
+contexts, so each arm generates an answer over its retrieved context (grounded prompt:
+"answer from context only"). Without generation there is no `faithfulness`. Tokens and latency
+are real.
 
-**Igualdade de budget.** Os três braços cortam o contexto no mesmo `token_budget` e usam o mesmo
-embedder local (ADR-G3). O diferencial de custo é o tamanho do contexto que cada braço entrega ao
-gerador (segmentos de grafo vs chunks de vetor) — exatamente a eficiência de token que medimos.
+**Budget parity.** The three arms truncate context at the same `token_budget` and use the same
+local embedder (ADR-G3). The cost differential is the size of context each arm delivers to the
+generator (graph segments vs vector chunks) — exactly the token efficiency we measure.
 
-**Judge (P3.0).** Métricas v1 do GNOMON: **`faithfulness` e `context_precision` apenas** (answer
-relevance e context recall são v2, não construídas — não prometemos recall). O judge v1 é
-**reference-free na prática**: o schema do `EvalCase` exige `expected_answer`/`expected_contexts`,
-mas o prompt do judge os ignora; preenchemos a partir do query set para validar o schema. Usamos um
-**`OpenAICompatJudge` (Groq, OSS na nuvem)** que reusa o prompt e o parse do próprio GNOMON — só o
-transporte muda, então o score significa o mesmo que o do `OllamaJudge`. `seed + run` dá a sequência
-determinística por seed declarada.
+**Judge (P3.0).** GNOMON v1 metrics: **`faithfulness` and `context_precision` only** (answer
+relevance and context recall are v2, not built — we do not promise recall). The v1 judge is
+**reference-free in practice**: the `EvalCase` schema requires `expected_answer`/`expected_contexts`,
+but the judge prompt ignores them; we populate from the query set to validate the schema. We use an
+**`OpenAICompatJudge` (Groq, OSS in the cloud)** that reuses GNOMON's prompt and parse — only
+the transport changes, so the score means the same as `OllamaJudge`. `seed + run` gives the
+sequence deterministic per declared seed.
 
-**Agregação e CI (P3.3).** Bypass do `run_eval`: ele descarta scores por-caso e nós os queremos
-(para reportar onde o grafo **perdeu**, P3.5). Dirigimos o judge por caso, colapsamos os
-`judge_runs` por média (um score por caso), e reusamos o `aggregate_metric` do GNOMON para o
-**bootstrap percentil semeado** (2000 resamples, `n ≥ 2`). Mesma máquina de CI, com detalhe por-caso.
+**Aggregation and CI (P3.3).** Bypass of `run_eval`: it discards per-case scores and we want them
+(to report where the graph **lost**, P3.5). We drive the judge per case, collapse the
+`judge_runs` by mean (one score per case), and reuse GNOMON's `aggregate_metric` for
+**seeded percentile bootstrap** (2000 resamples, `n ≥ 2`). Same CI machine, with per-case detail.
 
-**Custo.** O GNOMON só conta tokens; o GLYPH calcula US$ a partir dos tokens **de geração**, às
-taxas assimétricas do Haiku 4.5 ($1/M input, $5/M output). O judge OSS é precificado à parte e
-excluído da tabela (declarado no `METRICS.md`).
+**Cost.** GNOMON only counts tokens; GLYPH calculates USD from **generation** tokens, at
+Haiku 4.5's asymmetric rates ($1/M input, $5/M output). The OSS judge is priced separately and
+excluded from the table (declared in `METRICS.md`).
 
-**Baseline reproduzível (P3.4).** `make benchmark` regenera `eval/benchmark-baseline.json`
-(commitado) + `METRICS.md`. `make benchmark-check` falha se uma corrida nova divergir além da
-tolerância (default 0.05) das médias commitadas. Corpus e query set congelados.
+**Reproducible baseline (P3.4).** `make benchmark` regenerates `eval/benchmark-baseline.json`
+(committed) + `METRICS.md`. `make benchmark-check` fails if a new run diverges beyond the
+tolerance (default 0.05) from committed means. Corpus and query set frozen.
 
-**Relatório honesto (P3.5).** A tabela mostra cada métrica com CI para **todos** os braços —
-inclusive onde o grafo não ganhou — mais tokens, custo e latência. Declara `n`, que tokens são
-contagem real, e o caveat do oráculo KG-derivado.
+**Honest report (P3.5).** The table shows each metric with CI for **all** arms —
+including where the graph did not win — plus tokens, cost, and latency. Declares `n`, that tokens are
+real count, and the caveat of the KG-derived oracle.
 
-## Consequências
+## Consequences
 
-Comparação controlada e reproduzível do repo. O número não é publicado sem rodar `make benchmark`
-com chaves reais (`GROQ_API_KEY` + `ANTHROPIC_API_KEY`); até lá o `METRICS.md` declara que está
-pendente. Limitações declaradas: oráculo KG-derivado não-gold, só duas métricas v1, judge OSS
-não-determinístico dentro da variância medida.
+Controlled and reproducible comparison of the repo. The number is not published without running
+`make benchmark` with real keys (`GROQ_API_KEY` + `ANTHROPIC_API_KEY`); until then `METRICS.md`
+declares it pending. Declared limitations: KG-derived oracle not gold-verified, only two v1 metrics,
+OSS judge non-deterministic within measured variance.

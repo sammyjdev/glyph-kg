@@ -1,50 +1,50 @@
-# P1.4 — Resultados do gate de custo (Monster Manual)
+# P1.4 — Cost-Gate Results (Monster Manual)
 
-**Data:** 2026-06-10
-**Livro:** Monster Manual (PT-BR), 351 páginas
-**Modelo:** Claude Haiku 4.5 (`claude-haiku-4-5`), extração estruturada via `messages.parse`
-**Filtro:** `chunk.is_creature` — só chunks com bloco de atributos (FOR/DES/CON/INT/SAB/CAR);
-front-matter, regras e índice descartados (767 chunks → 425 criaturas).
+**Date:** 2026-06-10
+**Source:** Monster Manual (PT-BR), 351 pages
+**Model:** Claude Haiku 4.5 (`claude-haiku-4-5`), structured extraction via `messages.parse`
+**Filter:** `chunk.is_creature` — only chunks with attribute block (FOR/DES/CON/INT/SAB/CAR);
+front-matter, rules, and index discarded (767 chunks → 425 creatures).
 
-## Números medidos
+## Measured Metrics
 
-| Métrica | Valor |
+| Metric | Value |
 |---|---|
-| Chunks (criaturas) | 425 |
-| Nós | 693 (458 `ENTITY` / 235 `CONCEPT`) |
-| Arestas | 1.305 |
-| Tokens input | 739.649 |
-| Tokens output | 94.258 |
-| **Custo** | **US$ 1,2109** ($1/M input + $5/M output) |
-| Latência | 1.048,4 s (~17,5 min), 2,47 s/chunk |
+| Chunks (creatures) | 425 |
+| Nodes | 693 (458 `ENTITY` / 235 `CONCEPT`) |
+| Edges | 1.305 |
+| Input tokens | 739.649 |
+| Output tokens | 94.258 |
+| **Cost** | **US$ 1,2109** ($1/M input + $5/M output) |
+| Latency | 1.048,4 s (~17,5 min), 2,47 s/chunk |
 
-Distribuição de arestas: `immune_to` 768, `resists` 395, `vulnerable_to` 47, `summons` 49,
-`inhabits` 46. Os cinco tipos de relação documentais do ADR-G2 são exercitados.
+Edge distribution: `immune_to` 768, `resists` 395, `vulnerable_to` 47, `summons` 49,
+`inhabits` 46. All five documentary relation types from ADR-G2 are exercised.
 
-O custo veio **abaixo da estimativa** (~US$1,50): a saída estruturada é compacta (94K tokens
-de output, não os ~255K estimados).
+Cost came **below estimate** (~US$1.50): structured output is compact (94K tokens
+output, not the ~255K estimated).
 
-## Qualidade (amostragem manual)
+## Quality (Manual Sampling)
 
-Relações majoritariamente corretas:
-- Deva/Planetário/Solar (anjos): `resists radiante/concussão/perfurante/cortante`,
-  `immune_to enfeitiçado` — correto.
-- Aparição/espectro (mortos-vivos): `resists ácido/elétrico/fogo/frio/trovejante` — correto.
-- Aarakocra: sem relações — correto.
+Relations mostly correct:
+- Deva/Planetar/Solar (angels): `resists radiant/bludgeoning/piercing/slashing`,
+  `immune_to charmed` — correct.
+- Apparition/Specter (undead): `resists acid/lightning/fire/cold/thunder` — correct.
+- Aarakocra: no relations — correct.
 
-Erro probabilístico observado (esperado, é o que o benchmark mede):
-- ANKHEG: `resists ácido` — provável confusão entre *ataque* de ácido e *resistência* a ácido.
+Probabilistic error observed (expected, this is what the benchmark measures):
+- ANKHEG: `resists acid` — likely confusion between acid *attack* and acid *resistance*.
 
-Limitação cosmética: os labels dos nós vêm com caixa inconsistente (`ANKHEG`, `abolete`,
-`Deva`) porque o LLM devolve nomes em caixas variadas. Os ids são normalizados (lowercase),
-então a deduplicação funciona; só os labels não estão uniformes. Candidato a normalização de
-label numa próxima iteração.
+Cosmetic limitation: node labels come with inconsistent casing (`ANKHEG`, `abolete`,
+`Deva`) because the LLM returns names in varying cases. IDs are normalized (lowercase),
+so deduplication works; only labels lack uniformity. Candidate for label normalization
+in a next iteration.
 
-## Conclusão
+## Conclusion
 
-Gate aprovado: US$ 1,21 para o bestiário completo, bem dentro do orçamento; grafo denso em
-relações e com qualidade suficiente para a Fase 2 (retrieval + baseline vetorial). **Não
-escalar** para PHB/DMG nesta fase (P1.5) — esses livros pedem schema próprio.
+Gate approved: US$ 1.21 for the complete bestiary, well within budget; graph dense in
+relations and with sufficient quality for Phase 2 (retrieval + vector baseline). **Do not
+scale** to PHB/DMG in this phase (P1.5) — those books require their own schema.
 
-Reprodução: `python3 scripts/extract_book.py "<Monster Manual.pdf>" out/monster-manual.json`
-com `ANTHROPIC_API_KEY` setada. Grafo persistido em `out/monster-manual.json`.
+Reproduction: `python3 scripts/extract_book.py "<Monster Manual.pdf>" out/monster-manual.json`
+with `ANTHROPIC_API_KEY` set. Graph persisted in `out/monster-manual.json`.

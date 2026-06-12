@@ -1,46 +1,46 @@
-# ADR-G5: Resolução de símbolo no code extractor
+# ADR-G5: Code symbol resolution in the code extractor
 
 **Data:** 2026-06-11
-**Status:** Aceito
+**Status:** Accepted
 
-## Contexto
+## Context
 
-A Fase 4 adiciona o segundo extractor: código, via tree-sitter (determinístico), atrás do mesmo
-`Extractor` port do documental. O parsing do AST é exato; o que é heurístico é **ligar um uso ao
-símbolo que ele referencia** (chamada → função, `extends` → classe) através de arquivos.
+Phase 4 adds the second extractor: code, via tree-sitter (deterministic), behind the same
+`Extractor` port as the document extractor. AST parsing is exact; what is heuristic is **linking a usage to
+the symbol it references** (call → function, `extends` → class) across files.
 
-## Decisão
+## Decision
 
-**Linguagens (P4.2):** Python e Java (o set indexado do AXON). TS fica como extensão futura — o
-`Grammar` é plugável (node-types + extratores de nome por linguagem), então adicionar uma é
-localizado.
+**Languages (P4.2):** Python and Java (the indexed set from AXON). TypeScript remains a future extension — the
+`Grammar` is pluggable (node-types + language-specific name extractors), so adding one is
+localized.
 
-**Nós e arestas.** `FILE` (id = path relativo posix), `CLASS`/`FUNCTION` (id qualificado por escopo,
-ex. `glyph/eval/cost.py::ArmResponse.total`), `MODULE` (alvo de import). Arestas: `DEFINES`
-(escopo → símbolo), `IMPORTS` (file → module), `CALLS` (função → função), `INHERITS` (classe →
-classe). Tudo deduplicado.
+**Nodes and edges.** `FILE` (id = relative POSIX path), `CLASS`/`FUNCTION` (id qualified by scope,
+e.g. `glyph/eval/cost.py::ArmResponse.total`), `MODULE` (import target). Edges: `DEFINES`
+(scope → symbol), `IMPORTS` (file → module), `CALLS` (function → function), `INHERITS` (class →
+class). All deduplicated.
 
-**Resolução por nome não-qualificado, único (a limitação declarada).** O extractor constrói um índice
-`nome simples → ids definidos no corpus` e só emite `CALLS`/`INHERITS` quando o nome do alvo é
-definido **exatamente uma vez**. Consequências:
-- Nome ambíguo (definido em 2+ lugares) → aresta **omitida** (under-approximation, não inventamos a
-  mais provável).
-- Nome não definido no corpus (stdlib, lib externa, método herdado de fora) → aresta omitida.
-- Chamadas via subscript/expressão (`fns[0]()`) → sem nome simples → omitidas.
-- Sem type inference: `obj.metodo()` resolve pelo **nome do método** (`metodo`), não pelo tipo de
-  `obj`. Em corpora com um nome de método único isso acerta; com colisão, omite.
+**Resolution by unqualified, unique name (the declared limitation).** The extractor builds an index
+`simple name → ids defined in corpus` and only emits `CALLS`/`INHERITS` when the target name is
+defined **exactly once**. Consequences:
+- Ambiguous name (defined in 2+ places) → edge **omitted** (under-approximation, we don't guess the
+  most likely one).
+- Name not defined in corpus (stdlib, external lib, inherited method from outside) → edge omitted.
+- Calls via subscript/expression (`fns[0]()`) → no simple name → omitted.
+- No type inference: `obj.method()` resolves by **method name** (`method`), not by type of
+  `obj`. In corpora with a unique method name this is correct; with collision, omitted.
 
-**GLYPH como fonte canônica (P4.1).** O AXON não está no escopo deste repo; o GLYPH implementa o code
-extractor de forma standalone e passa a ser a fonte canônica de code-graph. Quando o AXON integrar
-(Fase 5), ele delega para cá em vez de reimplementar — alinhado ao ADR-102/103 do AXON.
+**GLYPH as canonical source (P4.1).** AXON is outside the scope of this repo; GLYPH implements the code
+extractor standalone and becomes the canonical source for code-graph. When AXON integrates
+(Phase 5), it delegates here instead of reimplementing — aligned with AXON's ADR-102/103.
 
-**Benchmark de código (P4.4).** O harness da Fase 3, os retrievers (graph/vector) e o contrato
-`ContextPack` são **agnósticos de domínio**: operam sobre qualquer grafo + quaisquer textos de chunk.
-Rodar o mesmo benchmark no domínio código é apontar o harness para um code-graph + um query set de
-código — nenhum código novo de avaliação é necessário, só o corpus e as queries.
+**Code benchmark (P4.4).** The Phase 3 harness, the retrievers (graph/vector), and the
+`ContextPack` contract are **domain-agnostic**: they operate on any graph + any chunk texts.
+Running the same benchmark on the code domain means pointing the harness at a code-graph + a code
+query set — no new evaluation code is needed, only the corpus and queries.
 
-## Consequências
+## Consequences
 
-Determinístico e reproduzível (mesmo SHA → mesmo grafo). Precisão alta, recall limitado por design na
-resolução cross-símbolo — declarado, não assumido, e o benchmark mede onde isso pesa. Caminhos de
-melhoria futura (não nesta fase): resolução por import graph + escopo, qualificação por tipo.
+Deterministic and reproducible (same SHA → same graph). High precision, recall limited by design in
+cross-symbol resolution — declared, not assumed, and the benchmark measures where this matters. Future
+improvement paths (not in this phase): resolution by import graph + scope, type-qualified resolution.

@@ -1,58 +1,58 @@
-# ADR-G7: Eixo global por comunidades
+# ADR-G7: Global community axis
 
-**Data:** 2026-06-11
-**Status:** Aceito
+**Date:** 2026-06-11
+**Status:** Accepted
 
-## Contexto
+## Context
 
-O retrieval local (`GraphRetriever`) ancora a query e expande a vizinhança por `hops` —
-ótimo para *"o que depende de X?"*, ruim para perguntas temáticas/de sense-making
-(*"quais são os grandes subsistemas?"*). Falta um **eixo global**: detectar comunidades no
-grafo, resumi-las, e recuperar esses resumos. Espelha o GraphRAG global, mas dentro do
-perfil do GLYPH (lib pura, reprodutível, validation-first, mesmo contrato `ContextPack`).
+Local retrieval (`GraphRetriever`) anchors the query and expands the neighborhood by `hops` —
+excellent for *"what depends on X?"*, poor for thematic/sense-making questions
+(*"what are the major subsystems?"*). Missing a **global axis**: detect communities in the
+graph, summarize them, and retrieve those summaries. Mirrors GraphRAG global, but within
+GLYPH's profile (pure lib, reproducible, validation-first, same `ContextPack` contract).
 
-## Decisão
+## Decision
 
-- **Detecção: Louvain nativo do networkx** (`nx.community.louvain_communities`) — zero
-  dependência nova (vs. Leiden, que traria `igraph`/`leidenalg`). Sobre a **projeção
-  estrutural** do grafo (`STRUCTURAL_EDGES`: DEFINES/IMPORTS/CALLS/INHERITS/REFERENCES) —
-  arestas de documento/decisão (MENTIONS, RELATES_TO, …) misturariam entidades não
-  relacionadas, então são excluídas.
+- **Detection: Native Louvain from networkx** (`nx.community.louvain_communities`) — zero
+  new dependency (vs. Leiden, which would bring `igraph`/`leidenalg`). Operates on the **structural
+  projection** of the graph (`STRUCTURAL_EDGES`: DEFINES/IMPORTS/CALLS/INHERITS/REFERENCES) —
+  document/decision edges (MENTIONS, RELATES_TO, …) would intermix unrelated entities, so they
+  are excluded.
 
-- **Reprodutibilidade: seed obrigatório + ordem determinística.** Louvain é estocástico;
-  só o seed não basta (o resultado do networkx depende da ordem de iteração), então nós e
-  arestas entram ordenados. Mesmo grafo + seed → mesmas comunidades.
+- **Reproducibility: mandatory seed + deterministic ordering.** Louvain is stochastic;
+  seed alone is insufficient (networkx result depends on iteration order), so nodes and
+  edges enter sorted. Same graph + seed → same communities.
 
-- **Comunidades no mesmo grafo** como nós `COMMUNITY` + arestas `CONTAINS` (community→membro),
-  reusando o modelo. Resumo e título em `Node.attrs` (`summary`/`title`) — sem mudança de
-  schema (`attrs` já existe).
+- **Communities in the same graph** as `COMMUNITY` nodes + `CONTAINS` edges (community→member),
+  reusing the model. Summary and title in `Node.attrs` (`summary`/`title`) — no schema change
+  (`attrs` already exists).
 
-- **Isolamento por projeção de traversal podada, não indexação disjunta (opção B).** Um nó
-  `COMMUNITY` é um super-hub ligado a todos os membros; traversar `CONTAINS` colapsaria toda
-  distância intra-comunidade para 2 hops e vazaria o overlay no retrieval local. Fix: o
-  `GraphStore` ganha filtro **genérico** `exclude_node_types`/`exclude_edge_types` em
-  `subgraph`/`neighbors`/`shortest_path` (a store **não sabe** o que é COMMUNITY — mantém o
-  port trocável p/ Neo4j); a **política** mora na camada de retrieval (o `GraphRetriever`
-  passa `{COMMUNITY}`/`{CONTAINS}`). O `CommunityRetriever` não traversa (ancora direto nos
-  resumos). Footgun de esquecer coberto por teste de invariância topológica, não por
-  acoplar a store.
+- **Isolation via pruned traversal projection, not disjoint indexing (option B).** A
+  `COMMUNITY` node is a super-hub linked to all members; traversing `CONTAINS` would collapse all
+  intra-community distance to 2 hops and leak the overlay into local retrieval. Fix: the
+  `GraphStore` gains **generic** `exclude_node_types`/`exclude_edge_types` filter on
+  `subgraph`/`neighbors`/`shortest_path` (the store **does not know** what COMMUNITY is — keeps the
+  port swappable for Neo4j); the **policy** lives at the retrieval layer (`GraphRetriever`
+  passes `{COMMUNITY}`/`{CONTAINS}`). `CommunityRetriever` does not traverse (anchors directly on
+  summaries). Footgun of forgetting covered by topological invariance test, not by
+  coupling the store.
 
-- **id de comunidade = hash estável (hashlib) dos membros ordenados**, não índice. Comunidades
-  inalteradas mantêm o id entre rebuilds → a sumarização (paga) pula as não-mudadas.
+- **Community id = stable hash (hashlib) of sorted members**, not index. Unchanged communities
+  retain id between rebuilds → summarization (paid) skips unchanged ones.
 
-- **Fronteira de sumarização: lógica no GLYPH, LLM injetado.** `summarize_communities` monta o
-  prompt a partir dos membros e preenche `title`+`summary` via um `CommunitySummarizer`
-  injetado (Protocol) — provider/API key ficam fora da lib (espelha `DocumentExtractor`). O
-  AXON injeta o modelo e dispara no hook (spec-irmão).
+- **Summarization boundary: logic in GLYPH, LLM injected.** `summarize_communities` assembles
+  the prompt from members and populates `title`+`summary` via an injected `CommunitySummarizer`
+  (Protocol) — provider/API key stay outside the lib (mirrors `DocumentExtractor`). AXON
+  injects the model and fires on hook (sibling spec).
 
-- **`CommunityRetriever` satisfaz o port `Retriever`** (`retrieve(query, token_budget) ->
-  ContextPack`, `mode="community"`), como todo braço — drop-in onde um `Retriever` é esperado.
+- **`CommunityRetriever` satisfies the `Retriever` port** (`retrieve(query, token_budget) ->
+  ContextPack`, `mode="community"`), like every arm — drop-in where a `Retriever` is expected.
 
-## Consequências
+## Consequences
 
-Eixo global mensurável com o mesmo harness (braço global = follow-up, depende de um global
-query set). O retrieval local fica provadamente imune ao overlay. A store permanece genérica;
-a política de overlay é da camada de retrieval. Orquestração (hook, tool MCP `get_global_context`,
-modelo real) é o spec-irmão no AXON — fora deste repo. Follow-ups: rodada real de sumarização
-(custa LLM), braço de benchmark global, e troca de anchoring `summary`→`title` se o benchmark
-mostrar diluição de embedding.
+Global axis measurable with the same harness (global arm = follow-up, depends on a global
+query set). Local retrieval is provably immune to the overlay. The store remains generic;
+overlay policy is at the retrieval layer. Orchestration (hook, MCP tool `get_global_context`,
+real model) is the sibling spec in AXON — outside this repo. Follow-ups: real summarization round
+(costs LLM), global benchmark arm, and anchoring swap `summary`→`title` if benchmark
+shows embedding dilution.

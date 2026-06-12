@@ -1,23 +1,23 @@
-# KICKOFF — Fase 0: Fundação
+# KICKOFF — Phase 0: Foundation
 
-Documento de handoff para execução agent-assisted. Define contexto, contratos e definição de done por sub-task. O agente executa sob direção arquitetural; não inventa escopo fora deste documento.
+Handoff document for agent-assisted execution. Defines context, contracts, and done definition per sub-task. Agent executes under architectural direction; does not invent scope outside this document.
 
-## Contexto mínimo
+## Minimum context
 
-GLYPH é uma biblioteca de knowledge graph sobre documentos e código (ver SPEC.md, ARCHITECTURE.md). A Fase 0 entrega o esqueleto: estrutura, modelo de domínio, ports e quality gates. Sem extração, sem retrieval ainda. Objetivo: lib instalável com os contratos no lugar e o CI verde.
+GLYPH is a knowledge graph library for documents and code (see SPEC.md, ARCHITECTURE.md). Phase 0 delivers the skeleton: structure, domain model, ports, and quality gates. No extraction, no retrieval yet. Goal: installable lib with contracts in place and CI green.
 
-Leia antes de começar: `SPEC.md`, `docs/ARCHITECTURE.md`, `docs/decisions/dec-g1-extractor-port-and-backend.md`.
+Read before starting: `SPEC.md`, `docs/ARCHITECTURE.md`, `docs/decisions/dec-g1-extractor-port-and-backend.md`.
 
 ## Stack
 
 - Python 3.11+
-- Pydantic v2 (modelo de domínio)
-- NetworkX (adapter de store default)
-- pytest + pytest-cov (testes)
+- Pydantic v2 (domain model)
+- NetworkX (default store adapter)
+- pytest + pytest-cov (tests)
 - ruff + mypy (lint, types)
-- tree-sitter entra na Fase 4; não nesta fase
+- tree-sitter comes in Phase 4; not in this phase
 
-## Estrutura de arquivos alvo
+## Target file structure
 
 ```
 glyph-kg/
@@ -37,7 +37,7 @@ glyph-kg/
       port.py          # Extractor Protocol
   tests/
     architecture/
-      test_dependencies.py   # invariantes de import
+      test_dependencies.py   # import invariants
     model/
     store/
 ```
@@ -45,49 +45,49 @@ glyph-kg/
 ## Sub-tasks
 
 ### P0.1 — Scaffold
-- Criar `pyproject.toml` com build pip-installable, deps (pydantic, networkx) e dev-deps (pytest, pytest-cov, ruff, mypy).
-- Estrutura de pacotes acima, com `__init__.py`.
-- **Done:** `pip install -e ".[dev]"` funciona; `import glyph` funciona.
+- Create `pyproject.toml` with pip-installable build, deps (pydantic, networkx) and dev-deps (pytest, pytest-cov, ruff, mypy).
+- Package structure above with `__init__.py`.
+- **Done:** `pip install -e ".[dev]"` works; `import glyph` works.
 
-### P0.2 — Modelo de domínio
-- `Node` (id, type, label, attrs), `NodeType` (enum cobrindo código e documento), `Edge` (src, dst, type, attrs), `EdgeType` (enum com tipos de código e de documento separados).
-- Pydantic v2, imutável onde fizer sentido (frozen).
-- **Done:** modelos validam; testes de serialização round-trip passam; `model` não importa nada fora de pydantic e stdlib.
+### P0.2 — Domain model
+- `Node` (id, type, label, attrs), `NodeType` (enum covering code and document), `Edge` (src, dst, type, attrs), `EdgeType` (enum with code and document types separated).
+- Pydantic v2, immutable where it makes sense (frozen).
+- **Done:** models validate; round-trip serialization tests pass; `model` imports nothing outside pydantic and stdlib.
 
 ### P0.3 — GraphStore port
-- `Protocol` com `upsert_nodes`, `upsert_edges`, `neighbors(node, hops)`, `subgraph(seed, hops)`, `shortest_path(src, dst)`.
-- Tipos de retorno definidos (`Subgraph`, `Path`).
-- **Done:** o Protocol importa só de `model`; mypy valida.
+- `Protocol` with `upsert_nodes`, `upsert_edges`, `neighbors(node, hops)`, `subgraph(seed, hops)`, `shortest_path(src, dst)`.
+- Return types defined (`Subgraph`, `Path`).
+- **Done:** Protocol imports only from `model`; mypy validates.
 
-### P0.4 — Adapter NetworkX
-- Implementa `GraphStore` sobre um `nx.DiGraph`.
-- Persistência: `save(path)` / `load(path)`.
-- **Done:** suíte de contrato do store passa (upsert, neighbors com hops, subgraph, shortest_path, persistência round-trip).
+### P0.4 — NetworkX adapter
+- Implements `GraphStore` over an `nx.DiGraph`.
+- Persistence: `save(path)` / `load(path)`.
+- **Done:** store contract suite passes (upsert, neighbors with hops, subgraph, shortest_path, persistence round-trip).
 
 ### P0.5 — Extractor port
-- `Protocol` com `extract(source) -> tuple[Sequence[Node], Sequence[Edge]]`.
-- Definir o tipo `Source` (union de path/string conforme necessário).
-- **Done:** Protocol importa só de `model`; nenhum adapter concreto ainda (vêm nas Fases 1 e 4).
+- `Protocol` with `extract(source) -> tuple[Sequence[Node], Sequence[Edge]]`.
+- Define `Source` type (union of path/string as needed).
+- **Done:** Protocol imports only from `model`; no concrete adapter yet (coming in Phases 1 and 4).
 
 ### P0.6 — Quality gates
 - CI (GitHub Actions): lint (ruff), types (mypy), test (pytest), coverage gate.
-- `tests/architecture/test_dependencies.py`: verifica os invariantes do ARCHITECTURE.md (model não importa extract/store/retrieval; adapters não se importam entre si).
-- **Done:** CI verde no primeiro PR; gate de cobertura ativo; teste de invariante falha se alguém violar a regra de import.
+- `tests/architecture/test_dependencies.py`: verifies ARCHITECTURE.md invariants (model does not import extract/store/retrieval; adapters do not import each other).
+- **Done:** CI green on first PR; coverage gate active; invariant test fails if anyone violates the import rule.
 
-## Definição de done da Fase 0
+## Phase 0 done definition
 
-- `pip install -e .` funciona; `import glyph` expõe model, store port, extract port.
-- NetworkX store passa a suíte de contrato.
-- CI verde com lint, types, test, coverage e invariantes de arquitetura.
-- ADR-G1 commitado (já está).
-- Nenhuma lógica de extração ou retrieval ainda; isso é Fase 1+.
+- `pip install -e .` works; `import glyph` exposes model, store port, extract port.
+- NetworkX store passes contract suite.
+- CI green with lint, types, test, coverage, and architecture invariants.
+- ADR-G1 committed (already in place).
+- No extraction or retrieval logic yet; that is Phase 1+.
 
-## Fora de escopo nesta fase
+## Out of scope in this phase
 
-DocumentExtractor, CodeExtractor, retrieval, baseline vetorial, GNOMON, integração AXON. Não antecipar. Cada um tem sua fase no GLYPH_PLAN.md.
+DocumentExtractor, CodeExtractor, retrieval, vector baseline, GNOMON, AXON integration. Do not anticipate. Each has its phase in GLYPH_PLAN.md.
 
-## Convenções
+## Conventions
 
-- TDD: teste antes da implementação em cada sub-task.
-- Commits pequenos por sub-task, mensagem no imperativo.
-- Decisão arquitetural nova durante a execução: parar e abrir ADR, não decidir inline.
+- TDD: test before implementation in each sub-task.
+- Small commits per sub-task, imperative message style.
+- New architectural decision during execution: stop and open ADR, do not decide inline.

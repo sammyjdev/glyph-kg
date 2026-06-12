@@ -1,51 +1,51 @@
-# Contribuindo com o GLYPH
+# Contributing to GLYPH
 
-## Metodologia
+## Methodology
 
-GLYPH segue Spec-Driven Development: a spec e os quality gates são definidos antes da implementação. Agentes executam sob direção arquitetural; decisões arquiteturais novas viram ADR antes de virar código.
+GLYPH follows Spec-Driven Development: the spec and quality gates are defined before implementation. Agents execute under architectural direction; new architectural decisions become ADRs before becoming code.
 
-## Fluxo
+## Workflow
 
-1. Pegue uma sub-task do `docs/GLYPH_PLAN.md` (ou do KICKOFF da fase atual).
-2. Escreva o teste antes da implementação (TDD).
-3. Implemente até o teste passar.
-4. Garanta lint, types, cobertura e invariantes de arquitetura verdes localmente.
-5. Abra PR referenciando a sub-task.
+1. Pick a sub-task from `docs/GLYPH_PLAN.md` (or the current phase KICKOFF).
+2. Write the test before implementation (TDD).
+3. Implement until the test passes.
+4. Ensure lint, types, coverage, and architecture invariants are green locally.
+5. Open a PR referencing the sub-task.
 
-## Quality gates (enforçados no CI)
+## Quality gates (enforced in CI)
 
-- **Testes:** `pytest` verde. Nada entra sem teste.
-- **Cobertura:** gate ativo; PR que baixa cobertura falha.
-- **Tipos:** `mypy` sem erro.
-- **Lint:** `ruff` limpo.
-- **Arquitetura:** `tests/architecture/` verifica os invariantes do `docs/ARCHITECTURE.md`. Violação de regra de import falha o build.
+- **Tests:** `pytest` green. Nothing merges without tests.
+- **Coverage:** gate active; PRs that lower coverage fail.
+- **Types:** `mypy` without error.
+- **Lint:** `ruff` clean.
+- **Architecture:** `tests/architecture/` verifies invariants from `docs/ARCHITECTURE.md`. Import rule violations fail the build.
 
-## Regra de ADR
+## ADR rule
 
-Toda decisão arquitetural é registrada em `docs/decisions/` antes da implementação. Se durante a execução surgir uma decisão não prevista (escolha de lib, mudança de contrato, novo backend), pare e abra a ADR. Não decida inline no código.
+Every architectural decision is recorded in `docs/decisions/` before implementation. If an unforeseen decision arises during execution (library choice, contract change, new backend), stop and open an ADR. Do not decide inline in code.
 
-Formato: ver os ADRs existentes (`dec-g1-...`). Status, Contexto, Decisão, Consequências (positivas / trade-offs / a observar), Alternativas consideradas.
+Format: see existing ADRs (`dec-g1-...`). Status, Context, Decision, Consequences (positive / trade-offs / to monitor), Alternatives considered.
 
-## Honestidade de claim
+## Claim honesty
 
-- README e docs são fonte de verdade. Não afirme capacidade ou número que o código não entrega.
-- Métrica publicada é reproduzível do repo. Sem reprodução, não publica.
-- Limitações conhecidas ficam documentadas, não escondidas.
+- README and docs are the source of truth. Do not assert capability or numbers that the code does not deliver.
+- Published metrics are reproducible from the repo. Without reproduction, do not publish.
+- Known limitations are documented, not hidden.
 
 ## Commits
 
-- Mensagem no imperativo, escopo pequeno por sub-task.
-- Um PR resolve uma sub-task ou um conjunto coeso.
+- Message in imperative mood, small scope per sub-task.
+- One PR solves one sub-task or a coherent set.
 
-## Merge / integração
+## Merge / integration
 
-- Branches integram na `main` por **rebase + fast-forward** — histórico linear, sem commits de merge.
-  Fluxo: `git rebase main` na branch, depois `git checkout main && git merge --ff-only <branch>`.
-- No GitHub, o único método habilitado é **Rebase and merge** (merge commit e squash desabilitados).
-- `git config pull.rebase true` mantém os pulls lineares também.
+- Branches integrate into `main` via **rebase + fast-forward** — linear history, no merge commits.
+  Workflow: `git rebase main` on the branch, then `git checkout main && git merge --ff-only <branch>`.
+- On GitHub, the only enabled method is **Rebase and merge** (merge commits and squash disabled).
+- `git config pull.rebase true` keeps pulls linear as well.
 
-## Estilo
+## Style
 
-- Voz ativa, prosa densa, sem fluff.
-- Sem `robusto`, `escalável`, `poderoso` sem evidência concreta.
-- Métrica vaga ("melhora performance") sai ou ganha número.
+- Active voice, dense prose, no fluff.
+- No "robust", "scalable", "powerful" without concrete evidence.
+- Vague metrics ("improves performance") are removed or gain a number.

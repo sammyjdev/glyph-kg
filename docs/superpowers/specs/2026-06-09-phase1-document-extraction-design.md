@@ -1,160 +1,159 @@
-# Design — Fase 1: Document Extraction (P1.1–P1.4)
+# Design — Phase 1: Document Extraction (P1.1–P1.4)
 
-**Data:** 2026-06-09
-**Status:** Aprovado (brainstorming)
-**Escopo desta sessão:** P1.1 → P1.4. P1.5 (escalar o corpus) fica para uma sessão futura.
+**Date:** 2026-06-09
+**Status:** Approved (brainstorming)
+**Scope of this session:** P1.1 → P1.4. P1.5 (scaling the corpus) is deferred to a future session.
 
-## Objetivo
+## Goal
 
-Construir um knowledge graph documental real a partir de um livro de Dungeons & Dragons,
-sob o `Extractor` port já existente, e medir o custo da extração LLM em um livro antes de
-escalar. Entregável: KG do Monster Manual persistido via NetworkX, com números reais de
-custo e latência, ADR-G2 commitado, suíte TDD verde e CI passando.
+Build a real document-based knowledge graph from a Dungeons & Dragons book under the existing
+`Extractor` port and measure the LLM extraction cost on one book before scaling. Deliverables:
+Monster Manual KG persisted via NetworkX with real cost and latency numbers, ADR-G2 committed,
+TDD suite green, and CI passing.
 
 ## Corpus
 
-Os três core books PT-BR de D&D 5e estão disponíveis localmente e são o corpus-alvo:
+The three Portuguese D&D 5e core books are available locally and are the target corpus:
 
-| Livro | Caminho | Papel na Fase 1 |
+| Book | Path | Role in Phase 1 |
 |---|---|---|
-| Monster Manual | `~/Downloads/3-Monster Manual.pdf` | **Âncora.** Gate de custo (P1.4) roda sobre este. |
-| Player's Handbook | `~/Downloads/1-Player's Handbook.pdf` | Registrado; entra em fase futura com schema próprio. |
-| Dungeon Master Guide | `~/Downloads/2-Dungeon Master Guide.pdf` | Registrado; entra em fase futura com schema próprio. |
+| Monster Manual | `~/Downloads/3-Monster Manual.pdf` | **Anchor.** Cost gate (P1.4) runs on this. |
+| Player's Handbook | `~/Downloads/1-Player's Handbook.pdf` | Registered; enters future phase with its own schema. |
+| Dungeon Master Guide | `~/Downloads/2-Dungeon Master Guide.pdf` | Registered; enters future phase with its own schema. |
 
-Esses caminhos não são committados no repo (PDFs são gitignored e não são nossos para
-distribuir). O harness do benchmark referencia o caminho por env/argumento.
+These paths are not committed to the repo (PDFs are gitignored and are not ours to distribute).
+The benchmark harness references the path via environment variable or argument.
 
-### Realidade do PDF (sondada antes do design)
+### PDF Reality (probed before design)
 
-- Monster Manual: 351 páginas, **texto extraível** (não é scan), ~500–700 palavras/página.
-- Idioma: **português** ("Manual dos Monstros"). Schema e prompt em PT-BR; enums em inglês.
-- **Sem TOC** no PDF. As criaturas aparecem como **cabeçalhos em CAIXA ALTA** no início de
-  cada verbete ("ABOCANHADOR MATRAQUEANTE", "DUERGAR", "KUO-TOA"), com número de página.
+- Monster Manual: 351 pages, **extractable text** (not a scan), ~500–700 words/page.
+- Language: **Portuguese** ("Manual dos Monstros"). Schema and prompt in Portuguese; enums in English.
+- **No TOC** in the PDF. Creatures appear as **ALL-CAPS headings** at the start of each entry
+  ("ABOCANHADOR MATRAQUEANTE", "DUERGAR", "KUO-TOA"), with page number.
 
-## Decisões fechadas
+## Closed Decisions
 
-1. **Provedor LLM:** Claude Haiku 4.5 (`claude-haiku-4-5`), $1/$5 por 1M tokens (input/output),
-   contexto 200K. Default do README (`GLYPH_LLM_PROVIDER=anthropic`). Dá números de custo
-   reais para o benchmark.
-2. **Ingestão:** texto local via pymupdf (P1.1), não PDF-nativo/vision. Barato, determinístico,
-   controle total do chunk — o que o GLYPH_PLAN P1.1 descreve.
-3. **Chunking:** por verbete via detecção de cabeçalho (CAIXA ALTA / fonte), com fallback para
-   janela por página onde a detecção tiver baixa confiança. Cada criatura ≈ um chunk ≈ uma
-   chamada LLM.
-4. **Schema:** MM-focado. Criatura = `NodeType.ENTITY`; tipo de dano / condição / habitat =
-   `NodeType.CONCEPT`. Relações exercitadas pelo MM (ver ADR-G2).
-5. **Saída estruturada:** `messages.parse` com schema Pydantic (Haiku suporta structured
-   outputs), mapeado para `Node`/`Edge`.
+1. **LLM Provider:** Claude Haiku 4.5 (`claude-haiku-4-5`), $1/$5 per 1M tokens (input/output),
+   200K context. README default (`GLYPH_LLM_PROVIDER=anthropic`). Provides real cost numbers
+   for the benchmark.
+2. **Ingestion:** local text via pymupdf (P1.1), not PDF-native/vision. Cheap, deterministic,
+   full chunk control — what GLYPH_PLAN P1.1 describes.
+3. **Chunking:** by entry via header detection (ALL-CAPS / font), with fallback to page-window
+   where detection has low confidence. Each creature ≈ one chunk ≈ one LLM call.
+4. **Schema:** MM-focused. Creature = `NodeType.ENTITY`; damage type / condition / habitat =
+   `NodeType.CONCEPT`. Relations exercised by MM (see ADR-G2).
+5. **Structured output:** `messages.parse` with Pydantic schema (Haiku supports structured
+   outputs), mapped to `Node`/`Edge`.
 
-## Encaixe arquitetural
+## Architectural Fit
 
-Arquitetura hexagonal do Phase 0 preservada. Novo pacote `glyph/extract/document/` — um
-adapter do `Extractor` port. Importa só de `glyph.model`, `glyph.extract.port` e libs externas
-(pymupdf, anthropic). **Não importa `glyph.store`** — o teste de invariantes do Phase 0
-(`tests/architecture/test_dependencies.py`) garante a regra.
+Phase 0 hexagonal architecture preserved. New package `glyph/extract/document/` — an adapter
+of the `Extractor` port. Imports only from `glyph.model`, `glyph.extract.port`, and external
+libs (pymupdf, anthropic). **Does not import `glyph.store`** — the Phase 0 invariants test
+(`tests/architecture/test_dependencies.py`) enforces the rule.
 
 ```
 glyph/extract/document/
   __init__.py
   pdf.py          # P1.1: PDF -> [Page(book, number, text, spans)]
-  chunk.py        # P1.2: [Page] -> [Chunk(label, text, book, pages)] por verbete
-  schema.py       # Pydantic: ExtractedEntity / ExtractedRelation (contrato de saída do LLM)
-  prompt.py       # system prompt de extração (PT-BR) + few-shot
-  llm.py          # thin adapter Anthropic (Haiku, structured output, captura de usage)
-  extractor.py    # DocumentExtractor: implementa Extractor; orquestra pdf->chunk->LLM->Node/Edge
-  cost.py         # P1.4: tokens x preço, latência, agregação
+  chunk.py        # P1.2: [Page] -> [Chunk(label, text, book, pages)] by entry
+  schema.py       # Pydantic: ExtractedEntity / ExtractedRelation (LLM output contract)
+  prompt.py       # extraction system prompt (Portuguese) + few-shot
+  llm.py          # thin Anthropic adapter (Haiku, structured output, usage capture)
+  extractor.py    # DocumentExtractor: implements Extractor; orchestrates pdf->chunk->LLM->Node/Edge
+  cost.py         # P1.4: tokens × price, latency, aggregation
 ```
 
-## Modelo — extensão de EdgeType (ADR-G2)
+## Model — EdgeType Extension (ADR-G2)
 
-`EdgeType` (domínio documento) ganha os tipos que o MM exercita, somando aos existentes
+`EdgeType` (document domain) gains the types exercised by MM, in addition to existing ones
 (`RESISTS`, `RELATES_TO`, `MENTIONS`, `REQUIRES`):
 
-- `IMMUNE_TO` — imune a (dano/condição)
-- `VULNERABLE_TO` — vulnerável a (dano)
-- `INHABITS` — habita (local/plano)
-- `SUMMONS` — invoca (outra criatura)
+- `IMMUNE_TO` — immune to (damage/condition)
+- `VULNERABLE_TO` — vulnerable to (damage)
+- `INHABITS` — inhabits (location/plane)
+- `SUMMONS` — summons (another creature)
 
-`NodeType` **não muda**. Schema do grafo:
+`NodeType` **does not change**. Graph schema:
 
 ```
-ENTITY(criatura) --RESISTS/IMMUNE_TO/VULNERABLE_TO--> CONCEPT(fogo, frio, veneno, atordoado, ...)
-ENTITY(criatura) --INHABITS--> CONCEPT(Subterrâneo, plano, ...)
-ENTITY(criatura) --SUMMONS--> ENTITY(criatura invocada)
+ENTITY(creature) --RESISTS/IMMUNE_TO/VULNERABLE_TO--> CONCEPT(fire, cold, poison, stunned, ...)
+ENTITY(creature) --INHABITS--> CONCEPT(Underground, plane, ...)
+ENTITY(creature) --SUMMONS--> ENTITY(summoned creature)
 ```
 
-ADR-G2 registra o schema, a justificativa do recorte MM-focado, e a **limitação probabilística
-declarada**: a extração documental tem erro; é por isso que o benchmark mede qualidade em vez
-de assumir. ADR commitado antes da implementação (regra do CONTRIBUTING).
+ADR-G2 records the schema, the justification for the MM-focused scope, and the **declared
+probabilistic limitation**: document extraction has error; that is why the benchmark measures
+quality rather than assuming correctness. ADR committed before implementation (CONTRIBUTING rule).
 
-## Fluxo de dados
+## Data Flow
 
 `build(source=MM.pdf)`:
-1. `pdf.load(source)` → páginas com texto e spans (fonte/tamanho por linha) + metadados (livro, página).
-2. `chunk.by_creature(pages)` → chunks por verbete (cabeçalho CAIXA ALTA/fonte; fallback janela de página).
-3. Para cada chunk: `llm.extract(chunk)` → resposta estruturada (Haiku, `messages.parse`,
-   **system prompt cacheado** entre chunks para baratear), capturando `usage`.
-4. `map(extracted)` → `Node`/`Edge`, com **dedup** (mesma criatura/conceito = um nó por id normalizado).
-5. Persistir via `NetworkXStore.save(path)`.
+1. `pdf.load(source)` → pages with text and spans (font/size per line) + metadata (book, page).
+2. `chunk.by_creature(pages)` → chunks per entry (ALL-CAPS header/font; fallback page-window).
+3. For each chunk: `llm.extract(chunk)` → structured response (Haiku, `messages.parse`,
+   **system prompt cached** across chunks to reduce cost), capturing `usage`.
+4. `map(extracted)` → `Node`/`Edge`, with **dedup** (same creature/concept = one node per normalized id).
+5. Persist via `NetworkXStore.save(path)`.
 
-## Contrato de saída do LLM (schema.py)
+## LLM Output Contract (schema.py)
 
-Pydantic, alinhado às restrições de structured outputs (sem recursão, `additionalProperties:false`):
+Pydantic, aligned with structured output constraints (no recursion, `additionalProperties:false`):
 
 ```
-ExtractedEntity:  name: str   kind: "creature" | "concept"   attrs: dict (CR, tipo, alinhamento ...)
+ExtractedEntity:  name: str   kind: "creature" | "concept"   attrs: dict (CR, type, alignment ...)
 ExtractedRelation: subject: str   predicate: RESISTS|IMMUNE_TO|VULNERABLE_TO|INHABITS|SUMMONS   object: str
 ExtractionResult:  entities: list[ExtractedEntity]   relations: list[ExtractedRelation]
 ```
 
-O mapeamento `ExtractionResult -> (Node[], Edge[])` é lógica pura, testável sem rede.
+The mapping `ExtractionResult -> (Node[], Edge[])` is pure logic, testable without network.
 
-## Estratégia de teste (TDD)
+## Test Strategy (TDD)
 
-Mock só na fronteira da API (não-determinístico e pago — exceção justificada do TDD skill).
-Toda a lógica de domínio é testada com código real.
+Mock only at the API boundary (non-deterministic and paid — justified exception to TDD skill).
+All domain logic is tested with real code.
 
-- **pdf.py** — fixture PDF mínimo gerado no teste (pymupdf) → asserta páginas, texto, metadados.
-- **chunk.py** — fixtures de texto sintético com cabeçalhos → asserta limites por verbete e o fallback.
-- **schema.py / mapeamento** — `ExtractionResult` canônico → `Node`/`Edge` esperados + dedup. Puro.
-- **extractor.py** — injeta um *fake LLM* (devolve `ExtractionResult` fixo) → testa a orquestração
-  pdf→chunk→map sem rede.
-- **cost.py** — função pura (tokens, preço) → custo/latência.
-- **llm.py (adapter real)** — um smoke test ao vivo marcado `@pytest.mark.live`, pulado por
-  padrão (roda só com `ANTHROPIC_API_KEY`). O run do gate P1.4 é a validação ao vivo de verdade.
+- **pdf.py** — minimal PDF fixture generated in test (pymupdf) → asserts pages, text, metadata.
+- **chunk.py** — synthetic text fixtures with headers → asserts entry boundaries and fallback.
+- **schema.py / mapping** — canonical `ExtractionResult` → expected `Node`/`Edge` + dedup. Pure.
+- **extractor.py** — injects a *fake LLM* (returns fixed `ExtractionResult`) → tests orchestration
+  pdf→chunk→map without network.
+- **cost.py** — pure function (tokens, price) → cost/latency.
+- **llm.py (real adapter)** — one live smoke test marked `@pytest.mark.live`, skipped by default
+  (runs only with `ANTHROPIC_API_KEY`). The P1.4 gate run is the real live validation.
 
-CI continua verde: os testes `live` ficam fora do default; cobertura/lint/types/invariantes mantidos.
+CI stays green: `live` tests excluded from default; coverage/lint/types/invariants maintained.
 
-## P1.4 — gate de custo (run pago)
+## P1.4 — Cost Gate (Paid Run)
 
-Roda o pipeline no Monster Manual inteiro e mede:
-- **Custo:** Σ(input_tokens × $1/1M + output_tokens × $5/1M), lido de `response.usage`.
-- **Latência:** tempo total e por chunk.
-- **Volume:** nº de entidades e relações extraídas.
-- **Qualidade:** amostra ~10 criaturas para conferência manual das relações.
+Runs the pipeline on the entire Monster Manual and measures:
+- **Cost:** Σ(input_tokens × $1/1M + output_tokens × $5/1M), read from `response.usage`.
+- **Latency:** total and per-chunk time.
+- **Volume:** number of extracted entities and relations.
+- **Quality:** sample ~10 creatures for manual verification of relations.
 
-Persiste o grafo resultante. **Estimativa: ~US$1–3** (≈290K tokens de texto + overhead de prompt;
-output estruturado por criatura). **Pré-condições do run:** `ANTHROPIC_API_KEY` exportada
-(hoje não está) e OK explícito do usuário antes da chamada paga. Gate de disciplina: **não
-escalar** para PHB/DMG nesta sessão (isso é P1.5).
+Persists the resulting graph. **Estimate: ~US$1–3** (≈290K tokens of text + prompt overhead;
+structured output per creature). **Run preconditions:** `ANTHROPIC_API_KEY` exported (not
+currently) and explicit user approval before paid call. Discipline gate: **do not scale** to
+PHB/DMG in this session (that is P1.5).
 
-## Dependências e empacotamento
+## Dependencies and Packaging
 
-Extra opcional `glyph-kg[document]` = `pymupdf`, `anthropic` — mantém a lib base leve (valor de
-DX do ADR-G1). Env vars: `ANTHROPIC_API_KEY` (obrigatória para extração/gate),
-`GLYPH_LLM_PROVIDER=anthropic` (já no README).
+Optional extra `glyph-kg[document]` = `pymupdf`, `anthropic` — keeps base lib lightweight
+(DX value of ADR-G1). Env vars: `ANTHROPIC_API_KEY` (required for extraction/gate),
+`GLYPH_LLM_PROVIDER=anthropic` (already in README).
 
-## Critérios de done da Fase 1 (esta sessão)
+## Phase 1 Done Criteria (this session)
 
-- ADR-G2 commitado antes da implementação.
-- `EdgeType` estendido; modelo valida; round-trip mantido.
-- `glyph/extract/document/` implementado com TDD; suíte verde; invariantes de arquitetura intactos.
-- Smoke test `live` passa com a key (executado uma vez).
-- Gate P1.4 rodado no MM com OK do usuário: custo/latência/volume reportados, ~10 criaturas
-  amostradas, grafo persistido.
-- CI verde (lint, types, test, coverage, invariantes).
+- ADR-G2 committed before implementation.
+- `EdgeType` extended; model validates; round-trip maintained.
+- `glyph/extract/document/` implemented with TDD; suite green; architecture invariants intact.
+- Live smoke test passes with key (executed once).
+- P1.4 gate run on MM with user approval: cost/latency/volume reported, ~10 creatures sampled,
+  graph persisted.
+- CI green (lint, types, test, coverage, invariants).
 
-## Fora de escopo
+## Out of Scope
 
-P1.5 (escalar para o corpus completo), PHB/DMG, retrieval (Fase 2), baseline vetorial, GNOMON,
-integração AXON. Schema amplo (magia/item/regra/local) fica para quando PHB/DMG entrarem.
+P1.5 (scaling to full corpus), PHB/DMG, retrieval (Phase 2), vector baseline, GNOMON, AXON
+integration. Broad schema (magic/item/rule/location) deferred to when PHB/DMG enter.

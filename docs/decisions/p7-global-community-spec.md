@@ -1,37 +1,37 @@
-# Spec P7 — Eixo global por comunidades (GLYPH)
+# Spec P7 — Global community axis (GLYPH)
 
-**Data:** 2026-06-11
-**Status:** Implementado + **medido** (lado GLYPH) — ver dec-g7. Benchmark global rodado (n=8, dois judges): resumo de comunidade dá qualidade igual-ou-melhor a ~½ dos tokens. Orquestração AXON = spec-irmão pendente.
-**ADR associada:** [dec-g7](dec-g7-global-community-axis.md)
-**Fronteira:** lógica e detecção no GLYPH (lib pura, LLM injetado, espelha `DocumentExtractor`). Orquestração (hook post-commit, MCP `get_global_context`, provider/API key) é o spec-irmão no AXON — **fora deste spec**.
+**Date:** 2026-06-11
+**Status:** Implemented + **measured** (GLYPH side) — see dec-g7. Global benchmark run (n=8, two judges): community summary yields equal or better quality to ~½ of the tokens. AXON orchestration = sister spec pending.
+**Associated ADR:** [dec-g7](dec-g7-global-community-axis.md)
+**Boundary:** logic and detection in GLYPH (pure lib, LLM injected, mirrors `DocumentExtractor`). Orchestration (post-commit hook, MCP `get_global_context`, provider/API key) is the sister spec in AXON — **outside this spec**.
 
 ---
 
-## 1. Objetivo
+## 1. Objective
 
-Adicionar um **eixo global** ao retrieval: detectar comunidades no grafo, resumi-las via LLM injetado, e recuperar esses resumos para perguntas temáticas/de sense-making ("quais são os grandes subsistemas deste repo?") — que a expansão local por vizinhança (`GraphRetriever`, 2 hops) não responde bem.
+Add a **global axis** to retrieval: detect communities in the graph, summarize them via injected LLM, and retrieve those summaries for thematic/sense-making questions ("what are the major subsystems in this repo?") — which local neighborhood expansion (`GraphRetriever`, 2 hops) does not answer well.
 
-O local responde "o que depende de X?"; o global responde "como isto se organiza?". São eixos complementares atrás do mesmo port `Retriever`.
+Local answers "what depends on X?"; global answers "how is this organized?". They are complementary axes behind the same `Retriever` port.
 
-## 2. Decisões-núcleo (locked)
+## 2. Core decisions (locked)
 
-1. **Lógica no GLYPH, LLM injetado.** A lib detém detecção + sumarização; recebe um `llm` como dependência (sem provider/API key na lib), espelhando `DocumentExtractor`. O AXON injeta o modelo e dispara no hook.
-2. **Comunidades vivem no mesmo grafo** como nós `COMMUNITY` + arestas `CONTAINS` (community→membro).
-3. **Isolamento por projeção de traversal, NÃO por indexação disjunta.** ⬅️ *correção crítica vs. desenho original — ver §4.*
+1. **Logic in GLYPH, LLM injected.** The lib owns detection + summarization; receives an `llm` as a dependency (no provider/API key in the lib), mirroring `DocumentExtractor`. AXON injects the model and fires it in the hook.
+2. **Communities live in the same graph** as `COMMUNITY` nodes + `CONTAINS` edges (community→member).
+3. **Isolation by traversal projection, NOT by disjoint indexing.** ⬅️ *critical correction vs. original design — see §4.*
 
-## 3. Componentes
+## 3. Components
 
-### 3.1 Modelo (1 linha cada)
+### 3.1 Model (1 line each)
 
-- `glyph/model/node.py` → `NodeType`: adicionar `COMMUNITY = "community"`.
-- `glyph/model/edge.py` → `EdgeType`: adicionar `CONTAINS = "contains"`.
+- `glyph/model/node.py` → `NodeType`: add `COMMUNITY = "community"`.
+- `glyph/model/edge.py` → `EdgeType`: add `CONTAINS = "contains"`.
 - `glyph/model/contract.py` → `Mode`: `Literal["graph", "vector", "hybrid", "community"]`.
 
-### 3.2 `glyph/retrieval/community.py` (novo)
+### 3.2 `glyph/retrieval/community.py` (new)
 
 ```python
-# Allowlist default = subgrafo ESTRUTURAL de código. NÃO incluir arestas de
-# documento/decisão (MENTIONS, RELATES_TO, etc.) senão clusters misturam ADR com função.
+# Allowlist default = structural code subgraph. DO NOT include
+# document/decision edges (MENTIONS, RELATES_TO, etc.) else clusters mix ADR with function.
 STRUCTURAL_EDGES = frozenset({
     EdgeType.DEFINES, EdgeType.IMPORTS, EdgeType.CALLS,
     EdgeType.INHERITS, EdgeType.REFERENCES,
@@ -41,100 +41,100 @@ def detect_communities(
     store, nodes, *, seed: int,
     edge_types: frozenset[EdgeType] = STRUCTURAL_EDGES,
 ) -> list[Community]:
-    """louvain_communities(seed=seed) sobre o subgrafo estrutural.
-    - EXCLUI nós COMMUNITY pré-existentes (idempotência — ver build §5).
-    - Alimenta o grafo em ORDEM DETERMINÍSTICA (sorted by node.id); seed
-      sozinho NÃO reproduz sem ordem fixa de iteração no networkx.
-    - Filtra arestas por `edge_types`.
+    """louvain_communities(seed=seed) over the structural subgraph.
+    - EXCLUDES pre-existing COMMUNITY nodes (idempotence — see build §5).
+    - Feeds the graph in DETERMINISTIC ORDER (sorted by node.id); seed
+      alone does NOT reproduce without fixed iteration order in networkx.
+    - Filters edges by `edge_types`.
     """
 
 def to_graph_elements(communities) -> tuple[list[Node], list[Edge]]:
-    """Nós COMMUNITY + arestas CONTAINS (community→membro), para upsert no mesmo store.
+    """COMMUNITY nodes + CONTAINS edges (community→member), for upsert in the same store.
 
-    id da comunidade = "community:" + hash(tuple(sorted(member_ids)))   ⬅️ NÃO índice N.
-    attrs={"members": k}. (summary/title preenchidos em summarize_communities.)
+    community id = "community:" + hash(tuple(sorted(member_ids)))   ⬅️ NOT index N.
+    attrs={"members": k}. (summary/title filled in summarize_communities.)
 
-    Motivo do hash: id estável entre rebuilds → comunidades inalteradas mantêm o id
-    → summarize PULA as não-mudadas → corta custo de LLM no hook (alavanca, não cosmético).
+    Reason for hash: stable id across rebuilds → unchanged communities keep the id
+    → summarize SKIPS the unchanged ones → cuts LLM cost in hook (leverage, not cosmetic).
     """
 
 def summarize_communities(communities, member_text, llm) -> list[Node]:
-    """Monta prompt dos membros, chama o `llm` injetado, devolve nós COMMUNITY com
-    attrs["summary"] E attrs["title"] (1 linha temática) preenchidos.
-    Espelha DocumentExtractor: nenhum provider/API key aqui.
+    """Assembles prompt from members, calls the injected `llm`, returns COMMUNITY nodes with
+    attrs["summary"] AND attrs["title"] (1-line thematic) filled in.
+    Mirrors DocumentExtractor: no provider/API key here.
 
-    title: hedge barato contra diluição de embedding (resumo multi-frase num único
-    vetor dilui o centroide). v1 ancora no summary; title fica pronto p/ um retriever
-    futuro trocar sem migração de schema.
+    title: cheap hedge against embedding dilution (multi-sentence summary in a single
+    vector dilutes the centroid). v1 anchors on summary; title is ready for a future
+    retriever to swap without schema migration.
     """
 ```
 
-### 3.3 `CommunityRetriever(Retriever)` (em `community.py`)
+### 3.3 `CommunityRetriever(Retriever)` (in `community.py`)
 
 ```python
 class CommunityRetriever:
     def __init__(self, community_nodes, embedder):
-        # embeda attrs["summary"] de cada nó COMMUNITY (apenas COMMUNITY).
+        # embeds attrs["summary"] of each COMMUNITY node (COMMUNITY nodes only).
     def retrieve(self, query, token_budget=1000) -> ContextPack:
-        # ancora a query nos resumos e os devolve como Segments.
-        # mode="community". SEM expansão de subgrafo (sem _store.subgraph).
+        # anchors the query on the summaries and returns them as Segments.
+        # mode="community". NO subgraph expansion (no _store.subgraph).
         return pack("community", segments, token_budget)
 ```
 
-Satisfaz o port `glyph.retrieval.port.Retriever` (`retrieve(query, token_budget) -> ContextPack`), igual aos outros braços — teste de conformância `isinstance(r, Retriever)` como em dec-g6.
+Satisfies the `glyph.retrieval.port.Retriever` port (`retrieve(query, token_budget) -> ContextPack`), like the other branches — conformance test `isinstance(r, Retriever)` as in dec-g6.
 
-## 4. Isolamento — a correção crítica
+## 4. Isolation — the critical correction
 
-**O furo do desenho original:** "indexação disjunta" isola só o *anchoring*. Mas `GraphRetriever.retrieve` chama `store.subgraph(anchors, hops)`, e `NetworkXStore.subgraph` (`networkx_store.py:49`) faz BFS sobre o **grafo inteiro**:
+**The hole in the original design:** "disjoint indexing" only isolates *anchoring*. But `GraphRetriever.retrieve` calls `store.subgraph(anchors, hops)`, and `NetworkXStore.subgraph` (`networkx_store.py:49`) does BFS over the **entire graph**:
 
 ```python
 reachable.update(nx.single_source_shortest_path_length(undirected, src, cutoff=hops))
 ```
 
-Logo, mesmo ancorando só em nós não-COMMUNITY, a expansão de hops atravessa arestas `CONTAINS`. Dois efeitos:
+Thus, even anchoring only on non-COMMUNITY nodes, hop expansion traverses `CONTAINS` edges. Two effects:
 
-1. **Vazamento:** nó COMMUNITY entra no ContextPack local.
-2. **Distorção (pior):** cada COMMUNITY vira **super-hub** ligado a todos os membros → dois símbolos quaisquer da mesma comunidade ficam a 2 hops (membro→COMMUNITY→membro). Corrompe TODAS as distâncias do retrieval local.
+1. **Leakage:** COMMUNITY node enters the local ContextPack.
+2. **Distortion (worse):** each COMMUNITY becomes a **super-hub** linked to all members → any two symbols in the same community are 2 hops apart (member→COMMUNITY→member). Corrupts ALL distances in local retrieval.
 
-**Fix (mesmo grafo, projeção podada) — decisão B, feita por inteiro:**
+**Fix (same graph, pruned projection) — decision B, implemented in full:**
 
-- Params **genéricos** `exclude_node_types` / `exclude_edge_types` (keyword, default vazio) nos **três** métodos de traversal do `GraphStore`: `subgraph`, `neighbors`, `shortest_path`. A store fica burra — só honra um filtro, **não sabe** o que é COMMUNITY (mantém o port trocável; o adapter Neo4j não precisa saber do overlay). A **política mora na camada de retrieval**.
-- O `GraphRetriever` passa `{COMMUNITY}` / `{CONTAINS}` (constantes `_OVERLAY_*` no módulo). A camada global (`CommunityRetriever`) **não traversa** (anchoring direto em resumos), então não precisa da projeção.
-- Os tools MCP do AXON (`get_graph_neighbors`/`get_graph_path`) passam o mesmo overlay — **no spec-irmão do AXON**, não aqui.
-- Footgun (esquecer de excluir) coberto pelo **teste de invariância topológica** (§6.5), não por acoplar a store.
+- Generic params `exclude_node_types` / `exclude_edge_types` (keyword, default empty) on **all three** traversal methods of `GraphStore`: `subgraph`, `neighbors`, `shortest_path`. The store stays dumb — only honors a filter, **doesn't know** what COMMUNITY is (keeps the port swappable; the Neo4j adapter doesn't need to know about the overlay). The **policy lives in the retrieval layer**.
+- The `GraphRetriever` passes `{COMMUNITY}` / `{CONTAINS}` (constants `_OVERLAY_*` in the module). The global layer (`CommunityRetriever`) **doesn't traverse** (direct anchoring on summaries), so doesn't need the projection.
+- The MCP tools in AXON (`get_graph_neighbors`/`get_graph_path`) pass the same overlay — **in the AXON sister spec**, not here.
+- Footgun (forgetting to exclude) covered by the **topological invariance test** (§6.5), not by coupling the store.
 
-**No dec-g7 cravar:** "isolamento por **projeção de traversal podada**, não indexação disjunta; filtro genérico na store, política na camada de retrieval (opção B)."
+**Etch in dec-g7:** "isolation by **pruned traversal projection**, not disjoint indexing; generic filter on store, policy in retrieval layer (option B)."
 
-## 5. Fluxo de dados
+## 5. Data flow
 
-- **Build** (AXON dispara depois):
-  `load → detect_communities(seed) → to_graph_elements → upsert → summarize_communities(llm) → upsert COMMUNITY c/ summary+title → persist`.
-  **Idempotência:** antes de detectar, remover nós `COMMUNITY` + arestas `CONTAINS` anteriores (ou `detect` exclui COMMUNITY da entrada **e** o build limpa os antigos), senão acumula a cada commit.
-- **Query:** `CommunityRetriever.retrieve(query_global) → resumos como ContextPack`.
+- **Build** (AXON fires after):
+  `load → detect_communities(seed) → to_graph_elements → upsert → summarize_communities(llm) → upsert COMMUNITY with summary+title → persist`.
+  **Idempotence:** before detecting, remove pre-existing `COMMUNITY` nodes + `CONTAINS` edges (or `detect` excludes COMMUNITY from input **and** build cleans the old ones), else accumulates on each commit.
+- **Query:** `CommunityRetriever.retrieve(query_global) → summaries as ContextPack`.
 
-## 6. Testes / validação (deste spec — gate 100%, custo zero)
+## 6. Tests / validation (of this spec — 100% gate, zero cost)
 
-LLM **fake injetado** + embedder fake:
+Fake LLM injected + fake embedder:
 
-1. **Detecção** particiona um grafo pequeno conhecido (assert partição esperada, reprodutível com seed fixo + ordem determinística).
-2. **summarize** preenche `attrs["summary"]` e `attrs["title"]` via stub.
-3. **CommunityRetriever** ancora na comunidade certa (query temática → resumo correto no topo).
-4. **Isolamento — vazamento:** retrieval local NÃO contém nós COMMUNITY.
-5. **Isolamento — invariância topológica** ⬅️ *novo, obrigatório*: em **topologia realista** (comunidades de tamanho >2, nós estruturalmente distantes), dois nós distantes que caem na mesma comunidade **continuam distantes** no subgrafo local depois do build. Pega o efeito super-hub que o teste 4 não pega. (Topologia não precisa de LLM real — só stub.)
-6. **Conformância de port:** `isinstance(CommunityRetriever(...), Retriever)`.
+1. **Detection** partitions a small known graph (assert expected partition, reproducible with fixed seed + deterministic order).
+2. **Summarize** fills `attrs["summary"]` and `attrs["title"]` via stub.
+3. **CommunityRetriever** anchors to the right community (thematic query → correct summary on top).
+4. **Isolation — leakage:** local retrieval does NOT contain COMMUNITY nodes.
+5. **Isolation — topological invariance** ⬅️ *new, mandatory*: on **realistic topology** (communities of size >2, structurally distant nodes), two distant nodes that fall in the same community **remain distant** in the local subgraph after build. Catches the super-hub effect that test 4 doesn't. (Topology doesn't need real LLM — just stub.)
+6. **Port conformance:** `isinstance(CommunityRetriever(...), Retriever)`.
 
-## 7. Follow-ups (fora deste spec)
+## 7. Follow-ups (outside this spec)
 
-- Rodada **real** de sumarização (corpus Monster Manual / DeD — custa LLM).
-- Braço de **benchmark global** (depende de um global query set que ainda não existe).
-- Eventual troca de anchoring `summary` → `title`/title-weighted **se** o benchmark mostrar diluição.
+- **Real** summarization round (corpus Monster Manual / D&D — costs LLM).
+- **Global benchmark** branch (depends on a global query set that doesn't yet exist).
+- Eventual anchoring swap `summary` → `title`/title-weighted **if** benchmark shows dilution.
 
-## 8. Fronteira AXON (spec-irmão, não aqui)
+## 8. AXON boundary (sister spec, not here)
 
-- Hook post-commit dispara `detect + summarize + persist` com o LLM do AXON.
-- Novo tool MCP `get_global_context` (separado de `get_graph_context`).
-- Caller escolhe local vs global — **sem roteador automático no v1**.
+- Post-commit hook fires `detect + summarize + persist` with AXON's LLM.
+- New MCP tool `get_global_context` (separate from `get_graph_context`).
+- Caller chooses local vs global — **without automatic router in v1**.
 
-## 9. dec-g7 (ADR a escrever junto)
+## 9. dec-g7 (ADR to write together)
 
-Registra: eixo global; Louvain nativo + seed + ordem determinística; **isolamento in-graph por projeção de traversal podada** (não indexação disjunta); id de comunidade por hash de membros (alavanca de re-summarização); fronteira de sumarização (lógica GLYPH / LLM injetado); `title`+`summary` no nó COMMUNITY.
+Records: global axis; native Louvain + seed + deterministic order; **in-graph isolation by pruned traversal projection** (not disjoint indexing); community id by hash of members (re-summarization leverage); summarization boundary (GLYPH logic / injected LLM); `title`+`summary` on COMMUNITY node.

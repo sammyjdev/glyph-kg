@@ -1,45 +1,45 @@
-# ADR-G1: Extractor port com dois adapters e backend NetworkX/Neo4j
+# ADR-G1: Extractor port with two adapters and NetworkX/Neo4j backend
 
-**Data:** 2026-06-09
-**Status:** Aceito
+**Date:** 2026-06-09
+**Status:** Accepted
 
-## Contexto
+## Context
 
-GLYPH precisa construir knowledge graph de dois domínios com naturezas de extração opostas:
+GLYPH must build knowledge graphs across two domains with opposing extraction models:
 
-- **Documento**: extração probabilística. Um LLM lê prosa e infere entidades e relações, com erro. Ex: "Goblin resiste a fogo" é uma relação inferida, não garantida.
-- **Código**: extração determinística. tree-sitter produz a AST e a relação `A CALLS B` é fato, não inferência.
+- **Document**: probabilistic extraction. An LLM reads prose and infers entities and relations, with error. Example: "Goblin resists fire" is an inferred relation, not guaranteed.
+- **Code**: deterministic extraction. tree-sitter produces the AST and the relation `A CALLS B` is fact, not inference.
 
-Forçar os dois num único extractor genérico, ou num schema único de grafo que sirva aos dois, produz uma abstração que não é boa em nenhum domínio. A diferença não é cosmética: é a confiabilidade da aresta.
+Forcing both into a single generic extractor, or into a single graph schema serving both, produces an abstraction that excels at neither. The difference is not cosmetic: it is edge reliability.
 
-Em paralelo, a lib precisa ser pip-installable e ter bom DX. Um backend de grafo que exija servidor (Neo4j) é fricção alta para uma biblioteca. Mas "Neo4j" é keyword que recruiter e busca de vaga escaneiam, e a história de produção tem valor.
+In parallel, the library must be pip-installable and have good DX. A graph backend requiring a server (Neo4j) is high friction for a library. But "Neo4j" is a keyword that recruiters and job search scanners pick up on, and the production track record has value.
 
-## Decisão
+## Decision
 
-**Extractor port com dois adapters.** Definimos um `Extractor` protocol com `extract(source) -> (nodes, edges)`. `DocumentExtractor` (LLM) e `CodeExtractor` (tree-sitter) o implementam. O núcleo de grafo, o store e o retrieval são compartilhados; só a extração é específica do domínio.
+**Extractor port with two adapters.** We define an `Extractor` protocol with `extract(source) -> (nodes, edges)`. `DocumentExtractor` (LLM) and `CodeExtractor` (tree-sitter) implement it. The graph core, store, and retrieval are shared; only extraction is domain-specific.
 
-**GraphStore port com NetworkX default e Neo4j adapter.** NetworkX é o backend default: embedded, pip-installable, zero servidor, suficiente para a escala dos corpora-alvo (documentos cabem em memória; repos também). Neo4j existe como adapter smoke-tested, pelo keyword e pela história de produção, não como serviço always-on.
+**GraphStore port with NetworkX default and Neo4j adapter.** NetworkX is the default backend: embedded, pip-installable, zero server, sufficient for target corpus scale (documents fit in memory; repositories do too). Neo4j exists as a smoke-tested adapter, for keyword and production history, not as an always-on service.
 
-## Consequências
+## Consequences
 
-**Positivas:**
-- A fronteira certa fica explícita: o que é comum (grafo, store, retrieval, medição) vs o que é específico de domínio (extração). Demonstra abstração arquitetural, não só uso de lib.
-- Adicionar um terceiro domínio futuro é um novo adapter de extractor, sem tocar o núcleo.
-- DX de biblioteca preservado pelo NetworkX default; keyword Neo4j obtido honestamente porque o adapter roda de verdade.
+**Positive:**
+- The correct boundary becomes explicit: what is common (graph, store, retrieval, measurement) vs. what is domain-specific (extraction). Demonstrates architectural abstraction, not just library use.
+- Adding a third domain in the future is a new extractor adapter, with no core changes.
+- Library DX preserved by NetworkX default; Neo4j keyword earned honestly because the adapter actually runs.
 
-**Negativas / trade-offs:**
-- Manter dois adapters de extração e dois de store é mais superfície de teste.
-- NetworkX não escala para grafos muito grandes; se um corpus futuro estourar memória, o Neo4j adapter (ou outro) absorve, mas isso é trabalho adicional.
+**Negative / trade-offs:**
+- Maintaining two extraction adapters and two store adapters is a larger test surface.
+- NetworkX does not scale for very large graphs; if a future corpus exceeds memory, the Neo4j adapter (or another) absorbs it, but that is additional work.
 
-**Neutras / a observar:**
-- A assimetria probabilístico/determinístico fica visível no benchmark: a qualidade da extração documental é medida, a do código é assumida correta dentro da limitação de resolução de símbolo.
+**Neutral / to observe:**
+- The probabilistic/deterministic asymmetry is visible in the benchmark: document extraction quality is measured; code extraction is assumed correct within symbol resolution limitations.
 
-## Alternativas consideradas
+## Alternatives considered
 
-| Alternativa | Por que foi descartada |
+| Alternative | Why it was rejected |
 |---|---|
-| Extractor único genérico | Os domínios têm confiabilidade de aresta oposta; um extractor só não serve a nenhum bem |
-| Schema de grafo único para os dois | Produz grafo medíocre nos dois domínios; reviewer técnico detecta |
-| Neo4j como default | Exige servidor, péssimo DX para lib pip-installable |
-| kuzu como default | openCypher embedded é atraente, mas NetworkX tem DX e maturidade melhores para a escala-alvo; kuzu fica como opção futura se a escala exigir |
-| Projetos separados (um doc, um code) | Perde o claim de "biblioteca de KG"; duplica núcleo de grafo, store e medição |
+| Single generic extractor | Domains have opposite edge reliability; a single extractor serves neither well |
+| Single graph schema for both | Produces mediocre graphs in both domains; technical reviewer detects it |
+| Neo4j as default | Requires a server, poor DX for a pip-installable library |
+| kuzu as default | Embedded openCypher is attractive, but NetworkX has better DX and maturity for target scale; kuzu remains a future option if scale demands it |
+| Separate projects (one doc, one code) | Loses the "KG library" claim; duplicates graph core, store, and measurement |

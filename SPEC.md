@@ -1,72 +1,72 @@
 # SPEC: GLYPH
 
-> Biblioteca de knowledge graph unificada sobre documentos e código. Núcleo de grafo comum, dois extractors plugáveis sob um port, retrieval graph-aware, medido contra baseline vetorial justo com intervalos de confiança. Document-first.
+> Unified knowledge graph library for documents and code. Common graph core, two pluggable extractors under a port, graph-aware retrieval, measured against fair vector baseline with confidence intervals. Document-first.
 
-## Problema
+## Problem
 
-Retrieval vetorial recupera por similaridade semântica e ignora relações explícitas entre entidades. Para corpora densos em relações (documentos técnicos, regras) e para código (calls, imports, inheritance), o contexto estrutural importa: a resposta certa muitas vezes está a uma ou duas arestas de distância, não no chunk mais parecido. GLYPH constrói o grafo desses dois domínios sob uma abstração única e mede o ganho do retrieval graph-aware sobre o vetorial.
+Vector retrieval recovers by semantic similarity and ignores explicit relations between entities. For relation-dense corpora (technical documents, rules) and for code (calls, imports, inheritance), structural context matters: the right answer is often one or two edges away, not in the most similar chunk. GLYPH builds the graph of these two domains under a single abstraction and measures the gain of graph-aware retrieval over vector-only.
 
-## Tese mensurável
+## Measurable thesis
 
-Contexto graph-aware supera vector-only em relevância e/ou eficiência de token para queries que dependem de relações entre entidades. Onde a query é factual simples, o vetor pode bastar. GLYPH reporta os dois casos, com custo e latência como métricas de primeira classe.
+Graph-aware context outperforms vector-only in relevance and/or token efficiency for queries that depend on relations between entities. Where the query is simple factual, the vector may suffice. GLYPH reports both cases, with cost and latency as first-class metrics.
 
-## Princípio de design
+## Design principle
 
-Os dois domínios compartilham núcleo de grafo, store, retrieval e medição. Diferem apenas na **extração**: documento é probabilístico (LLM lê prosa, infere relações com erro), código é determinístico (tree-sitter, a relação é fato). A fronteira certa é um `Extractor` port com dois adapters, não um schema único tentando servir aos dois.
+The two domains share graph core, store, retrieval, and measurement. They differ only in **extraction**: document is probabilistic (LLM reads prose, infers relations with error), code is deterministic (tree-sitter, the relation is fact). The right boundary is an `Extractor` port with two adapters, not a single schema trying to serve both.
 
-## Escopo IN
+## In Scope
 
-1. **Núcleo de grafo**: modelo `Node`/`Edge`/`EdgeType` (Pydantic v2), genérico o suficiente para os dois domínios, com tipos de aresta separados por domínio.
-2. **`GraphStore` port**: NetworkX como default embedded (pip-installable, zero servidor), Neo4j como adapter smoke-tested.
-3. **`Extractor` port** com dois adapters:
-   - `DocumentExtractor` (LLM): ingestão de PDF, chunking estrutura-aware, extração entidade/relação.
-   - `CodeExtractor` (tree-sitter): Python + Java, alinhado ao `graph_extractor` do AXON.
-4. **Retrieval graph-aware**: ancoragem de entidades + expansão de vizinhança por `hops`.
-5. **Baseline vetorial justo** (Python, mesmo corpus): chunk + embedding + vector store. Controle real do experimento.
-6. **Benchmark GNOMON**: graph vs vetor vs híbrido, com CIs (percentile bootstrap), custo e latência. O GNOMON (auditado) já é pip-installable e é pull-based (`run_eval` chama `target.query`); o GLYPH o consome via um adapter **`RagTarget`** por braço, que devolve resultados pré-computados. Restrições do contrato v1, declaradas: `RagResponse` exige `total_tokens` e `latency_ms` (token/latência instrumentados nos três braços, requisito); métricas v1 = `faithfulness` + `context_precision` apenas (sem recall); custo em US$ calculado pelo GLYPH a partir de tokens.
-7. **Baseline reproduzível**: dataset/fixture versionado + regeneração + check de regressão no número publicado.
+1. **Graph core**: `Node`/`Edge`/`EdgeType` model (Pydantic v2), generic enough for both domains, with edge types separated by domain.
+2. **`GraphStore` port**: NetworkX as default embedded (pip-installable, zero server), Neo4j as smoke-tested adapter.
+3. **`Extractor` port** with two adapters:
+   - `DocumentExtractor` (LLM): PDF ingestion, structure-aware chunking, entity/relation extraction.
+   - `CodeExtractor` (tree-sitter): Python + Java, aligned to AXON's `graph_extractor`.
+4. **Graph-aware retrieval**: entity anchoring + neighborhood expansion by `hops`.
+5. **Fair vector baseline** (Python, same corpus): chunk + embedding + vector store. Real experiment control.
+6. **GNOMON benchmark**: graph vs vector vs hybrid, with CIs (percentile bootstrap), cost and latency. GNOMON (audited) is already pip-installable and pull-based (`run_eval` calls `target.query`); GLYPH consumes it via a **`RagTarget`** adapter per arm, which returns precomputed results. v1 contract restrictions, declared: `RagResponse` requires `total_tokens` and `latency_ms` (token/latency instrumented across three arms, requirement); v1 metrics = `faithfulness` + `context_precision` only (no recall); cost in US$ calculated by GLYPH from tokens.
+7. **Reproducible baseline**: versioned dataset/fixture + regeneration + regression check on published number.
 
-## Escopo OUT (honestidade de claim)
+## Out of Scope (honesty in claims)
 
-- Type inference cross-language completa no código. Resolução por nome no import graph + intra-file. Declarada.
-- Tokenizer real onde herdar a contagem por char-estimate do AXON. Declarado no benchmark.
-- Backend de grafo dedicado externo além do adapter Neo4j. Default fica embedded (local-first).
-- Reimplementar parsing que o AXON já tem. O `CodeExtractor` alinha em vez de duplicar.
+- Complete cross-language type inference in code. Resolution by name in import graph + intra-file. Declared.
+- Real tokenizer where we inherit char-estimate counting from AXON. Declared in benchmark.
+- Dedicated external graph backend beyond the Neo4j adapter. Default stays embedded (local-first).
+- Reimplement parsing that AXON already has. The `CodeExtractor` aligns instead of duplicating.
 
-## Arquitetura
+## Architecture
 
-Ver [ARCHITECTURE.md](ARCHITECTURE.md). Resumo: Extractor port (2 adapters) → núcleo de grafo (Node/Edge) → GraphStore port (NetworkX/Neo4j) → retrieval graph-aware → benchmark GNOMON contra baseline vetorial.
+See [ARCHITECTURE.md](ARCHITECTURE.md). Summary: Extractor port (2 adapters) → graph core (Node/Edge) → GraphStore port (NetworkX/Neo4j) → graph-aware retrieval → GNOMON benchmark against vector baseline.
 
-Invariantes (verificados no CI):
-- Extractors implementam o port; o núcleo de grafo não importa extractor concreto.
-- Retrieval e store dependem do modelo de domínio, não do extractor.
-- O baseline vetorial é implementação justa, não espantalho.
+Invariants (verified in CI):
+- Extractors implement the port; the graph core does not import concrete extractor.
+- Retrieval and store depend on the domain model, not the extractor.
+- The vector baseline is fair implementation, not a straw man.
 
-## Validação
+## Validation
 
-| Camada | Critério |
+| Layer | Criterion |
 |---|---|
-| Técnica | Ports funcionam; NetworkX e Neo4j passam o mesmo smoke test; retrieval determinístico e reproduzível |
-| Evidência | Relevância, token efficiency, custo, latência: graph vs vetor vs híbrido, com CIs, sobre corpus real |
-| Honestidade | Baseline reproduzível do repo; limitações declaradas; benchmark não afirmado antes de rodar |
+| Technical | Ports work; NetworkX and Neo4j pass the same smoke test; retrieval deterministic and reproducible |
+| Evidence | Relevance, token efficiency, cost, latency: graph vs vector vs hybrid, with CIs, on real corpus |
+| Honesty | Reproducible baseline from repo; limitations declared; benchmark not asserted before running |
 
-Corpus de validação documental: 10-15 livros de DeD (150-300 pág), dado real e denso em entidades. Gate de custo em 1 livro antes de escalar (extração LLM é cara no volume).
+Document validation corpus: 10-15 D&D books (150-300 pages), real data and dense in entities. Cost gate on 1 book before scaling (LLM extraction is expensive at volume).
 
-## Fasamento
+## Phasing
 
-Detalhe em [GLYPH_PLAN.md](GLYPH_PLAN.md). Resumo: Fase 0 fundação → Fase 1 document extraction → Fase 2 retrieval + baseline → Fase 3 benchmark (claim das vagas) → Fase 4 code → Fase 5 integração AXON → Fase 6 publicação. (A antiga Fase 2.5 "destravar GNOMON" foi dissolvida pela auditoria — o GNOMON já é pip-installable; vira a sub-task P3.0.) Cada fase tem entregável publicável isolado.
+Details in [GLYPH_PLAN.md](GLYPH_PLAN.md). Summary: Phase 0 foundation → Phase 1 document extraction → Phase 2 retrieval + baseline → Phase 3 benchmark (claim of completeness) → Phase 4 code → Phase 5 AXON integration → Phase 6 publication. (The old Phase 2.5 "unblock GNOMON" was dissolved by audit — GNOMON is already pip-installable; it becomes sub-task P3.0.) Each phase has an isolated publishable deliverable.
 
 ## Quality gates
 
-- TDD por sub-task.
-- Cobertura com gate no CI.
-- Invariante de arquitetura testado.
-- ADR por decisão arquitetural (ADR-G1..G5).
-- Custo medido antes de escalar extração.
-- Número publicado reproduzível do repo, senão não publicado.
+- TDD per sub-task.
+- Coverage with gate in CI.
+- Architecture invariant tested.
+- ADR per architectural decision (ADR-G1..G5).
+- Cost measured before scaling extraction.
+- Published number reproducible from repo, otherwise not published.
 
-## Decisões abertas (não bloqueiam Fase 0)
+## Open decisions (do not block Phase 0)
 
-- Lib de embedding e vector store do baseline (Fase 2): definir entre sentence-transformers + pgvector ou o que GNOMON/AXON já usam, por consistência.
-- ~~GNOMON empacotado (Fase 2.5): empacotar vs vendorizar~~ — **resolvido pela auditoria:** o GNOMON já é pip-installable; o GLYPH só o referencia por path/git e consome via adapter `RagTarget`. Fase 2.5 dissolvida (vira P3.0).
-- Licença (sugerido MIT para portfólio público).
+- Embedding lib and vector store of baseline (Phase 2): decide between sentence-transformers + pgvector or what GNOMON/AXON already use, for consistency.
+- ~~GNOMON packaged (Phase 2.5): package vs vendor~~ — **resolved by audit:** GNOMON is already pip-installable; GLYPH only references it by path/git and consumes via `RagTarget` adapter. Phase 2.5 dissolved (becomes P3.0).
+- License (MIT suggested for public portfolio).

@@ -23,7 +23,7 @@
 - Modify: `.github/workflows/ci.yml`
 - Create: `glyph/extract/document/__init__.py`
 - Create: `docs/decisions/dec-g2-document-extraction-schema.md`
-- Create: `tests/extract/document/__init__.py` (empty, keeps the dir present)
+- Create: `tests/extract/document/__init__.py` (empty, keeps the directory present)
 
 - [ ] **Step 1: Add the `document` optional extra and live marker to `pyproject.toml`**
 
@@ -50,7 +50,7 @@ markers = [
 - [ ] **Step 2: Install the document extra**
 
 Run: `python3 -m pip install -e ".[dev,document]"`
-Expected: `Successfully installed` (pymupdf, anthropic and deps).
+Expected: `Successfully installed` (pymupdf, anthropic, and dependencies).
 
 - [ ] **Step 3: Update CI to install the document extra**
 
@@ -76,59 +76,59 @@ Create `tests/extract/document/__init__.py` as an empty file.
 Create `docs/decisions/dec-g2-document-extraction-schema.md`:
 
 ```markdown
-# ADR-G2: Schema de extração documental (Monster Manual)
+# ADR-G2: Document extraction schema (Monster Manual)
 
-**Data:** 2026-06-09
-**Status:** Aceito
+**Date:** 2026-06-09
+**Status:** Accepted
 
-## Contexto
+## Context
 
-A Fase 1 constrói o primeiro knowledge graph documental do GLYPH a partir do
-Monster Manual (PT-BR, 351 páginas, texto extraível, sem TOC). A extração é
-probabilística: um LLM lê prosa em português e infere entidades e relações, com
-erro. O `EdgeType` do Phase 0 cobre apenas `{RELATES_TO, MENTIONS, REQUIRES,
-RESISTS}` para documento — insuficiente para as relações que o Monster Manual
-exercita de fato.
+Phase 1 builds the first documentary knowledge graph for GLYPH from the
+Monster Manual (PT-BR, 351 pages, extractable text, no TOC). Extraction is
+probabilistic: an LLM reads Portuguese prose and infers entities and relations, with
+error. The `EdgeType` from Phase 0 covers only `{RELATES_TO, MENTIONS, REQUIRES,
+RESISTS}` for documents — insufficient for the relations that the Monster Manual
+actually exercises.
 
-## Decisão
+## Decision
 
-**Schema MM-focado.** Entidade = criatura (`NodeType.ENTITY`); tipo de dano,
-condição e local/plano = conceito (`NodeType.CONCEPT`). `EdgeType` ganha quatro
-membros de domínio documento:
+**MM-focused schema.** Entity = creature (`NodeType.ENTITY`); damage type,
+condition, and location/plane = concept (`NodeType.CONCEPT`). `EdgeType` gains four
+document-domain members:
 
-- `IMMUNE_TO` — imunidade a dano/condição
-- `VULNERABLE_TO` — vulnerabilidade a dano
-- `INHABITS` — habita local/plano
-- `SUMMONS` — invoca/conjura outra criatura
+- `IMMUNE_TO` — immunity to damage/condition
+- `VULNERABLE_TO` — vulnerability to damage
+- `INHABITS` — inhabits location/plane
+- `SUMMONS` — summons/conjures another creature
 
-somando aos existentes `RESISTS`, `RELATES_TO`, `MENTIONS`, `REQUIRES`.
-`NodeType` não muda.
+alongside existing `RESISTS`, `RELATES_TO`, `MENTIONS`, `REQUIRES`.
+`NodeType` does not change.
 
-Schema do grafo:
+Graph schema:
 
 ```
-ENTITY(criatura) --RESISTS/IMMUNE_TO/VULNERABLE_TO--> CONCEPT(fogo, frio, atordoado, ...)
-ENTITY(criatura) --INHABITS--> CONCEPT(Subterrâneo, plano, ...)
-ENTITY(criatura) --SUMMONS--> ENTITY(criatura invocada)
+ENTITY(creature) --RESISTS/IMMUNE_TO/VULNERABLE_TO--> CONCEPT(fire, cold, stunned, ...)
+ENTITY(creature) --INHABITS--> CONCEPT(Underdark, plane, ...)
+ENTITY(creature) --SUMMONS--> ENTITY(summoned creature)
 ```
 
-## Consequências
+## Consequences
 
-**Positivas:** schema casa com a estrutura do MM, alto sinal para o benchmark
-grafo-vs-vetor. Adicionar um domínio novo (PHB/DMG) é estender o enum e o prompt,
-sem tocar o núcleo.
+**Positive:** schema aligns with MM structure, strong signal for the
+graph-vs-vector benchmark. Adding a new domain (PHB/DMG) is extending the enum and the prompt,
+without touching the core.
 
-**Trade-offs / a observar:** a extração documental tem erro — é por isso que o
-benchmark mede qualidade em vez de assumir. O schema não cobre magia/item/regra
-(conteúdo de PHB/DMG); isso é declarado e fica para fase futura.
+**Trade-offs / to observe:** documentary extraction has error — this is why the
+benchmark measures quality instead of assuming. The schema does not cover spells/items/rules
+(PHB/DMG content); this is declared and deferred to a future phase.
 
-## Alternativas consideradas
+## Alternatives considered
 
-| Alternativa | Por que foi descartada |
+| Alternative | Why it was discarded |
 |---|---|
-| Reusar só os EdgeType existentes | Funde imune/resiste/vulnerável numa aresta só; perde fidelidade |
-| Schema amplo (magia/item/regra/local) já | MM não exercita esses tipos; extração ruidosa, mais cara, sem ganho agora |
-| Dict de atributos livre na saída do LLM | Structured outputs exigem `additionalProperties:false`; campos fixos opcionais no lugar |
+| Reuse only existing EdgeType | Merges immune/resist/vulnerable into a single edge; loses fidelity |
+| Broad schema (spells/items/rules/location) now | MM does not exercise these types; extraction noisy, more costly, no gain now |
+| Free attribute dict in LLM output | Structured outputs require `additionalProperties:false`; fixed optional fields instead |
 ```
 
 - [ ] **Step 6: Verify the suite still passes with the new config**
@@ -1168,7 +1168,7 @@ git commit -m "Add token-usage cost report at Haiku rates (P1.4)" -m "Co-Authore
 
 ### Task 10: Cost-gate runner + paid P1.4 run
 
-The runner is the composition root — it is the only place that wires the extractor to `NetworkXStore`. It lives in `scripts/` (outside the `glyph` package) so it does not violate the architecture invariant that `glyph.extract` never imports `glyph.store`, and so it is excluded from coverage.
+The runner is the composition root — it is the only place that wires the extractor to `NetworkXStore`. It lives in `scripts/` (outside the `glyph` package) so it does not violate the architecture invariant that `glyph.extract` never imports `glyph.store`, and is therefore excluded from coverage.
 
 **Files:**
 - Create: `scripts/extract_book.py`
@@ -1262,7 +1262,7 @@ Expected: a printed report (chunks, nodes/creatures, edges, tokens, **cost in US
 
 - [ ] **Step 5: Review the gate output (manual quality check)**
 
-Read the sampled creatures and their relations. Confirm the relations are plausible against the book (e.g. a creature that "resiste a fogo" shows `resists fogo`). Record the cost, latency, node/edge counts, and a one-paragraph quality note. **Do not scale to PHB/DMG — that is P1.5, out of scope for this session.**
+Read the sampled creatures and their relations. Confirm the relations are plausible against the book (e.g., a creature that is described as fire-resistant shows `resists fogo`). Record the cost, latency, node/edge counts, and a one-paragraph quality note. **Do not scale to PHB/DMG — that is P1.5, out of scope for this session.**
 
 - [ ] **Step 6: Commit the gate results note**
 
