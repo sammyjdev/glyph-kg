@@ -1,0 +1,78 @@
+{
+  "corpus": "axon-code-communities",
+  "_note": "Global / sense-making queries about the AXON codebase's high-level organization — the kind community summaries (ADR-G7) should answer better than local neighborhood or chunk retrieval. Authored (thematic); the v1 judge is reference-free, so relevant_labels/answer_key are declared metadata, not a scoring key.",
+  "queries": [
+    {
+      "id": "global-subsystems",
+      "question": "Quais são os grandes subsistemas / áreas de responsabilidade do codebase do AXON?",
+      "category": "global",
+      "graph_favored": false,
+      "relevant_sources": ["overview"],
+      "relevant_labels": ["subsystems overview"],
+      "answer_key": "Storage/grafo, roteamento de modelos, servidor MCP, extração/indexação de código, captura de decisões (ADR), recall/supersessão, política/observabilidade."
+    },
+    {
+      "id": "global-routing",
+      "question": "Como o roteamento de modelos e os perfis de provider estão organizados no AXON?",
+      "category": "global",
+      "graph_favored": false,
+      "relevant_sources": ["routing"],
+      "relevant_labels": ["model routing / profiles"],
+      "answer_key": "Roteamento por task-type com perfis FREE/PAID (router/engine, router/profiles) e cache de camadas de prompt."
+    },
+    {
+      "id": "global-storage",
+      "question": "Quais são os principais componentes da camada de armazenamento do AXON?",
+      "category": "global",
+      "graph_favored": false,
+      "relevant_sources": ["storage"],
+      "relevant_labels": ["storage layer"],
+      "answer_key": "SessionStore (SQLite, fonte de verdade do grafo), vector store, retry/pending com backoff e fallback atômico."
+    },
+    {
+      "id": "global-mcp",
+      "question": "Como a camada do servidor MCP está estruturada — que grupos de ferramentas e preocupações ela reúne?",
+      "category": "global",
+      "graph_favored": false,
+      "relevant_sources": ["mcp"],
+      "relevant_labels": ["mcp server"],
+      "answer_key": "server.py expõe tools de grafo/contexto/sessão sob @traced_tool com risk-class e gate de consentimento."
+    },
+    {
+      "id": "global-adr-pipeline",
+      "question": "Em que consiste o pipeline de captura/inferência de decisões (ADR) do AXON?",
+      "category": "global",
+      "graph_favored": false,
+      "relevant_sources": ["adr"],
+      "relevant_labels": ["adr capture/gates"],
+      "answer_key": "Hook de commit detecta sinal, infere ADR via LLM e passa por gates (L1-L3, density) antes de persistir/draft."
+    },
+    {
+      "id": "global-recall",
+      "question": "Como o recall e a supersessão de decisões estão organizados no código?",
+      "category": "global",
+      "graph_favored": false,
+      "relevant_sources": ["recall"],
+      "relevant_labels": ["recall / supersession"],
+      "answer_key": "recall/strategy + recall/supersession aplicam ranking com demote (rank x 0.02) por supersessão soft."
+    },
+    {
+      "id": "global-embedding",
+      "question": "Quais são as principais áreas do código de embedding e chunking/indexação?",
+      "category": "global",
+      "graph_favored": false,
+      "relevant_sources": ["embedding"],
+      "relevant_labels": ["embedding / indexing"],
+      "answer_key": "embedder/engine + embedder/chunker (tree-sitter, _MAX_CHUNK_LINES) e o indexador de código."
+    },
+    {
+      "id": "global-commit-flow",
+      "question": "Dê um mapa de alto nível de como o AXON processa um commit, da captura à decisão.",
+      "category": "global",
+      "graph_favored": false,
+      "relevant_sources": ["commit-flow"],
+      "relevant_labels": ["commit -> capture -> decision"],
+      "answer_key": "git hook captura CodeChange, detecta sinal de decisão, infere ADR, roda gates, persiste em SessionStore ou draft."
+    }
+  ]
+}

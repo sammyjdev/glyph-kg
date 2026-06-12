@@ -37,6 +37,8 @@ from glyph.eval.judge import GROQ_BASE_URL, OpenAICompatJudge
 from glyph.eval.report import DEFAULT_TOLERANCE, regression_check, render_markdown, to_dict
 from glyph.eval.response import ArmResponse
 from glyph.extract.document import chunk, pdf
+from glyph.model.node import NodeType
+from glyph.retrieval.community import CommunityRetriever
 from glyph.retrieval.graph import GraphRetriever
 from glyph.retrieval.hybrid import HybridRetriever
 from glyph.retrieval.port import Retriever
@@ -71,6 +73,18 @@ def _build_arms(graph_path: str, source: str, domain: str = "document"):  # type
     store = NetworkXStore.load(graph_path)
     payload = json.loads(Path(graph_path).read_text(encoding="utf-8"))
     nodes = store.subgraph([n["id"] for n in payload["nodes"]], hops=0).nodes
+    embedder = SentenceTransformerEmbedder()
+
+    if domain == "code-global":
+        # global axis (ADR-G7): community summaries vs a fair vector baseline vs local graph
+        community_nodes = [n for n in nodes if n.type is NodeType.COMMUNITY]
+        local_nodes = [n for n in nodes if n.type is not NodeType.COMMUNITY]
+        community = CommunityRetriever(community_nodes, embedder)
+        vector = VectorBaseline(embedder=embedder)
+        vector.index(code_documents(source))
+        graph = GraphRetriever(store=store, embedder=embedder, nodes=local_nodes)
+        return {"community": community, "vector": vector, "graph": graph}
+
     if domain == "code":
         documents = code_documents(source)
     else:
@@ -79,7 +93,6 @@ def _build_arms(graph_path: str, source: str, domain: str = "document"):  # type
             for piece in chunk.by_creature(pdf.load(source))
             if chunk.is_creature(piece)
         ]
-    embedder = SentenceTransformerEmbedder()
     graph = GraphRetriever(store=store, embedder=embedder, nodes=nodes)
     vector = VectorBaseline(embedder=embedder)
     vector.index(documents)
@@ -132,7 +145,10 @@ def main(argv: list[str]) -> int:
     parser.add_argument("graph", help="persisted KG json (e.g. out/monster-manual.json)")
     parser.add_argument("source", help="document: source PDF; code: repo source dir")
     parser.add_argument(
-        "--domain", choices=["document", "code"], default="document", help="benchmark domain"
+        "--domain",
+        choices=["document", "code", "code-global"],
+        default="document",
+        help="benchmark domain (code-global = community summaries vs vector vs local graph)",
     )
     parser.add_argument("--queries", default=None)
     parser.add_argument("--model", default=DEFAULT_MODEL, help="judge model (OpenAI-compatible)")
@@ -172,13 +188,32 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--check", action="store_true", help="fail if drift exceeds tolerance")
     args = parser.parse_args(argv)
 
-    code = args.domain == "code"
-    args.queries = args.queries or ("eval/code-queries.json" if code else "eval/queries.json")
-    args.answers = args.answers or (
-        "out/code-bench-answers.json" if code else "out/bench-answers.json"
-    )
-    args.out = args.out or ("eval/code-benchmark-baseline.json" if code else DEFAULT_BASELINE)
-    args.metrics = args.metrics or ("METRICS-code.md" if code else DEFAULT_METRICS)
+    is_code = args.domain in ("code", "code-global")
+    _defaults = {
+        "document": (
+            "eval/queries.json",
+            "out/bench-answers.json",
+            DEFAULT_BASELINE,
+            DEFAULT_METRICS,
+        ),
+        "code": (
+            "eval/code-queries.json",
+            "out/code-bench-answers.json",
+            "eval/code-benchmark-baseline.json",
+            "METRICS-code.md",
+        ),
+        "code-global": (
+            "eval/code-global-queries.json",
+            "out/code-global-answers.json",
+            "eval/code-global-baseline.json",
+            "METRICS-code-global.md",
+        ),
+    }
+    d_queries, d_answers, d_out, d_metrics = _defaults[args.domain]
+    args.queries = args.queries or d_queries
+    args.answers = args.answers or d_answers
+    args.out = args.out or d_out
+    args.metrics = args.metrics or d_metrics
 
     api_key = os.environ.get(args.api_key_env)
     if not api_key:
@@ -209,7 +244,7 @@ def main(argv: list[str]) -> int:
                 print("ANTHROPIC_API_KEY not set (needed for generation)", file=sys.stderr)
                 return 2
             generator = AnthropicGenerator()
-        system = _CODE_SYSTEM if code else None
+        system = _CODE_SYSTEM if is_code else None
         arms = _build_arms(args.graph, args.source, args.domain)
         responses_by_arm = {
             arm: _precompute(r, cases, generator, system) for arm, r in arms.items()

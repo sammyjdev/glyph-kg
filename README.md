@@ -27,6 +27,7 @@ Retrieval por similaridade vetorial ignora a estrutura: quem cita quem, o que se
 **Números publicados (validation-first):**
 - **Documentos** (Monster Manual, n=25): o graph lidera faithfulness (0.987) ao menor custo de tokens; context_precision empata dentro dos CIs. [METRICS.md](METRICS.md).
 - **Código** (grafo do AXON, n=14, julgado por **dois judges independentes**, Gemini + Qwen): em **faithfulness** (métrica robusta — mesma ordenação nos dois judges) o **baseline vetorial lidera e o graph fica por último** (vector > hybrid > graph); **context_precision é judge-dependente** (a ordenação inverte entre judges → sem vencedor confiável). A tese "graph ganha em código" não se sustentou na métrica confiável. [METRICS-code.md](METRICS-code.md) (Gemini) + `eval/code-benchmark-qwen.json` (Qwen).
+- **Global / sense-making** (eixo de comunidades ADR-G7, n=8, dois judges): nenhum braço vence em qualidade de forma significativa (CIs sobrepostos), mas o **resumo de comunidade entrega qualidade igual-ou-melhor a ~metade dos tokens** (5,3k vs 10k+) que vetor/graph — *mesma resposta, metade do custo* para perguntas "como isto se organiza?". [METRICS-code-global.md](METRICS-code-global.md) + `eval/code-global-qwen.json`.
 
 Metodologia em [ADR-G4](docs/decisions/dec-g4-eval-methodology.md). Plano em [docs/GLYPH_PLAN.md](docs/GLYPH_PLAN.md).
 

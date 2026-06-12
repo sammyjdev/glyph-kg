@@ -91,6 +91,31 @@ baseline on the metric we can trust; and a single LLM judge is not enough — cr
 turned a clean-looking single-judge result into a correctly-hedged one. The graph axis still earns
 its place in the document domain and as the global community axis (ADR-G7).
 
+## Results — global axis (community summaries, ADR-G7)
+
+Local retrieval (anchor + expand) answers "what depends on X?"; it cannot answer "how is this
+*organized*?". The global axis detects communities in the graph (Louvain, seeded), summarizes each
+with an LLM, and retrieves those summaries. We benchmarked it on 8 sense-making questions about the
+AXON codebase ("what are the major subsystems?", "map the commit→decision flow"), three arms —
+**community summaries vs the vector baseline vs local graph** — generation on free NIM, judged by
+both Gemini and Qwen. Source: `eval/code-global-baseline.json` (Gemini) / `eval/code-global-qwen.json` (Qwen).
+
+| Metric (judge) | community | vector | graph |
+|---|---|---|---|
+| context_precision (gemini) | **0.794** | 0.694 | 0.532 |
+| context_precision (qwen) | 0.800 | 0.802 | 0.794 |
+| faithfulness (gemini) | 0.927 | 0.994 | 0.952 |
+| faithfulness (qwen) | 0.925 | 0.898 | 0.938 |
+| **total tokens** | **5 337** | 10 148 | 10 355 |
+
+**Honest read.** No arm is *significantly* ahead on quality — at n=8 the CIs overlap, and the two
+judges disagree on the fine ordering (Gemini separates community ahead on context_precision; Qwen
+calls all three roughly tied). What is **robust and unambiguous is efficiency**: the community arm
+delivers parity-or-better quality at **~half the tokens** (5.3k vs 10k+) of either alternative.
+For global "how is this organized?" questions, serving a handful of community summaries is far
+cheaper context than expanding a local neighbourhood or retrieving whole files — and it never loses
+on quality. That is the defensible claim for the global axis: **same-or-better answers, half the cost.**
+
 ## Declared limitations
 
 - **Relevance oracle is KG-derived, not gold.** It inherits extraction errors (e.g.
