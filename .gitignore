@@ -26,6 +26,7 @@ out/*.log
 # Benchmark answer caches (generation is paid; judging is not — cache lets re-judges skip it)
 out/bench-answers.json
 out/code-bench-answers.json
+out/code-global-answers.json
 
 # OS / editor
 .DS_Store

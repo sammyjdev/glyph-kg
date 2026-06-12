@@ -13,21 +13,24 @@ provable **today** from the code, and what unlocks **after** a real benchmark ru
 Backed by: `glyph/` (model, store, extract/document, extract/code, retrieval, baseline, eval,
 integration), `out/monster-manual.json`, `out/glyph-code.json`, ADRs G1–G6, CI quality gates.
 
-## From the benchmark runs (two domains, honest)
+## From the benchmark runs (three axes, honest)
 
-> Benchmarked graph-aware vs vector vs hybrid retrieval across **two real corpora** with bootstrap
-> CIs. On **documents** (Monster Manual, n=25) graph-aware retrieval led faithfulness (**0.987**
+> Benchmarked graph-aware vs vector vs hybrid retrieval across **three setups** with bootstrap CIs.
+> On **documents** (Monster Manual, n=25) graph-aware retrieval led faithfulness (**0.987**
 > [0.96–1.00]) at the **lowest token cost**, parity-or-better with vector. On **code** (AXON source
 > graph, n=14), judged by **two independent models** (Gemini + Qwen) to test robustness: the fair
 > **vector baseline led faithfulness under both judges** (vector > hybrid > graph, consistently),
-> while `context_precision` proved **judge-dependent** (the ranking inverted between judges) — so I
-> report no winner on it. Cross-family judging turned a clean single-judge result into a correctly
-> hedged one.
+> while `context_precision` proved **judge-dependent** (ranking inverted between judges) — so I report
+> no winner on it. On the **global community axis** (GraphRAG-style, n=8) community summaries gave
+> parity-or-better answers at **~half the tokens** of vector/graph — *same answer, half the cost* for
+> "how is this organized?" questions. Cross-family judging turned clean single-judge results into
+> correctly hedged ones.
 
-The credibility is the method, not a single number: a comparison built to let either side win, two
-domains, a robust metric separated from a non-robust one, and a single-judge conclusion overturned
-by a second independent judge — all reported. Sources: `eval/benchmark-baseline.json` (documents),
-`eval/code-benchmark-baseline.json` + `eval/code-benchmark-qwen.json` (code, two judges).
+The credibility is the method, not a single number: comparisons built to let either side win, three
+setups, a robust metric separated from a non-robust one, and a single-judge conclusion overturned by
+a second independent judge — all reported. Sources: `eval/benchmark-baseline.json` (documents),
+`eval/code-benchmark-baseline.json` + `eval/code-benchmark-qwen.json` (code, two judges),
+`eval/code-global-baseline.json` + `eval/code-global-qwen.json` (global axis, two judges).
 
 ## CV / LinkedIn one-liner
 
