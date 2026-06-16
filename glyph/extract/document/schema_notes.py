@@ -34,7 +34,7 @@ _NODE_TYPE: dict[str, NodeType] = {
 _EDGE_TYPE: dict[str, EdgeType] = {
     "RELATES_TO": EdgeType.RELATES_TO,
     "MENTIONS": EdgeType.MENTIONS,
-    "PART_OF": EdgeType.REQUIRES,   # PART_OF has no dedicated value; REQUIRES is semantically close
+    "PART_OF": EdgeType.REQUIRES,  # PART_OF has no dedicated value; REQUIRES is semantically close
     "AUTHORED_BY": EdgeType.MENTIONS,  # use MENTIONS as a generic attribution edge
     "DEPENDS_ON": EdgeType.REQUIRES,
 }

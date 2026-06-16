@@ -95,7 +95,9 @@ class LiteLLMExtractor:
         # result_type controls which Pydantic model the JSON response is validated against.
         # Defaults to ExtractionResult (D&D domain); override with NotesExtractionResult
         # for the notes/Obsidian domain.
-        self._result_type: type[BaseModel] = result_type if result_type is not None else ExtractionResult
+        self._result_type: type[BaseModel] = (
+            result_type if result_type is not None else ExtractionResult
+        )
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -169,6 +171,7 @@ class LiteLLMExtractor:
 # ---------------------------------------------------------------------------
 # Factory
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ExtractorConfig:

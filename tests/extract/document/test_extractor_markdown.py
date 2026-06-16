@@ -4,12 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from glyph.extract.document.extractor import DocumentExtractor
 from glyph.extract.document.llm import Usage
-from glyph.extract.document.schema_notes import NotesExtractionResult, NotesEntity, NotesRelation
-
+from glyph.extract.document.schema_notes import NotesEntity, NotesExtractionResult, NotesRelation
 
 # ---------------------------------------------------------------------------
 # Fake LLM returning notes-domain JSON
@@ -89,7 +86,9 @@ def test_extractor_dispatches_markdown_extension(tmp_path: Path) -> None:
 
 def test_extractor_notes_domain_produces_nodes(tmp_path: Path) -> None:
     md = _write_md(tmp_path, "note.md", "# Intro\nAlice worked on Glyph.\n")
-    nodes, edges, usages = DocumentExtractor(llm=_FakeNotesLLM(), domain="notes").extract_with_usage(md)
+    nodes, edges, usages = DocumentExtractor(
+        llm=_FakeNotesLLM(), domain="notes"
+    ).extract_with_usage(md)
     by_id = {n.id: n for n in nodes}
     assert "alice" in by_id
     assert "glyph" in by_id
@@ -105,7 +104,9 @@ def test_extractor_notes_domain_produces_edges(tmp_path: Path) -> None:
 def test_extractor_notes_skips_failed_chunks(tmp_path: Path) -> None:
     content = "# Section A\nbody\n# Section B\nbody\n"
     md = _write_md(tmp_path, "note.md", content)
-    nodes, _, usages = DocumentExtractor(llm=_FlakyNotesLLM(), domain="notes").extract_with_usage(md)
+    nodes, _, usages = DocumentExtractor(llm=_FlakyNotesLLM(), domain="notes").extract_with_usage(
+        md
+    )
     # One chunk raises; we still get results from the other.
     assert len(usages) == 1
     assert any(n.id == "bob" for n in nodes)

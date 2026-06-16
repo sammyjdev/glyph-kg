@@ -18,8 +18,10 @@ def _page(lines: list[str], sizes: list[float], book: str = "vault", number: int
 
 def _md_page(content: str, book: str = "vault") -> Page:
     """Build a Page as the markdown loader would for a single note."""
+    import pathlib
+    import tempfile
+
     from glyph.extract.document.markdown import load
-    import tempfile, pathlib
 
     with tempfile.NamedTemporaryFile(suffix=".md", mode="w", encoding="utf-8", delete=False) as f:
         f.write(content)

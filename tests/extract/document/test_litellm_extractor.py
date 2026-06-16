@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-
 import pytest
 
 from glyph.extract.document.llm import (
@@ -14,7 +12,6 @@ from glyph.extract.document.llm import (
     make_extractor,
 )
 from glyph.extract.document.schema import ExtractionResult
-
 
 # ---------------------------------------------------------------------------
 # Fake litellm client (duck-typed)
@@ -133,7 +130,6 @@ def test_litellm_extractor_custom_model_forwarded() -> None:
 
 def test_litellm_extractor_satisfies_llm_extractor_protocol() -> None:
     """Structural check: LiteLLMExtractor has the ``extract`` signature."""
-    from glyph.extract.document.llm import LLMExtractor
 
     client = _FakeClient(_valid_json())
     extractor = LiteLLMExtractor(client=client)
@@ -209,7 +205,7 @@ def test_litellm_extractor_uses_result_type_for_schema_name() -> None:
 
 
 def test_litellm_extractor_with_notes_result_type_parses_notes_json() -> None:
-    from glyph.extract.document.schema_notes import NotesExtractionResult, NotesEntity
+    from glyph.extract.document.schema_notes import NotesEntity, NotesExtractionResult
 
     result = NotesExtractionResult(
         entities=[NotesEntity(name="Alice", kind="person")],

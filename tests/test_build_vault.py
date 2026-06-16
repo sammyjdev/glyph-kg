@@ -5,12 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
-from glyph.vault import build_vault
 from glyph.extract.document.llm import Usage
 from glyph.extract.document.schema_notes import NotesEntity, NotesExtractionResult, NotesRelation
-
+from glyph.vault import build_vault
 
 # ---------------------------------------------------------------------------
 # Fake LLM for vault builder tests
