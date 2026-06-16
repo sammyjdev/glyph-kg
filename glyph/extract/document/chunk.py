@@ -91,6 +91,42 @@ def by_creature(pages: list[Page]) -> list[Chunk]:
     return chunks
 
 
+def by_heading(pages: list[Page]) -> list[Chunk]:
+    """Group lines into chunks, starting a new chunk at each Markdown heading.
+
+    Markdown headings are lines whose ``line_sizes`` value is > 0 (non-zero
+    indicates a heading level when the page was built by
+    :func:`glyph.extract.document.markdown.load`).  Body lines carry size 0.0.
+
+    Content before the first heading is gathered into a preamble chunk labelled
+    by the source ``book`` name (or ``"p.1"`` for an unnamed source).
+    """
+    if not pages:
+        return []
+    book = pages[0].book
+    chunks: list[Chunk] = []
+    label: str | None = None
+    lines: list[str] = []
+    nums: list[int] = []
+
+    for page in pages:
+        for line, size in zip(page.lines, page.line_sizes, strict=True):
+            if size > 0.0:  # heading detected by non-zero size
+                if lines:
+                    chunks.append(_make(label, lines, nums, book))
+                    lines, nums = [], []
+                label = line.lstrip("#").strip()
+                lines.append(line)
+                nums.append(page.number)
+            else:
+                lines.append(line)
+                nums.append(page.number)
+
+    if lines:
+        chunks.append(_make(label, lines, nums, book))
+    return chunks
+
+
 def is_creature(chunk: Chunk, min_abilities: int = 4) -> bool:
     """True when the chunk holds a creature stat block (its ability-score row).
 
