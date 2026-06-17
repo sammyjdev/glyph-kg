@@ -8,7 +8,7 @@ provable **today** from the code, and what unlocks **after** a real benchmark ru
 > Built GLYPH, a knowledge-graph library spanning **document** (LLM extraction) and **code**
 > (tree-sitter, Python + Java) domains behind one extractor port, with graph-aware retrieval,
 > a fair vector baseline, and a reproducible benchmark harness (GNOMON, bootstrap confidence
-> intervals). Hexagonal architecture, invariants enforced in CI, ≥90% test coverage (measured 98.31%).
+> intervals). Hexagonal architecture, invariants enforced in CI, ~98% test coverage (≥90% CI gate).
 
 Backed by: `glyph/` (model, store, extract/document, extract/code, retrieval, baseline, eval,
 integration), `out/monster-manual.json`, `out/glyph-code.json`, ADRs G1–G7, CI quality gates.

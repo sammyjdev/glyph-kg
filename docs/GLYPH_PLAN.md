@@ -38,7 +38,7 @@ Invariants (ArchUnit-style):
 ## Closed decisions
 
 - Strong version: common core + Extractor port with two adapters. Not a single schema serving both domains.
-- Backend: GraphStore port, NetworkX default + Neo4j adapter (CV keyword, smoke-tested).
+- Backend: GraphStore port, NetworkX default + Neo4j adapter (implemented, smoke-tested — 14/14 contract tests vs Neo4j 5).
 - Order: DocumentExtractor first (driver = cover job requirements), CodeExtractor later.
 - Document extraction: LLM-based (justified for prose).
 - Consumed by AXON via `GraphContextSource` (ADR-102), which delegates to GLYPH.

@@ -52,7 +52,7 @@ class GraphStore(Protocol):
 ```
 
 - **NetworkX** (default): in-memory with persistence (graphml/pickle). Zero server, pip-installable. The graph of a document corpus fits in memory; for code, also at the scale of target repos.
-- **Neo4j** (adapter): smoke-tested, openCypher. Exists for CV keyword and production history, not as default. Not an always-on service of the project.
+- **Neo4j** (adapter): **implemented and smoke-tested** (14/14 contract tests vs Neo4j 5 on Testcontainers), openCypher. Exists for CV keyword and production history, not as default. Not an always-on service of the project.
 
 Both pass the same set of contract tests. Swapping the backend does not change results, only performance/scale.
 

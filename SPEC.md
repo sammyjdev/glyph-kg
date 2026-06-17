@@ -17,7 +17,7 @@ The two domains share graph core, store, retrieval, and measurement. They differ
 ## In Scope
 
 1. **Graph core**: `Node`/`Edge`/`EdgeType` model (Pydantic v2), generic enough for both domains, with edge types separated by domain.
-2. **`GraphStore` port**: NetworkX as default embedded (pip-installable, zero server), Neo4j as smoke-tested adapter.
+2. **`GraphStore` port**: NetworkX as default embedded (pip-installable, zero server), Neo4j as an implemented, smoke-tested adapter (14/14 contract tests vs Neo4j 5).
 3. **`Extractor` port** with two adapters:
    - `DocumentExtractor` (LLM): PDF ingestion, structure-aware chunking, entity/relation extraction.
    - `CodeExtractor` (tree-sitter): Python + Java, aligned to AXON's `graph_extractor`.
