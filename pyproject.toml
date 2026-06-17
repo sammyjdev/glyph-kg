@@ -22,6 +22,7 @@ dev = [
     "pytest-cov>=5.0",
     "ruff>=0.4",
     "mypy>=1.10",
+    "testcontainers[neo4j]>=4.7",
 ]
 document = [
     "pymupdf>=1.24",
@@ -38,6 +39,9 @@ embeddings = [
 ]
 eval = [
     "gnomon-eval @ git+https://github.com/sammyjdev/gnomon-eval.git",
+]
+neo4j = [
+    "neo4j>=5.19,<6.0",
 ]
 code = [
     "tree-sitter>=0.23",
@@ -91,12 +95,17 @@ ignore_missing_imports = true
 module = ["litellm.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["neo4j.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-p no:asyncio --import-mode=importlib -m \"not live and not slow\" --cov=glyph --cov-report=term-missing --cov-fail-under=90"
+addopts = "-p no:asyncio --import-mode=importlib -m \"not live and not slow and not neo4j\" --cov=glyph --cov-report=term-missing --cov-fail-under=90"
 markers = [
     "live: hits the live Anthropic API (requires ANTHROPIC_API_KEY); deselected by default",
     "slow: downloads a sentence-transformers model; deselected by default",
+    "neo4j: requires a running Docker daemon; deselected by default",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:importlib._bootstrap",
@@ -106,3 +115,5 @@ filterwarnings = [
 [tool.coverage.run]
 branch = true
 source = ["glyph"]
+# neo4j_store.py is covered by `pytest -m neo4j` (requires Docker), not the default suite.
+omit = ["glyph/store/neo4j_store.py"]
