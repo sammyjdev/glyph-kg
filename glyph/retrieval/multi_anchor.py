@@ -7,6 +7,7 @@ whole-query embedding and may miss entities dominated by others.
 
 Falls back to top-N embedding anchors when the query contains no named entities.
 """
+
 from __future__ import annotations
 
 import re
@@ -25,8 +26,8 @@ _OVERLAY_EDGE_TYPES = frozenset({EdgeType.CONTAINS})
 
 # CamelCase / PascalCase words (≥ 4 chars after the leading capital) OR
 # decision/ADR ID patterns like dec-121, ADR-G7.
-_CAMEL_RE = re.compile(r'\b[A-Z]\w{3,}\b')
-_ID_RE = re.compile(r'(?:dec|adr)-[\w-]+', re.IGNORECASE)
+_CAMEL_RE = re.compile(r"\b[A-Z]\w{3,}\b")
+_ID_RE = re.compile(r"(?:dec|adr)-[\w-]+", re.IGNORECASE)
 
 
 def _extract_named_entities(query: str) -> list[str]:
@@ -61,7 +62,6 @@ class MultiAnchorRetriever:
         self._embedder = embedder
         self._hops = hops
         self._anchors = anchors
-        self._label: dict[str, str] = {}
         self._index = InMemoryVectorIndex()
         indexable = [n for n in nodes if n.type not in _OVERLAY_NODE_TYPES]
         if indexable:
@@ -69,7 +69,6 @@ class MultiAnchorRetriever:
             vectors = embedder.embed([n.label for n in indexable])
             for nid, vec in zip(ids, vectors, strict=True):
                 self._index.add(nid, vec)
-            self._label = {n.id: n.label for n in indexable}
 
     def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
         named = _extract_named_entities(query)
@@ -99,7 +98,8 @@ class MultiAnchorRetriever:
             return pack("graph", [], token_budget)
 
         subgraph = self._store.subgraph(
-            seed, self._hops,
+            seed,
+            self._hops,
             exclude_node_types=_OVERLAY_NODE_TYPES,
             exclude_edge_types=_OVERLAY_EDGE_TYPES,
         )

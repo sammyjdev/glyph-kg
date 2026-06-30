@@ -1,6 +1,7 @@
 """S-10..S-13: MultiAnchorRetriever."""
-import pytest
+
 from unittest.mock import MagicMock
+
 from glyph.model.contract import ContextPack
 from glyph.model.edge import Edge, EdgeType
 from glyph.model.node import Node, NodeType
@@ -16,6 +17,7 @@ def _embedder(mapping: dict[str, list[float]]):
 
 
 # --- S-10: entity extraction ---
+
 
 def test_s10_camelcase_extracted():
     assert "AuthService" in _extract_named_entities("how does AuthService connect to PostgreSQL?")
@@ -38,6 +40,7 @@ def test_s10_plain_query_returns_empty():
 
 # --- S-11: multi-seed subgraph ---
 
+
 def test_s11_multi_seed_finds_connection():
     """Query names two entities that are connected; the connection node appears in results."""
     store = NetworkXStore()
@@ -53,19 +56,10 @@ def test_s11_multi_seed_finds_connection():
     store.upsert_nodes(nodes)
     store.upsert_edges(edges)
 
-    mapping = {
-        "AuthService": [1.0, 0.0, 0.0],
-        "Connector":   [0.0, 1.0, 0.0],
-        "PostgreSQL":  [0.0, 0.0, 1.0],
-        "AuthService": [1.0, 0.0, 0.0],  # entity embed
-        "PostgreSQL":  [0.0, 0.0, 1.0],  # entity embed
-        "how does AuthService connect to PostgreSQL?": [0.5, 0.0, 0.5],
-    }
-    # Deduplicate mapping keys (Python keeps last)
     m = {
         "AuthService": [1.0, 0.0, 0.0],
-        "Connector":   [0.0, 1.0, 0.0],
-        "PostgreSQL":  [0.0, 0.0, 1.0],
+        "Connector": [0.0, 1.0, 0.0],
+        "PostgreSQL": [0.0, 0.0, 1.0],
         "how does AuthService connect to PostgreSQL?": [0.5, 0.0, 0.5],
     }
     embedder = _embedder(m)
@@ -78,6 +72,7 @@ def test_s11_multi_seed_finds_connection():
 
 # --- S-12: fallback when no named entities ---
 
+
 def test_s12_fallback_uses_embedding_anchors():
     store = NetworkXStore()
     nodes = [
@@ -85,8 +80,7 @@ def test_s12_fallback_uses_embedding_anchors():
         Node(id="Y", type=NodeType.ENTITY, label="beta"),
     ]
     store.upsert_nodes(nodes)
-    m = {"alpha": [1.0, 0.0], "beta": [0.0, 1.0],
-         "what is the system purpose?": [0.8, 0.2]}
+    m = {"alpha": [1.0, 0.0], "beta": [0.0, 1.0], "what is the system purpose?": [0.8, 0.2]}
     embedder = _embedder(m)
     retriever = MultiAnchorRetriever(store, embedder, nodes)
     pack = retriever.retrieve("what is the system purpose?", token_budget=500)
@@ -95,6 +89,7 @@ def test_s12_fallback_uses_embedding_anchors():
 
 
 # --- S-13: port conformance ---
+
 
 def test_s13_port():
     store = NetworkXStore()

@@ -4,6 +4,7 @@ For queries like 'what connects X to Y?' or decision-lineage questions.
 Anchors to the two most similar nodes, finds shortest_path, renders the
 walk as scored segments with edge-type annotations.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -47,14 +48,14 @@ class PathRetriever:
 
         if len(top2) < 2:
             segments = [
-                Segment(text=self._label.get(nid, nid), source=nid, score=1.0)
-                for nid in top2
+                Segment(text=self._label.get(nid, nid), source=nid, score=1.0) for nid in top2
             ]
             return pack("graph", segments, token_budget)
 
         src, dst = top2[0], top2[1]
         path = self._store.shortest_path(
-            src, dst,
+            src,
+            dst,
             exclude_node_types=_OVERLAY_NODE_TYPES,
             exclude_edge_types=_OVERLAY_EDGE_TYPES,
         )
@@ -68,17 +69,16 @@ class PathRetriever:
 
         # Fetch edges between consecutive path nodes to annotate the walk.
         subgraph = self._store.subgraph(
-            path.nodes, hops=0,
+            path.nodes,
+            hops=0,
             exclude_node_types=_OVERLAY_NODE_TYPES,
             exclude_edge_types=_OVERLAY_EDGE_TYPES,
         )
         # Build adjacency: (src_id, dst_id) -> edge_type for quick lookup.
-        adj: dict[tuple[str, str], str] = {
-            (e.src, e.dst): e.type.value for e in subgraph.edges
-        }
+        adj: dict[tuple[str, str], str] = {(e.src, e.dst): e.type.value for e in subgraph.edges}
 
         n = len(path.nodes)
-        segments: list[Segment] = []
+        segments = []
         for i, nid in enumerate(path.nodes):
             label = self._label.get(nid, nid)
             # Annotate with the edge to the next node if present.

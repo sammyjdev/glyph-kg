@@ -4,6 +4,7 @@ Reads YAML frontmatter fields and local Markdown links to produce
 REQUIRES/RELATES_TO/REFERENCES edges without any LLM call.
 Satisfies the Extractor port (Source = Path | str; requires Path).
 """
+
 from __future__ import annotations
 
 import re
@@ -38,7 +39,7 @@ def _frontmatter_body(text: str) -> str:
 
 def _strip_frontmatter(text: str) -> str:
     m = _FRONTMATTER_RE.match(text)
-    return text[m.end():] if m else text
+    return text[m.end() :] if m else text
 
 
 def _parse_relations(fm: str) -> list[tuple[str, str]]:
@@ -93,7 +94,9 @@ class MarkdownRelationExtractor:
 
     def extract(self, source: Source) -> tuple[Sequence[Node], Sequence[Edge]]:
         if not isinstance(source, Path):
-            raise TypeError(f"MarkdownRelationExtractor requires a Path, got {type(source).__name__}")
+            raise TypeError(
+                f"MarkdownRelationExtractor requires a Path, got {type(source).__name__}"
+            )
         text = source.read_text(encoding="utf-8")
         doc_id = source.stem
 
@@ -111,6 +114,8 @@ class MarkdownRelationExtractor:
         edges: list[Edge] = []
 
         for field, target in relations:
+            if target == doc_id:
+                continue
             if target not in seen_ids:
                 nodes.append(Node(id=target, type=NodeType.ENTITY, label=target))
                 seen_ids.add(target)

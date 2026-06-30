@@ -1,4 +1,5 @@
 """Graph-aware retrieval and hybrid fusion."""
+
 from glyph.retrieval.community import CommunityRetriever
 from glyph.retrieval.graph import GraphRetriever
 from glyph.retrieval.hybrid import HybridRetriever
