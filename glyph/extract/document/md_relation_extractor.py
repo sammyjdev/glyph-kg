@@ -93,7 +93,7 @@ class MarkdownRelationExtractor:
 
     def extract(self, source: Source) -> tuple[Sequence[Node], Sequence[Edge]]:
         if not isinstance(source, Path):
-            source = Path(source)
+            raise TypeError(f"MarkdownRelationExtractor requires a Path, got {type(source).__name__}")
         text = source.read_text(encoding="utf-8")
         doc_id = source.stem
 

@@ -117,5 +117,10 @@ def test_s04_empty_returns_nothing(tmp_path):
 
 # --- S-05: port conformance ---
 
+def test_s05_str_source_raises_typeerror():
+    with pytest.raises(TypeError, match="MarkdownRelationExtractor requires a Path"):
+        MarkdownRelationExtractor().extract("some/string/path.md")
+
+
 def test_s05_port(tmp_path):
     assert isinstance(MarkdownRelationExtractor(), Extractor)
