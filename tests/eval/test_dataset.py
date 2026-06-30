@@ -1,11 +1,9 @@
-"""Query set loads as GNOMON EvalCases with non-empty reference fields."""
+"""Query set loads as Query instances with non-empty reference fields."""
 
 import json
 from pathlib import Path
 
-import pytest
-
-from glyph.eval.dataset import _expected_answer, load_eval_cases
+from glyph.eval.dataset import Query, _expected_answer, load_eval_cases
 
 
 def test_expected_answer_from_list_answer_key() -> None:
@@ -26,7 +24,6 @@ def test_expected_answer_falls_back_to_relevant_labels() -> None:
 
 
 def test_load_eval_cases_maps_every_query(tmp_path: Path) -> None:
-    pytest.importorskip("gnomon.domain.models")
     queries = {
         "queries": [
             {
@@ -49,14 +46,14 @@ def test_load_eval_cases_maps_every_query(tmp_path: Path) -> None:
     cases = load_eval_cases(path)
 
     assert [c.id for c in cases] == ["q1", "q2"]
-    assert cases[0].expected_contexts == ["Balor"]
-    assert cases[0].expected_answer == "Balor"  # fallback
-    assert cases[1].expected_answer == "1/4"
+    assert cases[0].reference_contexts == ["Balor"]
+    assert cases[0].reference == "Balor"  # fallback
+    assert cases[1].reference == "1/4"
+    assert all(isinstance(c, Query) for c in cases)
 
 
 def test_real_query_set_loads() -> None:
-    pytest.importorskip("gnomon.domain.models")
     cases = load_eval_cases(Path(__file__).resolve().parents[2] / "eval" / "queries.json")
     assert len(cases) == 25
-    assert all(c.expected_answer for c in cases)
-    assert all(c.expected_contexts for c in cases)
+    assert all(c.reference for c in cases)
+    assert all(c.reference_contexts for c in cases)

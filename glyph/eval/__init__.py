@@ -1,1 +1,1 @@
-"""P3: benchmark each retrieval arm against the GNOMON eval contract."""
+"""P3: benchmark each retrieval arm with RAGAS metrics."""

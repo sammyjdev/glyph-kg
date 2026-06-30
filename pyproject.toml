@@ -37,9 +37,6 @@ retrieval = [
 embeddings = [
     "sentence-transformers>=3.0",
 ]
-eval = [
-    "gnomon-eval @ git+https://github.com/sammyjdev/gnomon-eval.git",
-]
 neo4j = [
     "neo4j>=5.19,<6.0",
 ]
@@ -81,10 +78,6 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["sentence_transformers.*"]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["gnomon.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

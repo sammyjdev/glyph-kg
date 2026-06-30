@@ -1,8 +1,9 @@
-"""P3.1: run the three retrieval arms over the query set and score them with GNOMON.
+"""P3.1: run the three retrieval arms over the query set and score them with a judge.
 
 Pre-computes each arm's grounded answer per question (real tokens + latency), then
-judges every case with an OpenAI-compatible OSS judge (Groq by default) and aggregates
-with seeded bootstrap CIs. Writes a committed JSON baseline + a human METRICS.md.
+judges every case for faithfulness + context_precision via an OpenAI-compatible
+endpoint (Groq by default) and aggregates with seeded numpy bootstrap CIs. Writes a
+committed JSON baseline + METRICS.md.
 
 Usage:
     GROQ_API_KEY=... ANTHROPIC_API_KEY=... \\
@@ -11,7 +12,11 @@ Usage:
     # regression gate: fail if a fresh run drifts past tolerance from the baseline
     python3 scripts/run_benchmark.py out/monster-manual.json "<book.pdf>" --check
 
-Requires: pip install -e ".[document,retrieval,embeddings,eval]"
+    # reuse cached answers (skip generation entirely):
+    python3 scripts/run_benchmark.py out/monster-manual.json dummy \\
+      --answers out/bench-answers.json --skip-fingerprint
+
+Requires: pip install -e ".[document,retrieval,embeddings]"
 """
 
 import argparse
@@ -19,7 +24,6 @@ import hashlib
 import json
 import os
 import sys
-from collections.abc import Mapping
 from pathlib import Path
 
 from glyph.baseline.vector import VectorBaseline
@@ -153,7 +157,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--queries", default=None)
     parser.add_argument("--model", default=DEFAULT_MODEL, help="judge model (OpenAI-compatible)")
     parser.add_argument(
-        "--base-url", default=GROQ_BASE_URL, help="OpenAI-compatible judge endpoint (default Groq)"
+        "--base-url", default=GROQ_BASE_URL, help="OpenAI-compat judge endpoint (default: Groq)"
     )
     parser.add_argument(
         "--api-key-env", default="GROQ_API_KEY", help="env var holding the judge API key"
@@ -171,11 +175,10 @@ def main(argv: list[str]) -> int:
         help="generation model with --gen-base-url",
     )
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--judge-runs", type=int, default=3)
     parser.add_argument(
-        "--judge-no-seed",
+        "--skip-fingerprint",
         action="store_true",
-        help="omit the seed field from judge calls (some providers, e.g. Gemini, reject it)",
+        help="skip cache fingerprint validation (use with --answers when source unavailable)",
     )
     parser.add_argument(
         "--answers",
@@ -222,8 +225,15 @@ def main(argv: list[str]) -> int:
 
     cases = load_eval_cases(args.queries)
     answers_path = Path(args.answers)
-    fingerprint = _fingerprint(Path(args.queries), args.graph, args.source)
-    cached = _load_answers(answers_path, fingerprint) if answers_path.exists() else None
+    if args.skip_fingerprint and answers_path.exists():
+        cached_raw = json.loads(answers_path.read_text(encoding="utf-8"))
+        cached = {
+            arm: {cid: ArmResponse.model_validate(r) for cid, r in responses.items()}
+            for arm, responses in cached_raw["answers"].items()
+        }
+    else:
+        fingerprint = _fingerprint(Path(args.queries), args.graph, args.source)
+        cached = _load_answers(answers_path, fingerprint) if answers_path.exists() else None
     if cached is not None:
         responses_by_arm = cached
         print(f"reusing cached answers from {answers_path} (skipping generation)")
@@ -252,12 +262,6 @@ def main(argv: list[str]) -> int:
         _save_answers(answers_path, responses_by_arm, fingerprint)
         print(f"generated and cached answers to {answers_path}")
 
-    def _on_case(
-        arm: str, done: int, total: int, case_id: str, scores: Mapping[str, float]
-    ) -> None:
-        cells = " ".join(f"{m}={v:.2f}" for m, v in sorted(scores.items()))
-        print(f"[{arm}] {done}/{total} {case_id} {cells}", flush=True)
-
     def _on_arm(report: ArmReport) -> None:
         cells = " · ".join(
             f"{m.metric} {m.mean:.3f} [{m.ci_low:.3f},{m.ci_high:.3f}]" for m in report.metrics
@@ -268,20 +272,13 @@ def main(argv: list[str]) -> int:
             flush=True,
         )
 
-    judge = OpenAICompatJudge(
-        model=args.model,
-        api_key=api_key,
-        base_url=args.base_url,
-        send_seed=not args.judge_no_seed,
-    )
+    judge = OpenAICompatJudge(model=args.model, api_key=api_key, base_url=args.base_url)
     report = run_benchmark(
         cases,
         responses_by_arm,
         judge,
         judge_model=args.model,
         seed=args.seed,
-        judge_runs=args.judge_runs,
-        on_case=_on_case,
         on_arm=_on_arm,
     )
     fresh = to_dict(report)

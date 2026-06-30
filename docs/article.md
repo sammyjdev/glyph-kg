@@ -130,7 +130,7 @@ on quality. That is the defensible claim for the global axis: **same-or-better a
 ## Reproduce
 
 ```bash
-pip install -e ".[document,retrieval,embeddings,eval]"
+pip install -e ".[document,retrieval,embeddings]"
 export ANTHROPIC_API_KEY=...        # answer generation (Claude Haiku 4.5)
 export NVIDIA_NIM_API_KEY=...        # OSS judge (NVIDIA NIM); Groq also works via --api-key-env
 python3 scripts/run_benchmark.py out/monster-manual.json "<Monster Manual PDF>" \

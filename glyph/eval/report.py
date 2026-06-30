@@ -18,7 +18,6 @@ def to_dict(report: BenchmarkReport) -> dict[str, Any]:
     """A stable, diffable JSON shape for the frozen baseline."""
     return {
         "seed": report.seed,
-        "judge_runs": report.judge_runs,
         "judge_model": report.judge_model,
         "n_cases": report.n_cases,
         "arms": [
@@ -91,9 +90,9 @@ def render_markdown(report: BenchmarkReport) -> str:
     lines = [
         "# GLYPH benchmark — graph vs vector vs hybrid",
         "",
-        f"- cases (n): **{payload['n_cases']}**  ·  judge: `{payload['judge_model']}`  "
-        f"·  judge_runs: {payload['judge_runs']}  ·  seed: {payload['seed']}",
-        "- metric cells show **mean [95% CI]** (percentile bootstrap via GNOMON).",
+        f"- cases (n): **{payload['n_cases']}**  ·  judge: `{payload['judge_model']}`"
+        f"  ·  seed: {payload['seed']}",
+        "- metric cells show **mean [95% CI]** (percentile bootstrap, numpy, 2000 resamples).",
         "- cost is generation only (Haiku 4.5 rates); judge tokens excluded. Tokens are real.",
         "",
         header,

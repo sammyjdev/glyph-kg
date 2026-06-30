@@ -1,34 +1,31 @@
-"""P3.1/P3.3: score each arm's pre-computed answers and aggregate with bootstrap CIs.
+"""P3.1/P3.3: score each arm's pre-computed answers with a judge, aggregate with bootstrap CIs.
 
-The harness bypasses GNOMON's ``run_eval`` on purpose: ``run_eval`` discards per-case
-quality scores, and we want them (to report where the graph *lost*, P3.5). So we drive
-the judge per case ourselves, collapse judge runs to one score per case, and reuse
-GNOMON's ``aggregate_metric`` for the seeded percentile bootstrap — same CI machinery,
-but we keep the per-case detail. Cost/latency come from the GLYPH-native ArmResponse.
+Scores each case sequentially (one judge call per case) so progress streams live and
+free-tier rate limits stay predictable. Per-case scores are preserved so the honest
+report (P3.5) can show where each arm lost.
 """
 
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from statistics import fmean
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
 from glyph.eval.cost import total_cost_usd
+from glyph.eval.dataset import Query
 from glyph.eval.response import ArmResponse
-from glyph.eval.target import to_rag_response
 
-if TYPE_CHECKING:
-    from gnomon.domain.models import EvalCase
+ArmProgress = Callable[["ArmReport"], None]
 
 
 class Judge(Protocol):
-    """GNOMON's judge contract: score every v1 metric in one call per (case, run)."""
+    """Scores one case's answer against its retrieved contexts."""
 
-    def score(self, case: Any, response: Any, *, seed: int, run: int) -> Any: ...
+    def score(self, question: str, answer: str, contexts: list[str]) -> dict[str, float]: ...
 
 
 @dataclass(frozen=True)
 class MetricStat:
-    """One metric's mean and bootstrap CI over the cases, as reported by GNOMON."""
+    """One metric's mean and bootstrap CI over the cases."""
 
     metric: str
     mean: float
@@ -51,68 +48,69 @@ class ArmReport:
 
 @dataclass(frozen=True)
 class BenchmarkReport:
-    """The full comparison: every arm under one seed, judge and case set."""
+    """The full comparison: every arm under one seed and metric set."""
 
     seed: int
-    judge_runs: int
     judge_model: str
     n_cases: int
     arms: list[ArmReport]
 
 
-# Progress hooks so callers can stream results live instead of waiting for the full run.
-# on_case: (arm, done, total, case_id, this case's mean score per metric).
-# on_arm: one ArmReport as soon as that arm finishes.
-CaseProgress = Callable[[str, int, int, str, Mapping[str, float]], None]
-ArmProgress = Callable[[ArmReport], None]
+def _bootstrap_ci(scores: Any, seed: int, n_resamples: int = 2000) -> tuple[float, float]:
+    import numpy as np
+
+    rng = np.random.default_rng(seed)
+    boots = rng.choice(scores, size=(n_resamples, len(scores)), replace=True).mean(axis=1)
+    return float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))
+
+
+def _score_cases(
+    cases: Sequence[Query],
+    responses: Mapping[str, ArmResponse],
+    judge: Judge,
+    *,
+    on_case: Callable[[str, dict[str, float]], None] | None = None,
+) -> dict[str, list[float]]:
+    """Score each case sequentially — avoids concurrent-request limits on free-tier endpoints."""
+    per_metric: dict[str, list[float]] = {}
+    for case in cases:
+        arm_resp = responses[case.id]
+        case_scores = judge.score(case.question, arm_resp.answer, arm_resp.contexts)
+        for metric, value in case_scores.items():
+            per_metric.setdefault(metric, []).append(value)
+        if on_case is not None:
+            on_case(case.id, case_scores)
+    return per_metric
 
 
 def score_arm(
     arm: str,
-    cases: Sequence["EvalCase"],
+    cases: Sequence[Query],
     responses: Mapping[str, ArmResponse],
     judge: Judge,
     *,
-    seed: int,
-    judge_runs: int,
-    on_case: CaseProgress | None = None,
+    seed: int = 0,
+    on_case: Callable[[str, dict[str, float]], None] | None = None,
 ) -> ArmReport:
-    """Score one arm: judge each case ``judge_runs`` times, aggregate per metric."""
-    from gnomon.metrics.confidence import aggregate_metric
+    """Score one arm: per-case judge call, aggregate per metric with bootstrap CIs."""
+    import numpy as np
 
-    per_metric_case_scores: dict[str, list[float]] = {}
-    ordered: list[ArmResponse] = []
-    total = len(cases)
-    for done, case in enumerate(cases, start=1):
-        arm_response = responses[case.id]
-        ordered.append(arm_response)
-        rag_response = to_rag_response(arm_response)
-        runs: dict[str, list[float]] = {}
-        for run in range(judge_runs):
-            scores = judge.score(case, rag_response, seed=seed, run=run).scores
-            for metric, value in scores.items():
-                runs.setdefault(metric, []).append(value)
-        case_means = {metric: fmean(values) for metric, values in runs.items()}
-        for metric, mean_value in case_means.items():
-            per_metric_case_scores.setdefault(metric, []).append(mean_value)
-        if on_case is not None:
-            on_case(arm, done, total, case.id, case_means)
+    ordered = [responses[case.id] for case in cases]
+    per_metric = _score_cases(cases, responses, judge, on_case=on_case)
 
-    metrics = [
-        MetricStat(
-            metric=result.metric,
-            mean=result.mean,
-            ci_low=result.ci_low,
-            ci_high=result.ci_high,
-            n=result.n,
+    metric_stats: list[MetricStat] = []
+    for metric, values in sorted(per_metric.items()):
+        col = np.array(values)
+        mean = float(col.mean())
+        ci_low, ci_high = _bootstrap_ci(col, seed) if len(col) >= 2 else (mean, mean)
+        metric_stats.append(
+            MetricStat(metric=metric, mean=mean, ci_low=ci_low, ci_high=ci_high, n=len(col))
         )
-        for metric, case_scores in sorted(per_metric_case_scores.items())
-        for result in [aggregate_metric(metric, case_scores, seed=seed)]
-    ]
+
     return ArmReport(
         arm=arm,
         n_cases=len(cases),
-        metrics=metrics,
+        metrics=metric_stats,
         total_tokens=sum(r.total_tokens for r in ordered),
         mean_latency_ms=fmean(r.latency_ms for r in ordered) if ordered else 0.0,
         cost_usd=total_cost_usd(ordered),
@@ -120,29 +118,23 @@ def score_arm(
 
 
 def run_benchmark(
-    cases: Sequence["EvalCase"],
+    cases: Sequence[Query],
     responses_by_arm: Mapping[str, Mapping[str, ArmResponse]],
     judge: Judge,
     *,
     judge_model: str,
     seed: int = 0,
-    judge_runs: int = 1,
-    on_case: CaseProgress | None = None,
     on_arm: ArmProgress | None = None,
+    on_case: Callable[[str, str, dict[str, float]], None] | None = None,
 ) -> BenchmarkReport:
     """Score every arm over the same cases, judge and seed."""
     arms: list[ArmReport] = []
     for arm, responses in responses_by_arm.items():
-        report = score_arm(
-            arm, cases, responses, judge, seed=seed, judge_runs=judge_runs, on_case=on_case
+        arm_on_case = (
+            (lambda cid, sc, _arm=arm: on_case(_arm, cid, sc)) if on_case is not None else None
         )
+        report = score_arm(arm, cases, responses, judge, seed=seed, on_case=arm_on_case)
         if on_arm is not None:
             on_arm(report)
         arms.append(report)
-    return BenchmarkReport(
-        seed=seed,
-        judge_runs=judge_runs,
-        judge_model=judge_model,
-        n_cases=len(cases),
-        arms=arms,
-    )
+    return BenchmarkReport(seed=seed, judge_model=judge_model, n_cases=len(cases), arms=arms)

@@ -1,18 +1,17 @@
-"""P3.1: load the frozen query set as GNOMON EvalCases.
-
-GNOMON's EvalCase requires non-empty ``expected_answer`` and ``expected_contexts``.
-The v1 judge is reference-free (it ignores both), but the schema still demands them,
-so we fill them from the KG-joined query set: contexts from the relevant labels, and
-the answer from the answer_key (relation targets / attribute value) or, when the query
-has none, the relevant labels themselves. The GNOMON import stays lazy.
-"""
+"""P3.1: load the frozen query set as eval cases."""
 
 import json
+from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-if TYPE_CHECKING:
-    from gnomon.domain.models import EvalCase
+
+@dataclass(frozen=True)
+class Query:
+    id: str
+    question: str
+    reference: str
+    reference_contexts: list[str]
 
 
 def _expected_answer(query: dict[str, Any]) -> str:
@@ -21,22 +20,18 @@ def _expected_answer(query: dict[str, Any]) -> str:
         return "; ".join(str(x) for x in answer_key)
     if isinstance(answer_key, str) and answer_key.strip():
         return answer_key
-    # relational queries (answer_key null) and open descriptions: the relevant
-    # labels are the meaningful reference answer.
     return "; ".join(query["relevant_labels"])
 
 
-def load_eval_cases(path: str | Path) -> list["EvalCase"]:
-    """Build one EvalCase per query in ``eval/queries.json``."""
-    from gnomon.domain.models import EvalCase
-
+def load_eval_cases(path: str | Path) -> list[Query]:
+    """Build one Query per query in ``eval/queries.json``."""
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
     return [
-        EvalCase(
+        Query(
             id=query["id"],
             question=query["question"],
-            expected_answer=_expected_answer(query),
-            expected_contexts=query["relevant_labels"],
+            reference=_expected_answer(query),
+            reference_contexts=query["relevant_labels"],
         )
         for query in payload["queries"]
     ]

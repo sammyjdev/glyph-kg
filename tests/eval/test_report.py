@@ -27,9 +27,7 @@ def _report() -> BenchmarkReport:
         mean_latency_ms=910.0,
         cost_usd=0.0301,
     )
-    return BenchmarkReport(
-        seed=0, judge_runs=3, judge_model="llama-3.3-70b", n_cases=25, arms=[graph, vector]
-    )
+    return BenchmarkReport(seed=0, judge_model="llama-3.3-70b", n_cases=25, arms=[graph, vector])
 
 
 def test_to_dict_rounds_and_keeps_structure() -> None:
