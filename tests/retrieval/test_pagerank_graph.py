@@ -1,5 +1,3 @@
-import pytest
-
 from glyph.model.edge import Edge, EdgeType
 from glyph.model.node import Node, NodeType
 from glyph.retrieval.graph import GraphRetriever
