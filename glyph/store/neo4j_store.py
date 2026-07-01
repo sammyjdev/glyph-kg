@@ -247,7 +247,9 @@ class Neo4jStore:
             node_ids = [record["id"] for record in session.run("MATCH (n:Node) RETURN n.id AS id")]
             if not node_ids:
                 return {}
-            edge_result = session.run("MATCH (a:Node)-[r]->(b:Node) RETURN a.id AS src, b.id AS dst")
+            edge_result = session.run(
+                "MATCH (a:Node)-[r]->(b:Node) RETURN a.id AS src, b.id AS dst"
+            )
             g = nx.DiGraph()
             g.add_nodes_from(node_ids)
             g.add_edges_from((record["src"], record["dst"]) for record in edge_result)
