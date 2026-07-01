@@ -45,11 +45,12 @@ from glyph.eval.generate import (
     Generator,
     OpenAICompatGenerator,
 )
-from glyph.eval.harness import ArmReport, run_benchmark
+from glyph.eval.harness import ArmReport, run_benchmark, score_arm
 from glyph.eval.judge import GROQ_BASE_URL, OpenAICompatJudge
 from glyph.eval.report import DEFAULT_TOLERANCE, regression_check, render_markdown, to_dict
 from glyph.eval.response import ArmResponse
 from glyph.extract.document import chunk, pdf
+from glyph.model.contract import ContextPack
 from glyph.model.node import NodeType
 from glyph.retrieval.community import CommunityRetriever
 from glyph.retrieval.graph import GraphRetriever
@@ -57,6 +58,8 @@ from glyph.retrieval.hybrid import HybridRetriever
 from glyph.retrieval.multi_anchor import MultiAnchorRetriever
 from glyph.retrieval.path import PathRetriever
 from glyph.retrieval.port import Retriever
+from glyph.retrieval.reranked import RerankedRetriever
+from glyph.retrieval.reranker import CrossEncoderReranker
 from glyph.store.networkx_store import NetworkXStore
 
 DEFAULT_BASELINE = "eval/benchmark-baseline.json"
@@ -156,7 +159,20 @@ def _build_arms(graph_path: str, source: str, domain: str = "document"):  # type
     hybrid = HybridRetriever(graph, vector)
     multi_anchor = MultiAnchorRetriever(store=store, embedder=embedder, nodes=nodes)
     path = PathRetriever(store=store, embedder=embedder, nodes=nodes)
-    return {"graph": graph, "vector": vector, "hybrid": hybrid, "multi_anchor": multi_anchor, "path": path}
+    reranker = CrossEncoderReranker()
+    # Reranks `vector` (0.460 context_precision, current best arm in METRICS.md) — not
+    # `hybrid` (0.347, currently the worst of the three original arms). A reranker can
+    # only reorder/filter what its underlying retriever already found; it can't recover
+    # recall `hybrid` already lost, so it's a stronger candidate pool to start from.
+    reranked_vector = RerankedRetriever(vector, reranker, k=5)
+    return {
+        "graph": graph,
+        "vector": vector,
+        "hybrid": hybrid,
+        "multi_anchor": multi_anchor,
+        "path": path,
+        "reranked_vector": reranked_vector,
+    }
 
 
 def _fingerprint(queries_path: Path, graph_path: str, book_path: str) -> str:
@@ -197,6 +213,17 @@ def _load_answers(path: Path, fingerprint: str) -> dict[str, dict[str, ArmRespon
         arm: {cid: ArmResponse.model_validate(r) for cid, r in responses.items()}
         for arm, responses in data["answers"].items()
     }
+
+
+class _KVectorRetriever:
+    """Adapts VectorBaseline to the Retriever port with a fixed k, for --k-sweep."""
+
+    def __init__(self, vector: VectorBaseline, k: int) -> None:
+        self._vector = vector
+        self._k = k
+
+    def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
+        return self._vector.retrieve(query, token_budget=token_budget, k=self._k)
 
 
 def main(argv: list[str]) -> int:
@@ -255,6 +282,11 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--metrics", default=None)
     parser.add_argument("--tolerance", type=float, default=DEFAULT_TOLERANCE)
     parser.add_argument("--check", action="store_true", help="fail if drift exceeds tolerance")
+    parser.add_argument(
+        "--k-sweep",
+        action="store_true",
+        help="run vector arm with k=2,3,5,8 and print context_precision table; skip full benchmark",
+    )
     args = parser.parse_args(argv)
 
     is_code = args.domain in ("code", "code-global")
@@ -290,6 +322,42 @@ def main(argv: list[str]) -> int:
         return 2
 
     cases = load_eval_cases(args.queries)
+
+    if args.k_sweep:
+        embedder = SentenceTransformerEmbedder()
+        documents = [
+            (piece.label, piece.text)
+            for piece in chunk.by_creature(pdf.load(args.source))
+            if chunk.is_creature(piece)
+        ]
+        sweep_generator: Generator
+        if args.gen_base_url:
+            gen_key = os.environ.get(args.gen_api_key_env or "")
+            if not gen_key:
+                print(f"{args.gen_api_key_env} not set (needed for generation)", file=sys.stderr)
+                return 2
+            sweep_generator = OpenAICompatGenerator(
+                model=args.gen_model, api_key=gen_key, base_url=args.gen_base_url
+            )
+        else:
+            if not os.environ.get("ANTHROPIC_API_KEY"):
+                print("ANTHROPIC_API_KEY not set (needed for generation)", file=sys.stderr)
+                return 2
+            sweep_generator = AnthropicGenerator()
+        judge = OpenAICompatJudge(model=args.model, api_key=api_key, base_url=args.base_url)
+        print(f"{'k':>4}  context_precision")
+        for k in (2, 3, 5, 8):
+            vector = VectorBaseline(embedder=embedder)
+            vector.index(documents)
+            retriever = _KVectorRetriever(vector, k)
+            responses = {
+                case.id: _precompute(retriever, [case], sweep_generator, None)[case.id]
+                for case in cases
+            }
+            arm_report = score_arm("vector", cases, responses, judge, seed=args.seed)
+            cp = next(m.mean for m in arm_report.metrics if m.metric == "context_precision")
+            print(f"{k:>4}  {cp:.3f}")
+        return 0
 
     # --- multi-model parallel mode ---
     if args.gen_models:
