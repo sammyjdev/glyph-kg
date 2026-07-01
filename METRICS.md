@@ -1,14 +1,14 @@
 # GLYPH benchmark — graph vs vector vs hybrid
 
-- cases (n): **25**  ·  judge: `meta/llama-3.3-70b-instruct`  ·  judge_runs: 3  ·  seed: 0
-- metric cells show **mean [95% CI]** (percentile bootstrap via GNOMON).
+- cases (n): **25**  ·  judge: `deepseek/deepseek-chat`  ·  seed: 0
+- metric cells show **mean [95% CI]** (percentile bootstrap, numpy, 2000 resamples).
 - cost is generation only (Haiku 4.5 rates); judge tokens excluded. Tokens are real.
 
-| Metric | graph | vector | hybrid |
-|---|---|---|---|
-| context_precision | 0.366 [0.236, 0.509] | 0.400 [0.200, 0.600] | 0.434 [0.251, 0.617] |
-| faithfulness | 0.987 [0.960, 1.000] | 0.928 [0.837, 0.995] | 0.933 [0.827, 1.000] |
-| total tokens | 30831 | 35074 | 42882 |
-| cost (US$) | 0.0399 | 0.0433 | 0.0511 |
-| mean latency (ms) | 1934.3 | 2088.7 | 1855.7 |
+| Metric | graph | vector | hybrid | multi_anchor | path |
+|---|---|---|---|---|---|
+| context_precision | 0.435 [0.290, 0.585] | 0.460 [0.280, 0.640] | 0.347 [0.231, 0.476] | 0.338 [0.208, 0.477] | 0.040 [0.000, 0.100] |
+| faithfulness | 0.992 [0.979, 1.000] | 1.000 [1.000, 1.000] | 0.943 [0.843, 1.000] | 0.929 [0.838, 0.986] | 1.000 [1.000, 1.000] |
+| total tokens | 27317 | 30274 | 37840 | 35977 | 3171 |
+| cost (US$) | 0.0324 | 0.0357 | 0.0432 | 0.0409 | 0.0045 |
+| mean latency (ms) | 4720.5 | 4617.0 | 4319.3 | 4155.6 | 2575.8 |
 

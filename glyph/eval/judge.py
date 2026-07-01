@@ -106,18 +106,20 @@ class OpenAICompatJudge:
 
     def score(self, question: str, answer: str, contexts: list[str]) -> dict[str, float]:
         import json
+        import re
 
         payload: dict[str, Any] = {
             "model": self.model_name,
             "messages": [{"role": "user", "content": _build_prompt(question, answer, contexts)}],
-            "response_format": {"type": "json_object"},
             "temperature": self._temperature,
         }
         headers = {"Authorization": f"Bearer {self._api_key}"}
         body = self._post(self._url, payload, headers, self._timeout_s)
         try:
-            content = body["choices"][0]["message"]["content"]
-            parsed = json.loads(content)
-            return {m: max(0.0, min(1.0, float(parsed[m]))) for m in _METRICS}
+            content = body["choices"][0]["message"]["content"] or ""
+            # Some providers wrap JSON in ```json...``` code blocks — strip them.
+            raw = re.search(r"\{.*\}", content, re.DOTALL)
+            parsed = json.loads(raw.group(0) if raw else content)
+            return {metric: max(0.0, min(1.0, float(parsed[metric]))) for metric in _METRICS}
         except (KeyError, IndexError, TypeError, ValueError, json.JSONDecodeError) as exc:
             raise JudgeError(f"judge output not parseable: {exc}") from exc
