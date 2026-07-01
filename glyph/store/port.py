@@ -62,3 +62,7 @@ class GraphStore(Protocol):
     ) -> Path | None:
         """Return the shortest directed path, or ``None`` if unreachable."""
         ...
+
+    def pagerank(self) -> dict[str, float]:
+        """Return raw PageRank centrality scores over the full graph (sum ≈ 1.0 when non-empty)."""
+        ...

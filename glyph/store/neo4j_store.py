@@ -233,6 +233,27 @@ class Neo4jStore:
                 return None
             return Path(nodes=list(record["ids"]))
 
+    def pagerank(self) -> dict[str, float]:
+        """Return raw PageRank scores (sum ≈ 1.0). Computed client-side via networkx —
+        avoids requiring the Neo4j GDS plugin for a feature this small.
+
+        Computed on the undirected projection to match
+        :meth:`~glyph.store.networkx_store.NetworkXStore.pagerank` exactly: PageRank
+        on the raw directed graph ranks sink nodes above hubs, which inverts the
+        centrality this method is meant to capture.
+        """
+        import networkx as nx
+        with self._driver.session() as session:
+            node_ids = [record["id"] for record in session.run("MATCH (n:Node) RETURN n.id AS id")]
+            if not node_ids:
+                return {}
+            edge_result = session.run("MATCH (a:Node)-[r]->(b:Node) RETURN a.id AS src, b.id AS dst")
+            g = nx.DiGraph()
+            g.add_nodes_from(node_ids)
+            g.add_edges_from((record["src"], record["dst"]) for record in edge_result)
+        result: dict[str, float] = nx.pagerank(g.to_undirected())
+        return result
+
 
 # ---------------------------------------------------------------------------
 # Private helpers
