@@ -1,3 +1,7 @@
+import importlib.util
+
+import pytest
+
 from glyph.model.contract import ContextPack, Segment
 from glyph.retrieval.port import Retriever
 from glyph.retrieval.reranked import RerankedRetriever
@@ -28,8 +32,11 @@ def _seg(text: str, score: float) -> Segment:
     return Segment(text=text, source=text, score=score)
 
 
+@pytest.mark.slow
 def test_s01_reranker_sorts_by_relevance() -> None:
     """CrossEncoderReranker must rank the more relevant segment higher."""
+    if importlib.util.find_spec("sentence_transformers") is None:
+        pytest.skip("sentence-transformers not installed")
     reranker = CrossEncoderReranker()
     segments = [
         _seg("Goblins are small green creatures that live in caves.", 0.5),
@@ -39,8 +46,11 @@ def test_s01_reranker_sorts_by_relevance() -> None:
     assert result[0].source == "Goblins are small green creatures that live in caves."
 
 
+@pytest.mark.slow
 def test_s01_reranker_truncates_to_k() -> None:
     """CrossEncoderReranker must return exactly k segments."""
+    if importlib.util.find_spec("sentence_transformers") is None:
+        pytest.skip("sentence-transformers not installed")
     reranker = CrossEncoderReranker()
     segments = [_seg(f"text {i}", 0.5) for i in range(10)]
     result = reranker.rerank("query", segments, k=3)
