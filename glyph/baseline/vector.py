@@ -23,7 +23,7 @@ class VectorBaseline:
             self._index.add(label, vector)
             self._text[label] = text
 
-    def retrieve(self, query: str, token_budget: int = 1000, k: int = 20) -> ContextPack:
+    def retrieve(self, query: str, token_budget: int = 1000, k: int = 5) -> ContextPack:
         query_vector = self._embedder.embed([query])[0]
         hits = self._index.search(query_vector, k)
         segments = [Segment(text=self._text[key], source=key, score=score) for key, score in hits]

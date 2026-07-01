@@ -64,6 +64,7 @@ class MultiAnchorRetriever:
         self._anchors = anchors
         self._index = InMemoryVectorIndex()
         indexable = [n for n in nodes if n.type not in _OVERLAY_NODE_TYPES]
+        self._n_nodes = len(indexable)
         if indexable:
             ids = [n.id for n in indexable]
             vectors = embedder.embed([n.label for n in indexable])
@@ -86,9 +87,10 @@ class MultiAnchorRetriever:
                         seen.add(nid)
                         seed.append(nid)
 
+        qvec = self._embedder.embed([query])[0]
+
         # Fallback: fill up to `anchors` with top-N by query embedding.
         if len(seed) < self._anchors:
-            qvec = self._embedder.embed([query])[0]
             for nid, _ in self._index.search(qvec, self._anchors):
                 if nid not in seen:
                     seen.add(nid)
@@ -97,15 +99,18 @@ class MultiAnchorRetriever:
         if not seed:
             return pack("graph", [], token_budget)
 
+        all_scores = dict(self._index.search(qvec, self._n_nodes or 1))
         subgraph = self._store.subgraph(
             seed,
             self._hops,
             exclude_node_types=_OVERLAY_NODE_TYPES,
             exclude_edge_types=_OVERLAY_EDGE_TYPES,
         )
-        return pack("graph", self._segments(subgraph, set(seed)), token_budget)
+        return pack("graph", self._segments(subgraph, set(seed), all_scores), token_budget)
 
-    def _segments(self, subgraph: Subgraph, anchors: set[str]) -> list[Segment]:
+    def _segments(
+        self, subgraph: Subgraph, anchors: set[str], scores: dict[str, float]
+    ) -> list[Segment]:
         label = {node.id: node.label for node in subgraph.nodes}
         out: dict[str, list[str]] = {}
         for edge in subgraph.edges:
@@ -115,7 +120,7 @@ class MultiAnchorRetriever:
         for node in subgraph.nodes:
             relations = "; ".join(out.get(node.id, []))
             text = f"{node.label} — {relations}" if relations else node.label
-            score = 1.0 if node.id in anchors else 0.5
+            score = 1.0 if node.id in anchors else scores.get(node.id, 0.0)
             segments.append(Segment(text=text, source=node.id, score=score))
         segments.sort(key=lambda s: (-s.score, s.source))
         return segments

@@ -45,6 +45,8 @@ from glyph.model.node import NodeType
 from glyph.retrieval.community import CommunityRetriever
 from glyph.retrieval.graph import GraphRetriever
 from glyph.retrieval.hybrid import HybridRetriever
+from glyph.retrieval.multi_anchor import MultiAnchorRetriever
+from glyph.retrieval.path import PathRetriever
 from glyph.retrieval.port import Retriever
 from glyph.store.networkx_store import NetworkXStore
 
@@ -101,7 +103,9 @@ def _build_arms(graph_path: str, source: str, domain: str = "document"):  # type
     vector = VectorBaseline(embedder=embedder)
     vector.index(documents)
     hybrid = HybridRetriever(graph, vector)
-    return {"graph": graph, "vector": vector, "hybrid": hybrid}
+    multi_anchor = MultiAnchorRetriever(store=store, embedder=embedder, nodes=nodes)
+    path = PathRetriever(store=store, embedder=embedder, nodes=nodes)
+    return {"graph": graph, "vector": vector, "hybrid": hybrid, "multi_anchor": multi_anchor, "path": path}
 
 
 def _fingerprint(queries_path: Path, graph_path: str, book_path: str) -> str:

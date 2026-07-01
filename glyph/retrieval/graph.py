@@ -41,15 +41,18 @@ class GraphRetriever:
     def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
         query_vector = self._embedder.embed([query])[0]
         anchors = [key for key, _ in self._index.search(query_vector, self._anchors)]
+        all_scores = dict(self._index.search(query_vector, len(self._label)))
         subgraph = self._store.subgraph(
             anchors,
             self._hops,
             exclude_node_types=_OVERLAY_NODE_TYPES,
             exclude_edge_types=_OVERLAY_EDGE_TYPES,
         )
-        return pack("graph", self._segments(subgraph, set(anchors)), token_budget)
+        return pack("graph", self._segments(subgraph, set(anchors), all_scores), token_budget)
 
-    def _segments(self, subgraph: Subgraph, anchors: set[str]) -> list[Segment]:
+    def _segments(
+        self, subgraph: Subgraph, anchors: set[str], scores: dict[str, float]
+    ) -> list[Segment]:
         label = {node.id: node.label for node in subgraph.nodes}
         out: dict[str, list[str]] = {}
         for edge in subgraph.edges:
@@ -59,7 +62,7 @@ class GraphRetriever:
         for node in subgraph.nodes:
             relations = "; ".join(out.get(node.id, []))
             text = f"{node.label} — {relations}" if relations else node.label
-            score = 1.0 if node.id in anchors else 0.5
+            score = 1.0 if node.id in anchors else scores.get(node.id, 0.0)
             segments.append(Segment(text=text, source=node.id, score=score))
         segments.sort(key=lambda s: (-s.score, s.source))  # source breaks score ties stably
         return segments

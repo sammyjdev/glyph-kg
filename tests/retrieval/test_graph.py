@@ -102,5 +102,41 @@ def test_non_anchor_neighbors_break_score_ties_by_source() -> None:
     )
     retriever = GraphRetriever(store=store, embedder=_FakeEmbedder(), nodes=nodes, hops=1)
     result = retriever.retrieve("goblin", token_budget=1000)
-    tied = [s.source for s in result.segments if s.score == 0.5]
-    assert tied == sorted(tied)  # deterministic order among tied neighbors
+    # Neighbors score below 1.0 (anchors); ties within non-anchors break by source.
+    non_anchor = [s.source for s in result.segments if s.score < 1.0]
+    assert non_anchor == sorted(non_anchor)
+
+
+class _ScoredEmbedder:
+    """Embedder where 'fogo' partially aligns with 'Goblin' query; 'caverna' does not."""
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        m: dict[str, list[float]] = {
+            "Goblin": [0.0, 0.0, 1.0],
+            "fogo": [0.0, 1.0, 1.0],    # shares [0,0,1] component with Goblin
+            "caverna": [1.0, 0.0, 0.0],  # orthogonal to Goblin
+        }
+        return [m.get(t, [0.0, 0.0, 0.0]) for t in texts]
+
+
+def test_neighbor_score_reflects_query_relevance() -> None:
+    """Neighbor semantically closer to the query gets a higher score than an unrelated one."""
+    nodes = [
+        Node(id="goblin", type=NodeType.ENTITY, label="Goblin"),
+        Node(id="fogo", type=NodeType.CONCEPT, label="fogo"),
+        Node(id="caverna", type=NodeType.CONCEPT, label="caverna"),
+    ]
+    store = NetworkXStore()
+    store.upsert_nodes(nodes)
+    store.upsert_edges(
+        [
+            Edge(src="goblin", dst="fogo", type=EdgeType.RESISTS),
+            Edge(src="goblin", dst="caverna", type=EdgeType.INHABITS),
+        ]
+    )
+    retriever = GraphRetriever(
+        store=store, embedder=_ScoredEmbedder(), nodes=nodes, hops=1, anchors=1
+    )
+    result = retriever.retrieve("Goblin", token_budget=1000)
+    scores = {s.source: s.score for s in result.segments}
+    assert scores["fogo"] > scores["caverna"]
