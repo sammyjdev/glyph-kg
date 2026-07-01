@@ -35,27 +35,70 @@ def test_s04_pagerank_hub_is_highest() -> None:
     assert pr["hub"] > pr["leaf_b"]
 
 
-def test_s05_pagerank_weight_raises_hub_score() -> None:
-    """With pagerank_weight=0.5, the hub node gets a higher blended score than a leaf."""
-    store, nodes = _hub_graph()
+def _anchored_hub_graph() -> tuple[NetworkXStore, list[Node]]:
+    """anchor -> hub -> {leaf_a, leaf_b}. `anchor` is first, so it wins cosine ties.
 
-    class _EqualEmbedder:
-        """All nodes embed to the same vector — cosine tie — so PageRank breaks it."""
-        def embed(self, texts):
-            return [[1.0, 0.0, 0.0]] * len(texts)
+    hub's undirected degree is 3 (anchor, leaf_a, leaf_b) vs 1 for each leaf, giving a
+    real, non-trivial PageRank difference among non-anchor nodes.
+    """
+    nodes = [
+        Node(id="anchor", type=NodeType.ENTITY, label="Anchor"),
+        Node(id="hub", type=NodeType.ENTITY, label="Hub"),
+        Node(id="leaf_a", type=NodeType.CONCEPT, label="leaf_a"),
+        Node(id="leaf_b", type=NodeType.CONCEPT, label="leaf_b"),
+    ]
+    store = NetworkXStore()
+    store.upsert_nodes(nodes)
+    store.upsert_edges([
+        Edge(src="anchor", dst="hub", type=EdgeType.RESISTS),
+        Edge(src="hub", dst="leaf_a", type=EdgeType.RESISTS),
+        Edge(src="hub", dst="leaf_b", type=EdgeType.RESISTS),
+    ])
+    return store, nodes
+
+
+class _EqualEmbedder:
+    """All nodes embed to the same vector — cosine tie — so PageRank breaks it."""
+    def embed(self, texts):
+        return [[1.0, 0.0, 0.0]] * len(texts)
+
+
+def test_s05_pagerank_weight_raises_hub_score() -> None:
+    """With pagerank_weight=0.5, a non-anchor hub outscores same-cosine leaves.
+
+    `anchor` (first in `nodes`, wins the cosine tie) is the anchor, so its own
+    score is hard-coded to 1.0 and doesn't exercise the blend. `hub` is a
+    non-anchor node whose cosine ties with the leaves but whose higher degree
+    (3 vs 1) gives it a higher PageRank — the blend must surface that.
+    """
+    store, nodes = _anchored_hub_graph()
 
     retriever = GraphRetriever(
         store=store,
         embedder=_EqualEmbedder(),
         nodes=nodes,
-        hops=1,
+        hops=2,
         anchors=1,
         pagerank_weight=0.5,
     )
     result = retriever.retrieve("anything", token_budget=10_000)
     scores = {s.source: s.score for s in result.segments}
-    # hub is the anchor (score=1.0), leaves are neighbors — hub's centrality
-    # doesn't matter for the anchor itself, but leaves should differ by pagerank
-    # (both leaves have equal cosine, so their scores remain equal — this test
-    # verifies the blend doesn't crash and hub is still ranked first).
-    assert scores.get("hub", 0.0) >= max(scores.get("leaf_a", 0.0), scores.get("leaf_b", 0.0))
+    assert scores["hub"] > scores["leaf_a"]
+    assert scores["hub"] > scores["leaf_b"]
+
+
+def test_s05_pagerank_weight_zero_keeps_pure_cosine_tie() -> None:
+    """With pagerank_weight=0.0, hub and leaves stay tied (pure cosine, no PageRank)."""
+    store, nodes = _anchored_hub_graph()
+
+    retriever = GraphRetriever(
+        store=store,
+        embedder=_EqualEmbedder(),
+        nodes=nodes,
+        hops=2,
+        anchors=1,
+        pagerank_weight=0.0,
+    )
+    result = retriever.retrieve("anything", token_budget=10_000)
+    scores = {s.source: s.score for s in result.segments}
+    assert scores["hub"] == scores["leaf_a"] == scores["leaf_b"]
