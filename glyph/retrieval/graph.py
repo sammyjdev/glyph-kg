@@ -26,6 +26,7 @@ class GraphRetriever:
         nodes: Sequence[Node],
         hops: int = 2,
         anchors: int = 3,
+        pagerank_weight: float = 0.0,
     ) -> None:
         self._store = store
         self._embedder = embedder
@@ -37,6 +38,13 @@ class GraphRetriever:
         vectors = embedder.embed([self._label[node_id] for node_id in ids])
         for node_id, vector in zip(ids, vectors, strict=True):
             self._index.add(node_id, vector)
+        # Pre-compute normalized PageRank (max=1.0) once at index time.
+        self._pagerank: dict[str, float] = {}
+        if pagerank_weight > 0.0:
+            raw = store.pagerank()
+            max_pr = max(raw.values(), default=1.0)
+            self._pagerank = {k: v / max_pr for k, v in raw.items()}
+        self._pagerank_weight = pagerank_weight
 
     def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
         query_vector = self._embedder.embed([query])[0]
@@ -62,7 +70,16 @@ class GraphRetriever:
         for node in subgraph.nodes:
             relations = "; ".join(out.get(node.id, []))
             text = f"{node.label} — {relations}" if relations else node.label
-            score = 1.0 if node.id in anchors else scores.get(node.id, 0.0)
+            if node.id in anchors:
+                score = 1.0
+            else:
+                cosine = scores.get(node.id, 0.0)
+                pr = self._pagerank.get(node.id, 0.0)
+                # Linear blend confirmed correct for this case (Perplexity research, 2026-07-01):
+                # RRF is for fusing independent retriever rank lists, not for mixing a semantic
+                # similarity score with a structural prior like centrality — score-level fusion
+                # is the right tool here.
+                score = (1.0 - self._pagerank_weight) * cosine + self._pagerank_weight * pr
             segments.append(Segment(text=text, source=node.id, score=score))
         segments.sort(key=lambda s: (-s.score, s.source))  # source breaks score ties stably
         return segments

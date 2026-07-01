@@ -152,3 +152,17 @@ class NetworkXStore:
 
     def _to_edge(self, src: str, dst: str, key: str, data: dict[str, Any]) -> Edge:
         return Edge(src=src, dst=dst, type=EdgeType(data["type"]), attrs=dict(data["attrs"]))
+
+    def pagerank(self) -> dict[str, float]:
+        """Return raw networkx PageRank scores (sum ≈ 1.0). Empty graph returns {}.
+
+        Computed on the undirected projection: PageRank on the raw directed graph
+        ranks sink nodes above hubs (a hub with only outgoing edges gets no
+        incoming "votes"), which inverts the centrality this method is meant to
+        capture. Undirected matches neighborhood expansion's existing semantics
+        (see class docstring).
+        """
+        if self._g.number_of_nodes() == 0:
+            return {}
+        result: dict[str, float] = nx.pagerank(self._g.to_undirected())
+        return result
