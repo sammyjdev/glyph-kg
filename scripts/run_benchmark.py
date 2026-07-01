@@ -154,6 +154,9 @@ def _build_arms(graph_path: str, source: str, domain: str = "document"):  # type
             if chunk.is_creature(piece)
         ]
     graph = GraphRetriever(store=store, embedder=embedder, nodes=nodes)
+    graph_pagerank = GraphRetriever(
+        store=store, embedder=embedder, nodes=nodes, pagerank_weight=0.5
+    )
     vector = VectorBaseline(embedder=embedder)
     vector.index(documents)
     hybrid = HybridRetriever(graph, vector)
@@ -163,10 +166,13 @@ def _build_arms(graph_path: str, source: str, domain: str = "document"):  # type
     # Reranks `vector` (0.460 context_precision, current best arm in METRICS.md) — not
     # `hybrid` (0.347, currently the worst of the three original arms). A reranker can
     # only reorder/filter what its underlying retriever already found; it can't recover
-    # recall `hybrid` already lost, so it's a stronger candidate pool to start from.
-    reranked_vector = RerankedRetriever(vector, reranker, k=5)
+    # recall `hybrid` already lost. VectorBaseline governs result size via `k`, not
+    # token_budget, so wrap it in `_KVectorRetriever(vector, k=50)` to actually widen the
+    # candidate pool to 50 before reranking down to the final top-5.
+    reranked_vector = RerankedRetriever(_KVectorRetriever(vector, k=50), reranker, k=5)
     return {
         "graph": graph,
+        "graph_pagerank": graph_pagerank,
         "vector": vector,
         "hybrid": hybrid,
         "multi_anchor": multi_anchor,
