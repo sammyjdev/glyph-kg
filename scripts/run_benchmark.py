@@ -16,6 +16,13 @@ Usage:
     python3 scripts/run_benchmark.py out/monster-manual.json dummy \\
       --answers out/bench-answers.json --skip-fingerprint
 
+    # multi-model parallel generation (MODEL@BASE_URL@KEY_ENV, space-separated):
+    DEEPSEEK_API_KEY=... OPENAI_API_KEY=... \\
+      python3 scripts/run_benchmark.py out/monster-manual.json "<book.pdf>" \\
+      --gen-models deepseek-chat@https://api.deepseek.com@DEEPSEEK_API_KEY \\
+                   gpt-4o-mini@https://api.openai.com/v1@OPENAI_API_KEY
+    # Produces out/bench-answers-{slug}.json and METRICS-{slug}.md per model.
+
 Requires: pip install -e ".[document,retrieval,embeddings]"
 """
 
@@ -23,7 +30,9 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from glyph.baseline.vector import VectorBaseline
@@ -53,6 +62,48 @@ from glyph.store.networkx_store import NetworkXStore
 DEFAULT_BASELINE = "eval/benchmark-baseline.json"
 DEFAULT_METRICS = "METRICS.md"
 DEFAULT_MODEL = "llama-3.3-70b-versatile"
+
+DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+
+
+def _slug(model: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9]+", "-", model).strip("-").lower()
+
+
+def _parse_gen_spec(spec: str) -> tuple[str, str, str]:
+    """Parse 'model@base_url@key_env' into (model, base_url, key_env)."""
+    parts = spec.split("@", 2)
+    if len(parts) != 3:
+        raise ValueError(f"invalid --gen-models spec {spec!r}; expected model@base_url@key_env")
+    return parts[0], parts[1], parts[2]
+
+
+def _run_one_model(
+    slug: str,
+    generator: Generator,  # type: ignore[no-untyped-def]
+    arms: dict,  # type: ignore[type-arg]
+    cases,  # type: ignore[no-untyped-def]
+    system: str | None,
+    fingerprint: str,
+    answers_path: Path,
+    skip_fingerprint: bool,
+) -> dict:  # type: ignore[type-arg]
+    """Generate and cache answers for one generator; returns responses_by_arm."""
+    if skip_fingerprint and answers_path.exists():
+        raw = json.loads(answers_path.read_text(encoding="utf-8"))
+        return {
+            arm: {cid: ArmResponse.model_validate(r) for cid, r in rs.items()}
+            for arm, rs in raw["answers"].items()
+        }
+    cached = _load_answers(answers_path, fingerprint) if answers_path.exists() else None
+    if cached is not None:
+        print(f"[{slug}] reusing cached answers from {answers_path}")
+        return cached
+    print(f"[{slug}] generating answers...", flush=True)
+    responses = {arm: _precompute(r, cases, generator, system) for arm, r in arms.items()}
+    _save_answers(answers_path, responses, fingerprint)
+    print(f"[{slug}] cached to {answers_path}", flush=True)
+    return responses
 
 _CODE_SYSTEM = (
     "You answer questions about the AXON codebase using ONLY the provided context "
@@ -178,6 +229,17 @@ def main(argv: list[str]) -> int:
         default="meta/llama-3.3-70b-instruct",
         help="generation model with --gen-base-url",
     )
+    parser.add_argument(
+        "--gen-models",
+        nargs="+",
+        metavar="MODEL@BASE_URL@KEY_ENV",
+        default=None,
+        help=(
+            "run generation with multiple models in parallel; "
+            "each spec: model@base_url@key_env "
+            "(e.g. deepseek-chat@https://api.deepseek.com@DEEPSEEK_API_KEY)"
+        ),
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument(
         "--skip-fingerprint",
@@ -228,6 +290,69 @@ def main(argv: list[str]) -> int:
         return 2
 
     cases = load_eval_cases(args.queries)
+
+    # --- multi-model parallel mode ---
+    if args.gen_models:
+        specs: list[tuple[str, Generator]] = []
+        for spec_str in args.gen_models:
+            model_name, base_url, key_env = _parse_gen_spec(spec_str)
+            key = os.environ.get(key_env)
+            if not key:
+                print(f"{key_env} not set for model {model_name}", file=sys.stderr)
+                return 2
+            specs.append((
+                _slug(model_name),
+                OpenAICompatGenerator(model=model_name, api_key=key, base_url=base_url),
+            ))
+
+        fingerprint = _fingerprint(Path(args.queries), args.graph, args.source)
+        arms = _build_arms(args.graph, args.source, args.domain)
+        system = _CODE_SYSTEM if is_code else None
+        out_dir = Path(args.answers).parent
+
+        with ThreadPoolExecutor(max_workers=len(specs)) as pool:
+            futures = {
+                slug: pool.submit(
+                    _run_one_model,
+                    slug, gen, arms, cases, system, fingerprint,
+                    out_dir / f"bench-answers-{slug}.json",
+                    args.skip_fingerprint,
+                )
+                for slug, gen in specs
+            }
+
+        judge = OpenAICompatJudge(model=args.model, api_key=api_key, base_url=args.base_url)
+        for slug, future in futures.items():
+            responses_by_arm = future.result()
+
+            def _on_arm_multi(report: ArmReport, _slug: str = slug) -> None:
+                cells = " · ".join(
+                    f"{m.metric} {m.mean:.3f} [{m.ci_low:.3f},{m.ci_high:.3f}]"
+                    for m in report.metrics
+                )
+                print(
+                    f"[{_slug}] {report.arm} — {cells} | tokens={report.total_tokens} "
+                    f"cost=${report.cost_usd:.4f}",
+                    flush=True,
+                )
+
+            report = run_benchmark(
+                cases, responses_by_arm, judge,
+                judge_model=args.model, seed=args.seed, on_arm=_on_arm_multi,
+            )
+            fresh = to_dict(report)
+            stem = Path(args.out).stem
+            baseline_path = Path(args.out).with_name(f"{stem}-{slug}.json")
+            metrics_path = Path(args.metrics).with_suffix("").with_name(
+                Path(args.metrics).stem + f"-{slug}.md"
+            )
+            baseline_path.parent.mkdir(parents=True, exist_ok=True)
+            baseline_path.write_text(json.dumps(fresh, ensure_ascii=False, indent=2) + "\n", "utf-8")
+            metrics_path.write_text(render_markdown(report) + "\n", encoding="utf-8")
+            print(f"[{slug}] wrote {baseline_path} and {metrics_path}")
+        return 0
+
+    # --- single-model mode (existing behaviour) ---
     answers_path = Path(args.answers)
     if args.skip_fingerprint and answers_path.exists():
         cached_raw = json.loads(answers_path.read_text(encoding="utf-8"))
