@@ -33,6 +33,8 @@ litellm = [
 ]
 retrieval = [
     "numpy>=1.26",
+    # networkx.pagerank() requires scipy (GraphRetriever's PageRank+cosine blend).
+    "scipy>=1.11",
 ]
 embeddings = [
     "sentence-transformers>=3.0",
