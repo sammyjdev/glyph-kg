@@ -38,7 +38,7 @@ def test_score_posts_to_chat_completions_with_bearer_auth() -> None:
     assert captured["headers"] == {"Authorization": "Bearer secret"}
     payload = captured["payload"]
     assert payload["model"] == "llama-3.3-70b-versatile"
-    assert payload["response_format"] == {"type": "json_object"}
+    assert "response_format" not in payload
 
 
 def test_score_includes_question_answer_and_contexts_in_prompt() -> None:

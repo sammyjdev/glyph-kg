@@ -113,7 +113,7 @@ class _ScoredEmbedder:
     def embed(self, texts: list[str]) -> list[list[float]]:
         m: dict[str, list[float]] = {
             "Goblin": [0.0, 0.0, 1.0],
-            "fogo": [0.0, 1.0, 1.0],    # shares [0,0,1] component with Goblin
+            "fogo": [0.0, 1.0, 1.0],  # shares [0,0,1] component with Goblin
             "caverna": [1.0, 0.0, 0.0],  # orthogonal to Goblin
         }
         return [m.get(t, [0.0, 0.0, 0.0]) for t in texts]

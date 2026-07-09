@@ -32,7 +32,7 @@ import json
 import os
 import re
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from glyph.baseline.vector import VectorBaseline
@@ -421,7 +421,9 @@ def main(argv: list[str]) -> int:
                 Path(args.metrics).stem + f"-{slug}.md"
             )
             baseline_path.parent.mkdir(parents=True, exist_ok=True)
-            baseline_path.write_text(json.dumps(fresh, ensure_ascii=False, indent=2) + "\n", "utf-8")
+            baseline_path.write_text(
+                json.dumps(fresh, ensure_ascii=False, indent=2) + "\n", "utf-8"
+            )
             metrics_path.write_text(render_markdown(report) + "\n", encoding="utf-8")
             print(f"[{slug}] wrote {baseline_path} and {metrics_path}")
         return 0

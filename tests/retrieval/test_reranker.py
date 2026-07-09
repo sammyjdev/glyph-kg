@@ -25,6 +25,7 @@ class _FakeRetriever:
     def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
         self._last_budget.append(token_budget)
         from glyph.model.contract import pack
+
         return pack("graph", self._segments, token_budget=50_000)
 
 
