@@ -144,4 +144,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). TDD per sub-task, ADR per architectural 
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Apache-2.0. See [LICENSE](LICENSE).
