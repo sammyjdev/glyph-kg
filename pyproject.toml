@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "glyph-kg"
-version = "0.1.0"
+version = "0.2.0"
 description = "Knowledge graph library for documents and code, with graph-aware retrieval benchmarked against vector search."
 readme = "README.md"
 requires-python = ">=3.11"
