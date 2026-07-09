@@ -17,7 +17,6 @@ from glyph.model.node import Node, NodeType
 from glyph.store.networkx_store import NetworkXStore
 from glyph.store.port import GraphStore
 
-
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
@@ -25,34 +24,42 @@ from glyph.store.port import GraphStore
 
 def _populate_linear(s: GraphStore) -> GraphStore:
     """a -> b -> c chain (directed RELATES_TO); anchor is a."""
-    s.upsert_nodes([
-        Node(id="a", type=NodeType.ENTITY, label="a"),
-        Node(id="b", type=NodeType.ENTITY, label="b"),
-        Node(id="c", type=NodeType.ENTITY, label="c"),
-    ])
-    s.upsert_edges([
-        Edge(src="a", dst="b", type=EdgeType.RELATES_TO),
-        Edge(src="b", dst="c", type=EdgeType.RELATES_TO),
-    ])
+    s.upsert_nodes(
+        [
+            Node(id="a", type=NodeType.ENTITY, label="a"),
+            Node(id="b", type=NodeType.ENTITY, label="b"),
+            Node(id="c", type=NodeType.ENTITY, label="c"),
+        ]
+    )
+    s.upsert_edges(
+        [
+            Edge(src="a", dst="b", type=EdgeType.RELATES_TO),
+            Edge(src="b", dst="c", type=EdgeType.RELATES_TO),
+        ]
+    )
     return s
 
 
 def _populate_hub(s: GraphStore) -> GraphStore:
     """a->b->c->d plus a COMMUNITY super-hub linked to a and d via CONTAINS."""
-    s.upsert_nodes([
-        Node(id="a", type=NodeType.ENTITY, label="a"),
-        Node(id="b", type=NodeType.ENTITY, label="b"),
-        Node(id="c", type=NodeType.ENTITY, label="c"),
-        Node(id="d", type=NodeType.ENTITY, label="d"),
-        Node(id="comm", type=NodeType.COMMUNITY, label="faction"),
-    ])
-    s.upsert_edges([
-        Edge(src="a", dst="b", type=EdgeType.RELATES_TO),
-        Edge(src="b", dst="c", type=EdgeType.RELATES_TO),
-        Edge(src="c", dst="d", type=EdgeType.RELATES_TO),
-        Edge(src="comm", dst="a", type=EdgeType.CONTAINS),
-        Edge(src="comm", dst="d", type=EdgeType.CONTAINS),
-    ])
+    s.upsert_nodes(
+        [
+            Node(id="a", type=NodeType.ENTITY, label="a"),
+            Node(id="b", type=NodeType.ENTITY, label="b"),
+            Node(id="c", type=NodeType.ENTITY, label="c"),
+            Node(id="d", type=NodeType.ENTITY, label="d"),
+            Node(id="comm", type=NodeType.COMMUNITY, label="faction"),
+        ]
+    )
+    s.upsert_edges(
+        [
+            Edge(src="a", dst="b", type=EdgeType.RELATES_TO),
+            Edge(src="b", dst="c", type=EdgeType.RELATES_TO),
+            Edge(src="c", dst="d", type=EdgeType.RELATES_TO),
+            Edge(src="comm", dst="a", type=EdgeType.CONTAINS),
+            Edge(src="comm", dst="d", type=EdgeType.CONTAINS),
+        ]
+    )
     return s
 
 
@@ -62,7 +69,7 @@ def _populate_hub(s: GraphStore) -> GraphStore:
 
 
 @pytest.fixture(scope="session")
-def neo4j_container() -> "Generator[Any, None, None]":
+def neo4j_container() -> Generator[Any, None, None]:
     """Start a Neo4j Testcontainer once per session (only when neo4j tests run)."""
     try:
         from testcontainers.neo4j import Neo4jContainer  # type: ignore[import-untyped]
@@ -83,8 +90,9 @@ def _make_neo4j_store(request: pytest.FixtureRequest) -> tuple[Any, Any]:
     """Return (store, driver) for a freshly-wiped Neo4j DB."""
     container = request.getfixturevalue("neo4j_container")
 
-    from glyph.store.neo4j_store import Neo4jStore  # noqa: PLC0415
     from neo4j import GraphDatabase  # noqa: PLC0415
+
+    from glyph.store.neo4j_store import Neo4jStore  # noqa: PLC0415
 
     bolt_url = container.get_connection_url()
     username = container.username
@@ -109,7 +117,7 @@ def _make_neo4j_store(request: pytest.FixtureRequest) -> tuple[Any, Any]:
         pytest.param("neo4j", id="neo4j", marks=pytest.mark.neo4j),
     ]
 )
-def store(request: pytest.FixtureRequest) -> "Generator[GraphStore, None, None]":
+def store(request: pytest.FixtureRequest) -> Generator[GraphStore, None, None]:
     """Yield a fresh, pre-populated GraphStore (networkx or neo4j)."""
     if request.param == "networkx":
         yield _populate_linear(NetworkXStore())
@@ -131,7 +139,7 @@ def store(request: pytest.FixtureRequest) -> "Generator[GraphStore, None, None]"
         pytest.param("neo4j", id="neo4j", marks=pytest.mark.neo4j),
     ]
 )
-def hub_store(request: pytest.FixtureRequest) -> "Generator[GraphStore, None, None]":
+def hub_store(request: pytest.FixtureRequest) -> Generator[GraphStore, None, None]:
     """Yield a fresh hub-topology GraphStore (networkx or neo4j)."""
     if request.param == "networkx":
         yield _populate_hub(NetworkXStore())

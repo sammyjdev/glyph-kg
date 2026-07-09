@@ -17,6 +17,7 @@ class CrossEncoderReranker:
 
     def __init__(self, model: str = _DEFAULT_MODEL) -> None:
         from sentence_transformers import CrossEncoder
+
         self._model = CrossEncoder(model)
 
     def rerank(self, query: str, segments: list[Segment], k: int) -> list[Segment]:
@@ -26,6 +27,5 @@ class CrossEncoderReranker:
         scores = self._model.predict(pairs)
         ranked = sorted(zip(scores, segments, strict=True), key=lambda x: -float(x[0]))
         return [
-            Segment(text=s.text, source=s.source, score=float(score))
-            for score, s in ranked[:k]
+            Segment(text=s.text, source=s.source, score=float(score)) for score, s in ranked[:k]
         ]

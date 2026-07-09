@@ -36,10 +36,7 @@ class Neo4jStore:
 
     def _ensure_constraint(self) -> None:
         with self._driver.session() as session:
-            session.run(
-                "CREATE CONSTRAINT IF NOT EXISTS "
-                "FOR (n:Node) REQUIRE n.id IS UNIQUE"
-            )
+            session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (n:Node) REQUIRE n.id IS UNIQUE")
 
     def close(self) -> None:
         self._driver.close()
@@ -243,6 +240,7 @@ class Neo4jStore:
         centrality this method is meant to capture.
         """
         import networkx as nx
+
         with self._driver.session() as session:
             node_ids = [record["id"] for record in session.run("MATCH (n:Node) RETURN n.id AS id")]
             if not node_ids:
@@ -263,7 +261,7 @@ class Neo4jStore:
 
 
 def _to_node(record: object) -> Node:
-    n = record  # type: ignore[assignment]
+    n = record
     return Node(
         id=n["id"],  # type: ignore[index]
         type=NodeType(n["type"]),  # type: ignore[index]
@@ -273,7 +271,7 @@ def _to_node(record: object) -> Node:
 
 
 def _to_edge(record: object) -> Edge:
-    r = record  # type: ignore[assignment]
+    r = record
     return Edge(
         src=r["src"],  # type: ignore[index]
         dst=r["dst"],  # type: ignore[index]

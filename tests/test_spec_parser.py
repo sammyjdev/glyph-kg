@@ -53,5 +53,5 @@ def test_format_tcm_stub() -> None:
     assert "| S-02" in table
     assert "✗ unmet" in table
     # Both rows present
-    lines = [l for l in table.splitlines() if l.startswith("| S-")]
+    lines = [line for line in table.splitlines() if line.startswith("| S-")]
     assert len(lines) == 2

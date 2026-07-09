@@ -13,10 +13,12 @@ def _hub_graph() -> tuple[NetworkXStore, list[Node]]:
     ]
     store = NetworkXStore()
     store.upsert_nodes(nodes)
-    store.upsert_edges([
-        Edge(src="hub", dst="leaf_a", type=EdgeType.RESISTS),
-        Edge(src="hub", dst="leaf_b", type=EdgeType.RESISTS),
-    ])
+    store.upsert_edges(
+        [
+            Edge(src="hub", dst="leaf_a", type=EdgeType.RESISTS),
+            Edge(src="hub", dst="leaf_b", type=EdgeType.RESISTS),
+        ]
+    )
     return store, nodes
 
 
@@ -49,16 +51,19 @@ def _anchored_hub_graph() -> tuple[NetworkXStore, list[Node]]:
     ]
     store = NetworkXStore()
     store.upsert_nodes(nodes)
-    store.upsert_edges([
-        Edge(src="anchor", dst="hub", type=EdgeType.RESISTS),
-        Edge(src="hub", dst="leaf_a", type=EdgeType.RESISTS),
-        Edge(src="hub", dst="leaf_b", type=EdgeType.RESISTS),
-    ])
+    store.upsert_edges(
+        [
+            Edge(src="anchor", dst="hub", type=EdgeType.RESISTS),
+            Edge(src="hub", dst="leaf_a", type=EdgeType.RESISTS),
+            Edge(src="hub", dst="leaf_b", type=EdgeType.RESISTS),
+        ]
+    )
     return store, nodes
 
 
 class _EqualEmbedder:
     """All nodes embed to the same vector — cosine tie — so PageRank breaks it."""
+
     def embed(self, texts):
         return [[1.0, 0.0, 0.0]] * len(texts)
 

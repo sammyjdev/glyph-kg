@@ -7,12 +7,9 @@ parametrized in ``conftest.py``.
 
 from collections.abc import Iterable
 
-import pytest
-
 from glyph.model.edge import Edge, EdgeType
 from glyph.model.node import Node, NodeType
 from glyph.store.port import GraphStore
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -52,10 +49,12 @@ def test_neighbors_returns_induced_edges(store: GraphStore) -> None:
 
 
 def test_subgraph_unions_multiple_seeds(store: GraphStore) -> None:
-    store.upsert_nodes([
-        Node(id="x", type=NodeType.ENTITY, label="x"),
-        Node(id="y", type=NodeType.ENTITY, label="y"),
-    ])
+    store.upsert_nodes(
+        [
+            Node(id="x", type=NodeType.ENTITY, label="x"),
+            Node(id="y", type=NodeType.ENTITY, label="y"),
+        ]
+    )
     store.upsert_edges([Edge(src="x", dst="y", type=EdgeType.MENTIONS)])
     sg = store.subgraph(seed=["a", "x"], hops=1)
     assert _ids(sg.nodes) == {"a", "b", "x", "y"}
