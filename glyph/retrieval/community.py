@@ -47,7 +47,9 @@ class Community:
     def id(self) -> str:
         # Stable across runs (hashlib, not the salted builtin hash): unchanged
         # communities keep their id between rebuilds, so summarization can skip them.
-        digest = hashlib.sha1("\n".join(self.members).encode("utf-8")).hexdigest()[:12]
+        digest = hashlib.sha1(
+            "\n".join(self.members).encode("utf-8"), usedforsecurity=False
+        ).hexdigest()[:12]
         return f"community:{digest}"
 
 

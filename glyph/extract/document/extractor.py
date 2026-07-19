@@ -10,6 +10,7 @@ The LLM extractor and keep-filter are still injectable for testing.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
@@ -22,6 +23,8 @@ from glyph.extract.document.schema_notes import NotesExtractionResult, merge_not
 from glyph.extract.port import Source
 from glyph.model.edge import Edge
 from glyph.model.node import Node
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentExtractor:
@@ -81,6 +84,7 @@ class DocumentExtractor:
             try:
                 raw_result, usage = self._llm.extract(system, piece.text)
             except Exception:  # noqa: BLE001 - one failed chunk must not abort a paid run
+                logger.warning("chunk %r failed extraction, skipping", piece.label, exc_info=True)
                 continue
             if self._domain == "notes":
                 if isinstance(raw_result, NotesExtractionResult):
@@ -96,6 +100,11 @@ class DocumentExtractor:
                             )
                         )
                     except Exception:  # noqa: BLE001
+                        logger.warning(
+                            "chunk %r failed coercion to notes schema, skipping",
+                            piece.label,
+                            exc_info=True,
+                        )
                         continue
             else:
                 results_dnd.append(raw_result)
