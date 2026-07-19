@@ -12,6 +12,7 @@ GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 _MAX_RETRIES = 8
 _BACKOFF_BASE_S = 2.0
 _RETRY_CODES = (429, 500, 502, 503)
+_ALLOWED_SCHEMES = frozenset({"http", "https"})
 
 JsonPoster = Callable[[str, dict[str, Any], dict[str, str], float], dict[str, Any]]
 
@@ -28,12 +29,17 @@ def _urllib_post(
     import time
     import urllib.error
     import urllib.request
+    from urllib.parse import urlparse
 
     import certifi
 
+    scheme = urlparse(url).scheme
+    if scheme not in _ALLOWED_SCHEMES:
+        raise ValueError(f"refusing to open url with disallowed scheme: {scheme!r}")
+
     ssl_ctx = ssl.create_default_context(cafile=certifi.where())
     data = json.dumps(payload).encode("utf-8")
-    request = urllib.request.Request(
+    request = urllib.request.Request(  # noqa: S310 - scheme checked above; ruff can't see that
         url,
         data=data,
         headers={**headers, "Content-Type": "application/json", "User-Agent": "glyph-kg"},
@@ -41,7 +47,9 @@ def _urllib_post(
     )
     for attempt in range(_MAX_RETRIES):
         try:
-            with urllib.request.urlopen(request, timeout=timeout_s, context=ssl_ctx) as response:
+            with urllib.request.urlopen(  # noqa: S310 - scheme checked above; ruff can't see that
+                request, timeout=timeout_s, context=ssl_ctx
+            ) as response:
                 body: dict[str, Any] = json.loads(response.read())
             return body
         except urllib.error.HTTPError as exc:
