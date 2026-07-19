@@ -20,6 +20,15 @@ GLYPH follows Spec-Driven Development: the spec and quality gates are defined be
 - **Lint:** `ruff` clean.
 - **Architecture:** `tests/architecture/` verifies invariants from `docs/ARCHITECTURE.md`. Import rule violations fail the build.
 
+## Pre-commit hooks
+
+`.pre-commit-config.yaml` runs `ruff` (lint) and `gitleaks` (secret scan) on staged changes. One-time setup after cloning:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
 ## ADR rule
 
 Every architectural decision is recorded in `docs/decisions/` before implementation. If an unforeseen decision arises during execution (library choice, contract change, new backend), stop and open an ADR. Do not decide inline in code.
