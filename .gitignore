@@ -32,3 +32,6 @@ out/code-global-answers.json
 .DS_Store
 .idea/
 .vscode/
+
+# FORGE loop local state (cache, worktrees) — never committed
+.claude/
