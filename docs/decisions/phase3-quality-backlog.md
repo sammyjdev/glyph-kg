@@ -4,6 +4,11 @@ Quality items observed at the P1.4 gate (Monster Manual, see
 `phase1-cost-gate-results.md`). Do not block Phase 2; enter Phase 3 evaluation,
 where document extraction quality is measured (not assumed).
 
+> **Ticketed 2026-07-18 as issues #18–#22** (casing, attack-vs-resistance eval,
+> asymmetry declaration, attrs-in-segments experiment, real tokenizer).
+> Left out: item 3 (observe-only, no current corpus triggers it) and the demo
+> embedding cache (deferred until it becomes recurring use).
+
 ## 1. Node label casing normalization
 
 Labels come from the LLM-returned name in inconsistent cases (`ANKHEG`, `abolete`,
