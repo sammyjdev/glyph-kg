@@ -8,7 +8,9 @@ report (P3.5) can show where each arm lost.
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from statistics import fmean
-from typing import Any, Protocol
+from typing import Protocol
+
+from gnomon.metrics.confidence import aggregate_metric
 
 from glyph.eval.cost import total_cost_usd
 from glyph.eval.dataset import Query
@@ -56,14 +58,6 @@ class BenchmarkReport:
     arms: list[ArmReport]
 
 
-def _bootstrap_ci(scores: Any, seed: int, n_resamples: int = 2000) -> tuple[float, float]:
-    import numpy as np
-
-    rng = np.random.default_rng(seed)
-    boots = rng.choice(scores, size=(n_resamples, len(scores)), replace=True).mean(axis=1)
-    return float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))
-
-
 def _score_cases(
     cases: Sequence[Query],
     responses: Mapping[str, ArmResponse],
@@ -93,19 +87,29 @@ def score_arm(
     on_case: Callable[[str, dict[str, float]], None] | None = None,
 ) -> ArmReport:
     """Score one arm: per-case judge call, aggregate per metric with bootstrap CIs."""
-    import numpy as np
-
     ordered = [responses[case.id] for case in cases]
     per_metric = _score_cases(cases, responses, judge, on_case=on_case)
 
     metric_stats: list[MetricStat] = []
     for metric, values in sorted(per_metric.items()):
-        col = np.array(values)
-        mean = float(col.mean())
-        ci_low, ci_high = _bootstrap_ci(col, seed) if len(col) >= 2 else (mean, mean)
-        metric_stats.append(
-            MetricStat(metric=metric, mean=mean, ci_low=ci_low, ci_high=ci_high, n=len(col))
-        )
+        if len(values) < 2:
+            mean = fmean(values)
+            ci_low = ci_high = mean
+            n = len(values)
+            metric_stats.append(
+                MetricStat(metric=metric, mean=mean, ci_low=ci_low, ci_high=ci_high, n=n)
+            )
+        else:
+            result = aggregate_metric(metric, values, confidence_level=0.95, seed=seed)
+            metric_stats.append(
+                MetricStat(
+                    metric=result.metric,
+                    mean=result.mean,
+                    ci_low=result.ci_low,
+                    ci_high=result.ci_high,
+                    n=result.n,
+                )
+            )
 
     return ArmReport(
         arm=arm,

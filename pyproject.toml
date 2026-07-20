@@ -48,6 +48,9 @@ code = [
     "tree-sitter-python>=0.23",
     "tree-sitter-java>=0.23",
 ]
+eval = [
+    "gnomon-eval @ git+https://github.com/sammyjdev/gnomon-eval.git@4082ef7ce4d66e076a11af514a9294bcfea5e6d6",
+]
 
 [project.urls]
 Homepage = "https://github.com/sammyjdev/glyph-kg"
@@ -99,6 +102,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["neo4j.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["gnomon.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
