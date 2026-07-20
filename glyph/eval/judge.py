@@ -4,8 +4,13 @@ The transport (GROQ_BASE_URL, JsonPoster, _urllib_post) is shared with
 generate.py so the answer generator reuses the same retry policy.
 """
 
+import re
 from collections.abc import Callable
 from typing import Any
+
+from gnomon.domain.models import EvalCase, RagResponse
+from gnomon.judge.ollama import JudgeProtocolError, parse_v1_judge_response
+from gnomon.judge.prompts import build_prompt
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
@@ -66,26 +71,6 @@ def _urllib_post(
 
 NIM_BASE_URL = "https://integrate.api.nvidia.com/v1"
 
-_METRICS = ("faithfulness", "context_precision")
-
-
-def _build_prompt(question: str, answer: str, contexts: list[str]) -> str:
-    """Score faithfulness (grounded in contexts) and context_precision (contexts relevant)."""
-    joined = "\n".join(f"[{i}] {text}" for i, text in enumerate(contexts, start=1))
-    return (
-        "You are evaluating a RAG (retrieval-augmented generation) system's answer.\n\n"
-        f"Question: {question}\n\n"
-        f"Retrieved contexts:\n{joined}\n\n"
-        f"Generated answer: {answer}\n\n"
-        "Score the answer on two metrics, each from 0.0 to 1.0:\n\n"
-        "- faithfulness: does every claim in the answer follow directly from the retrieved "
-        "contexts, with no unsupported or contradicted statements? 1.0 = fully grounded, "
-        "0.0 = entirely unsupported or contradicted.\n"
-        "- context_precision: are the retrieved contexts relevant and necessary to answer "
-        "the question? 1.0 = all contexts relevant, 0.0 = irrelevant.\n\n"
-        'Respond with a single JSON object: {"faithfulness": <float>, "context_precision": <float>}'
-    )
-
 
 class OpenAICompatJudge:
     """Score faithfulness + context_precision in one call to an OpenAI-compatible endpoint.
@@ -113,21 +98,26 @@ class OpenAICompatJudge:
         self._temperature = temperature
 
     def score(self, question: str, answer: str, contexts: list[str]) -> dict[str, float]:
-        import json
-        import re
-
+        # EvalCase requires expected_answer/expected_contexts by schema, but the v1
+        # judge prompt ignores them (reference-free judging, gnomon contract doc
+        # section H) -- placeholders only satisfy gnomon's schema.
+        case = EvalCase(id="_", question=question, expected_answer="_", expected_contexts=["_"])
+        response = RagResponse(answer=answer, contexts=contexts, total_tokens=0, latency_ms=0.0)
         payload: dict[str, Any] = {
             "model": self.model_name,
-            "messages": [{"role": "user", "content": _build_prompt(question, answer, contexts)}],
+            "messages": [{"role": "user", "content": build_prompt(case, response)}],
             "temperature": self._temperature,
         }
         headers = {"Authorization": f"Bearer {self._api_key}"}
         body = self._post(self._url, payload, headers, self._timeout_s)
         try:
             content = body["choices"][0]["message"]["content"] or ""
-            # Some providers wrap JSON in ```json...``` code blocks — strip them.
-            raw = re.search(r"\{.*\}", content, re.DOTALL)
-            parsed = json.loads(raw.group(0) if raw else content)
-            return {metric: max(0.0, min(1.0, float(parsed[metric]))) for metric in _METRICS}
-        except (KeyError, IndexError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        except (KeyError, IndexError, TypeError) as exc:
+            raise JudgeError(f"judge output not parseable: {exc}") from exc
+
+        # Some providers wrap JSON in ```json...``` code blocks - strip them.
+        raw = re.search(r"\{.*\}", content, re.DOTALL)
+        try:
+            return dict(parse_v1_judge_response(raw.group(0) if raw else content).scores)
+        except JudgeProtocolError as exc:
             raise JudgeError(f"judge output not parseable: {exc}") from exc
