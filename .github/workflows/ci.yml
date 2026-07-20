@@ -17,7 +17,14 @@ jobs:
           python-version: "3.11"
 
       - name: Install
-        run: pip install -e ".[dev,document,retrieval,code,eval]"
+        run: |
+          pip install --upgrade pip setuptools
+          pip install -e ".[dev,document,retrieval,code,eval]"
+
+      - name: Security audit (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit
 
       - name: Lint (ruff)
         run: ruff check glyph tests
