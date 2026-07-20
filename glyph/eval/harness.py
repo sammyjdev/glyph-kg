@@ -1,20 +1,32 @@
-"""P3.1/P3.3: score each arm's pre-computed answers with a judge, aggregate with bootstrap CIs.
+"""P3.1/P3.3: score each arm's pre-computed answers via gnomon's run_eval.
 
-Scores each case sequentially (one judge call per case) so progress streams live and
-free-tier rate limits stay predictable. Per-case scores are preserved so the honest
-report (P3.5) can show where each arm lost.
+Per ADR-G8 decision 3, the custom per-case scoring loop is retired: each arm's
+pre-computed ArmResponses (P3.0) are served through GlyphRagTarget and scored with
+gnomon's run_eval, which owns both the per-case judge loop and the cross-case
+bootstrap aggregation (already used directly for aggregation alone, ADR-G8 (b)).
+Per-case scores are preserved via EvalReport.case_scores so the honest report
+(P3.5) can still show where each arm lost.
 """
 
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from statistics import fmean
 from typing import Protocol
 
-from gnomon.metrics.confidence import aggregate_metric
+from gnomon.config.config import EvalConfig
+from gnomon.domain.models import EvalCase, MetricScores, RagResponse
+from gnomon.runner.runner import run_eval
 
 from glyph.eval.cost import total_cost_usd
 from glyph.eval.dataset import Query
 from glyph.eval.response import ArmResponse
+from glyph.eval.target import GlyphRagTarget
+
+# Judge-run floor gnomon's EvalConfig enforces (VAL-04): a bootstrap CI needs at
+# least 2 runs to denoise. OpenAICompatJudge is deterministic (temperature=0), so
+# both runs score identically -- the second call is the price of the shared
+# aggregation layer, not new information.
+_JUDGE_RUNS = 2
 
 ArmProgress = Callable[["ArmReport"], None]
 
@@ -37,6 +49,15 @@ class MetricStat:
 
 
 @dataclass(frozen=True)
+class CaseScore:
+    """One case's denoised score for one metric -- GLYPH's mirror of gnomon's
+    CaseScore, exposed so the honest report (P3.5) can show where an arm lost."""
+
+    case_id: str
+    score: float
+
+
+@dataclass(frozen=True)
 class ArmReport:
     """One retrieval arm's quality, token, latency and cost summary."""
 
@@ -46,6 +67,7 @@ class ArmReport:
     total_tokens: int
     mean_latency_ms: float
     cost_usd: float
+    case_scores: dict[str, list[CaseScore]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -58,23 +80,24 @@ class BenchmarkReport:
     arms: list[ArmReport]
 
 
-def _score_cases(
-    cases: Sequence[Query],
-    responses: Mapping[str, ArmResponse],
-    judge: Judge,
-    *,
-    on_case: Callable[[str, dict[str, float]], None] | None = None,
-) -> dict[str, list[float]]:
-    """Score each case sequentially — avoids concurrent-request limits on free-tier endpoints."""
-    per_metric: dict[str, list[float]] = {}
-    for case in cases:
-        arm_resp = responses[case.id]
-        case_scores = judge.score(case.question, arm_resp.answer, arm_resp.contexts)
-        for metric, value in case_scores.items():
-            per_metric.setdefault(metric, []).append(value)
-        if on_case is not None:
-            on_case(case.id, case_scores)
-    return per_metric
+class _GnomonJudgeAdapter:
+    """Adapts GLYPH's simple Judge (question/answer/contexts) to gnomon's Judge
+    protocol (case/response/seed/run). Also forwards each (case, run) score to an
+    optional on_case callback -- run_eval has no per-case hook of its own, so this
+    adapter is where P3.1's live-progress streaming still happens.
+    """
+
+    def __init__(
+        self, judge: Judge, *, on_case: Callable[[str, dict[str, float]], None] | None
+    ) -> None:
+        self._judge = judge
+        self._on_case = on_case
+
+    def score(self, case: EvalCase, response: RagResponse, *, seed: int, run: int) -> MetricScores:
+        scores = self._judge.score(case.question, response.answer, response.contexts)
+        if self._on_case is not None:
+            self._on_case(case.id, scores)
+        return MetricScores(scores=scores)
 
 
 def score_arm(
@@ -86,30 +109,34 @@ def score_arm(
     seed: int = 0,
     on_case: Callable[[str, dict[str, float]], None] | None = None,
 ) -> ArmReport:
-    """Score one arm: per-case judge call, aggregate per metric with bootstrap CIs."""
+    """Score one arm: gnomon's run_eval drives the per-case judge loop and
+    cross-case aggregation. ArmResponses were already generated (P3.0), so
+    GlyphRagTarget only replays them.
+    """
     ordered = [responses[case.id] for case in cases]
-    per_metric = _score_cases(cases, responses, judge, on_case=on_case)
+    eval_cases = [
+        EvalCase(
+            id=case.id,
+            question=case.question,
+            expected_answer=case.reference,
+            expected_contexts=case.reference_contexts,
+        )
+        for case in cases
+    ]
+    target = GlyphRagTarget({case.question: responses[case.id] for case in cases})
+    gnomon_judge = _GnomonJudgeAdapter(judge, on_case=on_case)
+    config = EvalConfig(seed=seed, judge_runs=_JUDGE_RUNS, confidence_level=0.95)
 
-    metric_stats: list[MetricStat] = []
-    for metric, values in sorted(per_metric.items()):
-        if len(values) < 2:
-            mean = fmean(values)
-            ci_low = ci_high = mean
-            n = len(values)
-            metric_stats.append(
-                MetricStat(metric=metric, mean=mean, ci_low=ci_low, ci_high=ci_high, n=n)
-            )
-        else:
-            result = aggregate_metric(metric, values, confidence_level=0.95, seed=seed)
-            metric_stats.append(
-                MetricStat(
-                    metric=result.metric,
-                    mean=result.mean,
-                    ci_low=result.ci_low,
-                    ci_high=result.ci_high,
-                    n=result.n,
-                )
-            )
+    report = run_eval(eval_cases, target, gnomon_judge, config)
+
+    metric_stats = [
+        MetricStat(metric=m.metric, mean=m.mean, ci_low=m.ci_low, ci_high=m.ci_high, n=m.n)
+        for m in report.metrics
+    ]
+    case_scores = {
+        metric: [CaseScore(case_id=cs.case_id, score=cs.score) for cs in scores]
+        for metric, scores in report.case_scores.items()
+    }
 
     return ArmReport(
         arm=arm,
@@ -118,6 +145,7 @@ def score_arm(
         total_tokens=sum(r.total_tokens for r in ordered),
         mean_latency_ms=fmean(r.latency_ms for r in ordered) if ordered else 0.0,
         cost_usd=total_cost_usd(ordered),
+        case_scores=case_scores,
     )
 
 
