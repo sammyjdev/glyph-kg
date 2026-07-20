@@ -24,7 +24,7 @@ from glyph.extract.port import Source
 _HEADING_SIZE: dict[int, float] = {1: 6.0, 2: 5.0, 3: 4.0, 4: 3.0, 5: 2.0, 6: 1.0}
 
 _HEADING_RE = re.compile(r"^(#{1,6})\s")
-_FRONTMATTER_RE = re.compile(r"^\s*---\s*\n.*?\n---\s*\n", re.DOTALL)
+_FRONTMATTER_RE = re.compile(r"^\s*---\s*\n.*?\n---[^\S\n]*\n", re.DOTALL)
 
 
 def _strip_frontmatter(text: str) -> str:
