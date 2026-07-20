@@ -1,10 +1,14 @@
 """The harness scores each arm with a judge per case, aggregates with bootstrap CIs."""
 
+from types import SimpleNamespace
+
 import pytest
 
 from glyph.eval.dataset import Query
 from glyph.eval.harness import run_benchmark, score_arm
 from glyph.eval.response import ArmResponse
+
+gnomon = pytest.importorskip("gnomon")
 
 
 class FakeJudge:
@@ -129,3 +133,60 @@ def test_run_benchmark_on_case_receives_arm_case_id_and_scores() -> None:
     )
 
     assert received == [("graph", "q1", {"faithfulness": 0.7})]
+
+
+def test_score_arm_delegates_aggregation_to_gnomon(monkeypatch) -> None:
+    """Aggregation must come from gnomon's aggregate_metric (ADR-G8), not a
+    private bootstrap - proven by spying on the imported name."""
+    import glyph.eval.harness as harness_mod
+
+    calls: list[tuple[str, list[float], float, int]] = []
+
+    def fake_aggregate_metric(metric, case_scores, *, confidence_level, seed):
+        calls.append((metric, list(case_scores), confidence_level, seed))
+        return SimpleNamespace(
+            metric=metric,
+            mean=0.42,
+            ci_low=0.1,
+            ci_high=0.9,
+            n=len(case_scores),
+            confidence_level=confidence_level,
+        )
+
+    monkeypatch.setattr(harness_mod, "aggregate_metric", fake_aggregate_metric)
+
+    cases = [_case("q1"), _case("q2")]
+    responses = {"q1": _resp(0, 0, 0.0), "q2": _resp(0, 0, 0.0)}
+    judge = FakeJudge({"faithfulness": 0.7})
+
+    report = score_arm("graph", cases, responses, judge, seed=3)
+
+    assert calls == [("faithfulness", [0.7, 0.7], 0.95, 3)]
+    stat = report.metrics[0]
+    assert stat.metric == "faithfulness"
+    assert stat.mean == 0.42
+    assert stat.ci_low == 0.1
+    assert stat.ci_high == 0.9
+    assert stat.n == 2
+
+
+def test_score_arm_single_case_does_not_call_gnomon(monkeypatch) -> None:
+    """A single case cannot bound a population - must stay a local degenerate
+    case (mean==ci_low==ci_high), never calling gnomon's n>=2-enforcing
+    aggregate_metric."""
+    import glyph.eval.harness as harness_mod
+
+    def boom(*args, **kwargs):
+        raise AssertionError("aggregate_metric must not be called for n < 2")
+
+    monkeypatch.setattr(harness_mod, "aggregate_metric", boom)
+
+    cases = [_case("q1")]
+    responses = {"q1": _resp(0, 0, 0.0)}
+    judge = FakeJudge({"faithfulness": 0.9})
+
+    report = score_arm("graph", cases, responses, judge, seed=0)
+
+    stat = report.metrics[0]
+    assert stat.mean == stat.ci_low == stat.ci_high == 0.9
+    assert stat.n == 1
