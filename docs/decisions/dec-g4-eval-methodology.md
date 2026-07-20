@@ -1,7 +1,12 @@
 # ADR-G4: Evaluation Methodology (GraphRAG vs Vector Benchmark)
 
 **Date:** 2026-06-11
-**Status:** Accepted
+**Status:** Accepted (judge/aggregation sections extended by ADR-G8)
+
+> **Extension (2026-07-20):** ADR-G8 makes gnomon canonical for judge
+> semantics and CI aggregation — `OpenAICompatJudge` remains transport-only
+> and the harness's private bootstrap is replaced by gnomon's
+> `aggregate_metric`. See `dec-g8-gnomon-as-eval-engine.md`.
 
 ## Context
 
