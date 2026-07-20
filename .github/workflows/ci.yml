@@ -29,9 +29,6 @@ jobs:
       - name: Lint (ruff)
         run: ruff check glyph tests
 
-      - name: Security lint (ruff S, report-only)
-        run: ruff check glyph tests --select S --exit-zero
-
       - name: Format check (ruff)
         run: ruff format --check glyph tests
 
