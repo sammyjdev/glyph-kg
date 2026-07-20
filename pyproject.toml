@@ -49,7 +49,7 @@ code = [
     "tree-sitter-java>=0.23",
 ]
 eval = [
-    "gnomon-eval @ git+https://github.com/sammyjdev/gnomon-eval.git@4082ef7ce4d66e076a11af514a9294bcfea5e6d6",
+    "gnomon-eval @ git+https://github.com/sammyjdev/gnomon-eval.git@15be2929be53c04b5f743b00d64dca3d355a208f",
 ]
 
 [project.urls]
