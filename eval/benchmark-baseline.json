@@ -6,22 +6,45 @@
     {
       "arm": "graph",
       "n_cases": 25,
-      "total_tokens": 27317,
-      "mean_latency_ms": 4720.5,
-      "cost_usd": 0.032401,
+      "total_tokens": 31600,
+      "mean_latency_ms": 7594.06,
+      "cost_usd": 0.057804,
       "metrics": [
         {
-          "metric": "context_precision",
-          "mean": 0.4355,
-          "ci_low": 0.2899,
-          "ci_high": 0.5853,
+          "metric": "faithfulness",
+          "mean": 0.98,
+          "ci_low": 0.94,
+          "ci_high": 1.0,
           "n": 25
         },
         {
+          "metric": "context_precision",
+          "mean": 0.562,
+          "ci_low": 0.38,
+          "ci_high": 0.746,
+          "n": 25
+        }
+      ]
+    },
+    {
+      "arm": "graph_pagerank",
+      "n_cases": 25,
+      "total_tokens": 31435,
+      "mean_latency_ms": 9457.45,
+      "cost_usd": 0.057575,
+      "metrics": [
+        {
           "metric": "faithfulness",
-          "mean": 0.9923,
-          "ci_low": 0.9788,
+          "mean": 1.0,
+          "ci_low": 1.0,
           "ci_high": 1.0,
+          "n": 25
+        },
+        {
+          "metric": "context_precision",
+          "mean": 0.59,
+          "ci_low": 0.4,
+          "ci_high": 0.78,
           "n": 25
         }
       ]
@@ -29,22 +52,22 @@
     {
       "arm": "vector",
       "n_cases": 25,
-      "total_tokens": 30274,
-      "mean_latency_ms": 4617.01,
-      "cost_usd": 0.03571,
+      "total_tokens": 30995,
+      "mean_latency_ms": 9051.9,
+      "cost_usd": 0.046119,
       "metrics": [
-        {
-          "metric": "context_precision",
-          "mean": 0.46,
-          "ci_low": 0.28,
-          "ci_high": 0.64,
-          "n": 25
-        },
         {
           "metric": "faithfulness",
           "mean": 1.0,
           "ci_low": 1.0,
           "ci_high": 1.0,
+          "n": 25
+        },
+        {
+          "metric": "context_precision",
+          "mean": 0.4,
+          "ci_low": 0.2,
+          "ci_high": 0.6,
           "n": 25
         }
       ]
@@ -52,22 +75,22 @@
     {
       "arm": "hybrid",
       "n_cases": 25,
-      "total_tokens": 37840,
-      "mean_latency_ms": 4319.33,
-      "cost_usd": 0.043204,
+      "total_tokens": 39968,
+      "mean_latency_ms": 11496.46,
+      "cost_usd": 0.063976,
       "metrics": [
         {
-          "metric": "context_precision",
-          "mean": 0.3472,
-          "ci_low": 0.2307,
-          "ci_high": 0.4758,
+          "metric": "faithfulness",
+          "mean": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0,
           "n": 25
         },
         {
-          "metric": "faithfulness",
-          "mean": 0.9432,
-          "ci_low": 0.8432,
-          "ci_high": 1.0,
+          "metric": "context_precision",
+          "mean": 0.624,
+          "ci_low": 0.444,
+          "ci_high": 0.8,
           "n": 25
         }
       ]
@@ -75,22 +98,22 @@
     {
       "arm": "multi_anchor",
       "n_cases": 25,
-      "total_tokens": 35977,
-      "mean_latency_ms": 4155.64,
-      "cost_usd": 0.040885,
+      "total_tokens": 40869,
+      "mean_latency_ms": 12395.29,
+      "cost_usd": 0.070413,
       "metrics": [
         {
-          "metric": "context_precision",
-          "mean": 0.3377,
-          "ci_low": 0.2083,
-          "ci_high": 0.4769,
+          "metric": "faithfulness",
+          "mean": 0.9205,
+          "ci_low": 0.82,
+          "ci_high": 0.9885,
           "n": 25
         },
         {
-          "metric": "faithfulness",
-          "mean": 0.9291,
-          "ci_low": 0.838,
-          "ci_high": 0.9863,
+          "metric": "context_precision",
+          "mean": 0.504,
+          "ci_low": 0.34,
+          "ci_high": 0.69,
           "n": 25
         }
       ]
@@ -98,22 +121,45 @@
     {
       "arm": "path",
       "n_cases": 25,
-      "total_tokens": 3171,
-      "mean_latency_ms": 2575.75,
-      "cost_usd": 0.004543,
+      "total_tokens": 6082,
+      "mean_latency_ms": 1827.04,
+      "cost_usd": 0.015154,
       "metrics": [
         {
-          "metric": "context_precision",
-          "mean": 0.04,
-          "ci_low": 0.0,
-          "ci_high": 0.1,
+          "metric": "faithfulness",
+          "mean": 0.96,
+          "ci_low": 0.9,
+          "ci_high": 1.0,
           "n": 25
         },
         {
+          "metric": "context_precision",
+          "mean": 0.03,
+          "ci_low": 0.0,
+          "ci_high": 0.08,
+          "n": 25
+        }
+      ]
+    },
+    {
+      "arm": "reranked_vector",
+      "n_cases": 25,
+      "total_tokens": 33195,
+      "mean_latency_ms": 427684.65,
+      "cost_usd": 0.053423,
+      "metrics": [
+        {
           "metric": "faithfulness",
-          "mean": 1.0,
-          "ci_low": 1.0,
+          "mean": 0.98,
+          "ci_low": 0.94,
           "ci_high": 1.0,
+          "n": 25
+        },
+        {
+          "metric": "context_precision",
+          "mean": 0.72,
+          "ci_low": 0.56,
+          "ci_high": 0.88,
           "n": 25
         }
       ]
