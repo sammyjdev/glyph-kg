@@ -19,7 +19,7 @@ import networkx as nx
 
 from glyph.embed.memory_index import InMemoryVectorIndex
 from glyph.embed.port import Embedder
-from glyph.model.contract import ContextPack, Segment, pack
+from glyph.model.contract import ContextPack, Segment, count_tokens, pack
 from glyph.model.edge import Edge, EdgeType
 from glyph.model.node import Node, NodeType
 from glyph.store.port import GraphStore
@@ -185,11 +185,11 @@ class CommunityRetriever:
 
     def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
         if not self._summary:
-            return pack("community", [], token_budget)
+            return pack("community", [], token_budget, cost=count_tokens)
         query_vector = self._embedder.embed([query])[0]
         hits = self._index.search(query_vector, self._top_k)
         segments = [
             Segment(text=self._summary[cid], source=cid, score=score) for cid, score in hits
         ]
         segments.sort(key=lambda s: (-s.score, s.source))  # stable, score-desc
-        return pack("community", segments, token_budget)
+        return pack("community", segments, token_budget, cost=count_tokens)

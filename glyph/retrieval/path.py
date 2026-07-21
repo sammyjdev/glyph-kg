@@ -11,7 +11,7 @@ from collections.abc import Sequence
 
 from glyph.embed.memory_index import InMemoryVectorIndex
 from glyph.embed.port import Embedder
-from glyph.model.contract import ContextPack, Segment, pack
+from glyph.model.contract import ContextPack, Segment, count_tokens, pack
 from glyph.model.edge import EdgeType
 from glyph.model.node import Node, NodeType
 from glyph.store.port import GraphStore
@@ -50,7 +50,7 @@ class PathRetriever:
             segments = [
                 Segment(text=self._label.get(nid, nid), source=nid, score=1.0) for nid in top2
             ]
-            return pack("graph", segments, token_budget)
+            return pack("graph", segments, token_budget, cost=count_tokens)
 
         src, dst = top2[0], top2[1]
         path = self._store.shortest_path(
@@ -65,7 +65,7 @@ class PathRetriever:
                 Segment(text=self._label.get(src, src), source=src, score=1.0),
                 Segment(text=self._label.get(dst, dst), source=dst, score=1.0),
             ]
-            return pack("graph", segments, token_budget)
+            return pack("graph", segments, token_budget, cost=count_tokens)
 
         # Fetch edges between consecutive path nodes to annotate the walk.
         subgraph = self._store.subgraph(
@@ -91,4 +91,4 @@ class PathRetriever:
             score = 1.0 if i in (0, n - 1) else 0.7
             segments.append(Segment(text=text, source=nid, score=score))
 
-        return pack("graph", segments, token_budget)
+        return pack("graph", segments, token_budget, cost=count_tokens)

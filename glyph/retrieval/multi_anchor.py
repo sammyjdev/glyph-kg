@@ -15,7 +15,7 @@ from collections.abc import Sequence
 
 from glyph.embed.memory_index import InMemoryVectorIndex
 from glyph.embed.port import Embedder
-from glyph.model.contract import ContextPack, Segment, pack
+from glyph.model.contract import ContextPack, Segment, count_tokens, pack
 from glyph.model.edge import EdgeType
 from glyph.model.graph import Subgraph
 from glyph.model.node import Node, NodeType
@@ -97,7 +97,7 @@ class MultiAnchorRetriever:
                     seed.append(nid)
 
         if not seed:
-            return pack("graph", [], token_budget)
+            return pack("graph", [], token_budget, cost=count_tokens)
 
         all_scores = dict(self._index.search(qvec, self._n_nodes or 1))
         subgraph = self._store.subgraph(
@@ -106,7 +106,12 @@ class MultiAnchorRetriever:
             exclude_node_types=_OVERLAY_NODE_TYPES,
             exclude_edge_types=_OVERLAY_EDGE_TYPES,
         )
-        return pack("graph", self._segments(subgraph, set(seed), all_scores), token_budget)
+        return pack(
+            "graph",
+            self._segments(subgraph, set(seed), all_scores),
+            token_budget,
+            cost=count_tokens,
+        )
 
     def _segments(
         self, subgraph: Subgraph, anchors: set[str], scores: dict[str, float]
