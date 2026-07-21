@@ -126,6 +126,8 @@ on quality. That is the defensible claim for the global axis: **same-or-better a
 - **n = 25** (documents) / **n = 14** (code), single seed unless re-run; CI width reflects judge variance plus case-to-case variance.
 - **Code vector arm is per-file**, while the graph arm is per-symbol — a declared granularity asymmetry the run measures rather than corrects.
 - **Different judges across domains** (documents: Llama 3.3 70B; code: Gemini 2.5 Flash), so arm comparisons are valid *within* a domain, not as absolute numbers *across* domains.
+- **Graph arm embeds only node labels**, while the vector arm embeds full chunk text — a declared embedding-surface asymmetry, kept because the graph's value is neighbour expansion, not anchor recall; the comparison must not be read as representation-only.
+- **Coverage per budget is asymmetric**: graph segments (`label — relations`) are far shorter than vector chunks and ignore `Node.attrs`, so under an equal char budget the graph packs more segments — read recall@budget as budget-normalised, not as an arm-quality ranking.
 
 ## Reproduce
 
