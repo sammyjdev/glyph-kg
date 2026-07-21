@@ -10,6 +10,7 @@ orchestration logic.
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Iterable
 from typing import Literal
 
@@ -75,13 +76,21 @@ def _attrs(entity: NotesEntity) -> dict[str, str]:
 def merge_notes(
     results: Iterable[NotesExtractionResult],
 ) -> tuple[list[Node], list[Edge]]:
-    """Map and deduplicate notes extraction results into nodes and edges."""
+    """Map and deduplicate notes extraction results into nodes and edges.
+
+    A node's label is the most-frequent surface form seen for its id across all
+    results (ties break to the first-seen form, since ``Counter.most_common``
+    preserves insertion order for equal counts). ``id``/``type``/``attrs`` keep
+    the existing first-seen semantics.
+    """
     nodes: dict[str, Node] = {}
     edges: dict[tuple[str, str, EdgeType], Edge] = {}
+    label_counts: dict[str, Counter[str]] = {}
 
     for result in results:
         for entity in result.entities:
             nid = _nid(entity.name)
+            label_counts.setdefault(nid, Counter())[entity.name.strip()] += 1
             if nid not in nodes:
                 nodes[nid] = Node(
                     id=nid,
@@ -92,6 +101,7 @@ def merge_notes(
         for relation in result.relations:
             src, dst = _nid(relation.subject), _nid(relation.object)
             for endpoint, raw in ((src, relation.subject), (dst, relation.object)):
+                label_counts.setdefault(endpoint, Counter())[raw.strip()] += 1
                 if endpoint not in nodes:
                     nodes[endpoint] = Node(
                         id=endpoint, type=NodeType.CONCEPT, label=raw.strip(), attrs={}
@@ -100,5 +110,10 @@ def merge_notes(
             key = (src, dst, edge_type)
             if key not in edges:
                 edges[key] = Edge(src=src, dst=dst, type=edge_type)
+
+    for nid in list(nodes):
+        best_label = label_counts[nid].most_common(1)[0][0]
+        if best_label != nodes[nid].label:
+            nodes[nid] = nodes[nid].model_copy(update={"label": best_label})
 
     return list(nodes.values()), list(edges.values())
