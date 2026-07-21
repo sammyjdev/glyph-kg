@@ -1,6 +1,6 @@
 """P2.3: hybrid retrieval — fuse two retrievers by reciprocal rank fusion."""
 
-from glyph.model.contract import ContextPack, Segment, pack
+from glyph.model.contract import ContextPack, Segment, count_tokens, pack
 from glyph.retrieval.port import Retriever
 
 _RRF_K = 60
@@ -18,7 +18,7 @@ class HybridRetriever:
         graph_pack = self._graph.retrieve(query, token_budget)
         vector_pack = self._vector.retrieve(query, token_budget)
         fused = self._fuse(graph_pack.segments, vector_pack.segments)
-        return pack("hybrid", fused, token_budget)
+        return pack("hybrid", fused, token_budget, cost=count_tokens)
 
     def _fuse(self, *arms: list[Segment]) -> list[Segment]:
         # Fuse on a case-normalized key so the same creature found by both arms

@@ -1,6 +1,6 @@
 """RerankedRetriever: compose any Retriever with any Reranker."""
 
-from glyph.model.contract import ContextPack, pack
+from glyph.model.contract import ContextPack, count_tokens, pack
 from glyph.retrieval.port import Retriever
 from glyph.retrieval.reranker import Reranker
 
@@ -18,4 +18,4 @@ class RerankedRetriever:
     def retrieve(self, query: str, token_budget: int = 1000) -> ContextPack:
         candidates = self._retriever.retrieve(query, token_budget=_CANDIDATE_BUDGET)
         reranked = self._reranker.rerank(query, list(candidates.segments), self._k)
-        return pack("reranked", reranked, token_budget)
+        return pack("reranked", reranked, token_budget, cost=count_tokens)

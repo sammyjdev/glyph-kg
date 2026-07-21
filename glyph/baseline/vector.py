@@ -4,7 +4,7 @@ from collections.abc import Sequence
 
 from glyph.embed.memory_index import InMemoryVectorIndex
 from glyph.embed.port import Embedder, VectorIndex
-from glyph.model.contract import ContextPack, Segment, pack
+from glyph.model.contract import ContextPack, Segment, count_tokens, pack
 
 
 class VectorBaseline:
@@ -27,4 +27,4 @@ class VectorBaseline:
         query_vector = self._embedder.embed([query])[0]
         hits = self._index.search(query_vector, k)
         segments = [Segment(text=self._text[key], source=key, score=score) for key, score in hits]
-        return pack("vector", segments, token_budget)
+        return pack("vector", segments, token_budget, cost=count_tokens)
