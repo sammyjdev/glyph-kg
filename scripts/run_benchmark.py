@@ -47,7 +47,13 @@ from glyph.eval.generate import (
 )
 from glyph.eval.harness import ArmReport, run_benchmark, score_arm
 from glyph.eval.judge import GROQ_BASE_URL, OpenAICompatJudge
-from glyph.eval.report import DEFAULT_TOLERANCE, regression_check, render_markdown, to_dict
+from glyph.eval.report import (
+    DEFAULT_TOLERANCE,
+    attack_vs_resistance_rate_from_file,
+    regression_check,
+    render_markdown,
+    to_dict,
+)
 from glyph.eval.response import ArmResponse
 from glyph.extract.document import chunk, pdf
 from glyph.model.contract import ContextPack
@@ -424,7 +430,11 @@ def main(argv: list[str]) -> int:
             baseline_path.write_text(
                 json.dumps(fresh, ensure_ascii=False, indent=2) + "\n", "utf-8"
             )
-            metrics_path.write_text(render_markdown(report) + "\n", encoding="utf-8")
+            metrics_path.write_text(
+                render_markdown(report, confusion=attack_vs_resistance_rate_from_file(args.queries))
+                + "\n",
+                encoding="utf-8",
+            )
             print(f"[{slug}] wrote {baseline_path} and {metrics_path}")
         return 0
 
@@ -502,7 +512,10 @@ def main(argv: list[str]) -> int:
         return 0
 
     Path(args.out).write_text(json.dumps(fresh, ensure_ascii=False, indent=2) + "\n", "utf-8")
-    Path(args.metrics).write_text(render_markdown(report) + "\n", encoding="utf-8")
+    Path(args.metrics).write_text(
+        render_markdown(report, confusion=attack_vs_resistance_rate_from_file(args.queries)) + "\n",
+        encoding="utf-8",
+    )
     print(f"wrote {args.out} and {args.metrics} (n={report.n_cases}, judge={args.model})")
     return 0
 

@@ -967,7 +967,8 @@
       "answer_key": [
         "ácido"
       ],
-      "note": "KG carries a likely-wrong 'resists ácido' edge (see P1.4 cost-gate notes)."
+      "note": "KG carries a likely-wrong 'resists ácido' edge (see P1.4 cost-gate notes).",
+      "attack_vs_resistance_confusion": true
     },
     {
       "id": "fac-aarakocra-cr",
@@ -1059,6 +1060,18 @@
         "ANKHEG"
       ],
       "answer_key": null
+    }
+  ],
+  "confusion_probes": [
+    {
+      "id": "ent-espectro-resist",
+      "attack_vs_resistance_confusion": false,
+      "note": "P1.4-verified genuine undead defense (correct contrast case)."
+    },
+    {
+      "id": "ent-deva-immune",
+      "attack_vs_resistance_confusion": false,
+      "note": "P1.4-verified genuine immunity (correct contrast case)."
     }
   ]
 }

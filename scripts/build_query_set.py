@@ -227,6 +227,7 @@ _SPECS: list[dict[str, Any]] = [
         "question": "A quais tipos de dano o ankheg resiste?",
         "predicate": entity("ankheg"),
         "answer": ("targets", "ankheg", "resists"),
+        "attack_vs_resistance_confusion": True,
         "note": "KG carries a likely-wrong 'resists ácido' edge (see P1.4 cost-gate notes).",
     },
     # --- factual_attribute: attrs live in node.attrs, not in graph segments; vector favored ---
@@ -290,6 +291,43 @@ _SPECS: list[dict[str, Any]] = [
 ]
 
 
+# Static ground-truth contrasts for the attack-vs-resistance confusion rate (P3.5).
+# Not benchmark query cases - a probe's ground truth is fixed from P1.4 manual
+# sampling, not measured via the judge, so these never enter the "queries" array.
+_CONFUSION_CONTRASTS: list[dict[str, Any]] = [
+    {
+        "id": "ent-espectro-resist",
+        "entity": "espectro",
+        "relation": "resists",
+        "attack_vs_resistance_confusion": False,
+        "note": "P1.4-verified genuine undead defense (correct contrast case).",
+    },
+    {
+        "id": "ent-deva-immune",
+        "entity": "deva",
+        "relation": "immune_to",
+        "attack_vs_resistance_confusion": False,
+        "note": "P1.4-verified genuine immunity (correct contrast case).",
+    },
+]
+
+
+def build_confusion_probes(g: Graph) -> list[dict[str, Any]]:
+    """P3.5 ground-truth contrasts, verified to exist in the graph (not invented)."""
+    probes = []
+    for spec in _CONFUSION_CONTRASTS:
+        if not g.targets_of(spec["entity"], spec["relation"]):
+            raise ValueError(f"confusion-probe ground truth missing in graph: {spec['id']}")
+        probes.append(
+            {
+                "id": spec["id"],
+                "attack_vs_resistance_confusion": spec["attack_vs_resistance_confusion"],
+                "note": spec["note"],
+            }
+        )
+    return probes
+
+
 def _resolve_answer(spec: dict[str, Any], g: Graph) -> Any:
     answer = spec["answer"]
     if answer == "labels":
@@ -321,6 +359,8 @@ def build(g: Graph) -> dict[str, Any]:
         }
         if "note" in spec:
             item["note"] = spec["note"]
+        if "attack_vs_resistance_confusion" in spec:
+            item["attack_vs_resistance_confusion"] = spec["attack_vs_resistance_confusion"]
         queries.append(item)
     return {
         "_meta": {
@@ -336,6 +376,7 @@ def build(g: Graph) -> dict[str, Any]:
             "generator": "scripts/build_query_set.py",
         },
         "queries": queries,
+        "confusion_probes": build_confusion_probes(g),
     }
 
 

@@ -6,7 +6,9 @@ graph did not win — plus token efficiency, cost and latency. The reproducible 
 tolerance, so a drift beyond noise fails the build.
 """
 
+import json
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Any
 
 from glyph.eval.harness import BenchmarkReport
@@ -78,7 +80,35 @@ def _metric_cell(metric: str, arms: Sequence[dict[str, Any]]) -> list[str]:
     return cells
 
 
-def render_markdown(report: BenchmarkReport) -> str:
+def attack_vs_resistance_rate(payload: dict[str, Any]) -> dict[str, Any]:
+    """P3.5: error rate for the attack-vs-resistance/immunity confusion class.
+
+    Combines tagged entries from the main query set with the dedicated
+    `confusion_probes` ground-truth contrasts - both carry the same
+    `attack_vs_resistance_confusion` key, so a probe is IN the class if the
+    key is present anywhere in either source, regardless of value.
+    """
+    tagged = [q for q in payload.get("queries", []) if "attack_vs_resistance_confusion" in q]
+    tagged += [
+        q for q in payload.get("confusion_probes", []) if "attack_vs_resistance_confusion" in q
+    ]
+    confused = [q for q in tagged if q["attack_vs_resistance_confusion"]]
+    n = len(tagged)
+    return {
+        "n_probes": n,
+        "confusions": len(confused),
+        "error_rate": (len(confused) / n) if n else 0.0,
+        "confused_ids": sorted(q["id"] for q in confused),
+    }
+
+
+def attack_vs_resistance_rate_from_file(queries_path: str | Path) -> dict[str, Any]:
+    """Load the raw queries.json payload and compute the P3.5 confusion rate from it."""
+    payload = json.loads(Path(queries_path).read_text(encoding="utf-8"))
+    return attack_vs_resistance_rate(payload)
+
+
+def render_markdown(report: BenchmarkReport, *, confusion: dict[str, Any] | None = None) -> str:
     """A reviewer-readable table: metrics with CIs, then token/cost/latency."""
     payload = to_dict(report)
     arms = payload["arms"]
@@ -106,4 +136,15 @@ def render_markdown(report: BenchmarkReport) -> str:
         "| mean latency (ms) | " + " | ".join(f"{a['mean_latency_ms']:.1f}" for a in arms) + " |",
         "",
     ]
+    if confusion is not None and confusion["n_probes"] > 0:
+        confused_ids = ", ".join(f"`{cid}`" for cid in confusion["confused_ids"])
+        lines += [
+            "## Attack-vs-resistance confusion (P3.5)",
+            "",
+            f"- discrimination probes: {confusion['n_probes']} · confirmed extraction "
+            f"confusions: {confusion['confusions']} · error rate: "
+            f"{confusion['error_rate']:.3f}",
+            f"- confused cases: {confused_ids}",
+            "",
+        ]
     return "\n".join(lines)
