@@ -27,11 +27,15 @@ class GraphRetriever:
         hops: int = 2,
         anchors: int = 3,
         pagerank_weight: float = 0.0,
+        # ponytail: experiment toggle for #21 (attrs-in-segments recall@budget); if
+        # reverted per the decision doc, delete this flag and the attrs branch
+        include_attrs: bool = False,
     ) -> None:
         self._store = store
         self._embedder = embedder
         self._hops = hops
         self._anchors = anchors
+        self._include_attrs = include_attrs
         self._label = {node.id: node.label for node in nodes}
         self._index = InMemoryVectorIndex()
         ids = list(self._label)
@@ -75,6 +79,9 @@ class GraphRetriever:
         for node in subgraph.nodes:
             relations = "; ".join(out.get(node.id, []))
             text = f"{node.label} — {relations}" if relations else node.label
+            if self._include_attrs and node.attrs:
+                attrs_str = "; ".join(f"{k}: {v}" for k, v in node.attrs.items())
+                text = f"{text} — {attrs_str}"
             if node.id in anchors:
                 score = 1.0
             else:

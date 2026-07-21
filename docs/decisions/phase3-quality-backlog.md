@@ -49,6 +49,9 @@ hardening commit (identity unification in hybrid via case-insensitive key; deter
   much shorter than vector chunks and ignore `Node.attrs` (CR/type/alignment extracted
   but unused). Under the same char budget, the graph packs more segments. Not unfair,
   but affects recall@budget interpretation — declare, and consider including attrs in the graph segment.
+  **Measured (#21, 2026-07-21):** including attrs in graph segments moved recall@budget
+  from 0.3485 to 0.3265 (delta -0.0220, n=18 graph-favored queries, token_budget=1000) —
+  attrs stay out of segment text. Full record: `phase3-attrs-in-segments.md`.
 - **Real tokenizer:** budget is char estimation (ADR-G3). Switch to real count where it matters.
 - **Demo without embedding cache:** `scripts/retrieve_demo.py` re-embeds all node labels at
   each execution; slow on the full graph with the real ST model. Cache if it becomes recurring use.
