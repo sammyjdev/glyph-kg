@@ -35,3 +35,9 @@ out/code-global-answers.json
 
 # FORGE loop local state (cache, worktrees) — never committed
 .claude/
+
+# internal working docs (kept local, not published)
+docs/article.md
+docs/portfolio.md
+docs/ai-engineering-gap-review.md
+METRICS-before-fix.md
