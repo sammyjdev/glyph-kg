@@ -19,6 +19,15 @@ from glyph.model.edge import Edge, EdgeType
 from glyph.model.node import Node, NodeType
 
 
+def _span_attrs(file_id: str, ts_node: Any) -> dict[str, Any]:
+    """CP-1 provenance: addressable file + 1-based line span from tree-sitter."""
+    return {
+        "file": file_id,
+        "start_line": ts_node.start_point[0] + 1,
+        "end_line": ts_node.end_point[0] + 1,
+    }
+
+
 class CodeExtractor:
     """Extractor port adapter: source tree -> code knowledge graph."""
 
@@ -37,8 +46,13 @@ class CodeExtractor:
             if grammar is None:
                 continue
             file_id = self._file_id(root, path)
-            nodes[file_id] = Node(id=file_id, type=NodeType.FILE, label=path.name)
             tree = self._parse(grammar, path.read_bytes())
+            nodes[file_id] = Node(
+                id=file_id,
+                type=NodeType.FILE,
+                label=path.name,
+                attrs=_span_attrs(file_id, tree.root_node),
+            )
             self._walk(
                 tree.root_node,
                 grammar,
@@ -92,7 +106,12 @@ class CodeExtractor:
                 if name is None:  # pragma: no cover - a class definition is always named
                     continue
                 class_id = f"{file_id}::{name}"
-                nodes[class_id] = Node(id=class_id, type=NodeType.CLASS, label=name)
+                nodes[class_id] = Node(
+                    id=class_id,
+                    type=NodeType.CLASS,
+                    label=name,
+                    attrs=_span_attrs(file_id, child),
+                )
                 defines.append((scope_id, class_id))
                 for base in grammar.superclass_names(child):
                     raw_inherits.append((class_id, base))
@@ -114,7 +133,12 @@ class CodeExtractor:
                     continue
                 sep = "::" if scope_id == file_id else "."
                 func_id = f"{scope_id}{sep}{name}"
-                nodes[func_id] = Node(id=func_id, type=NodeType.FUNCTION, label=name)
+                nodes[func_id] = Node(
+                    id=func_id,
+                    type=NodeType.FUNCTION,
+                    label=name,
+                    attrs=_span_attrs(file_id, child),
+                )
                 defines.append((scope_id, func_id))
                 self._walk(
                     child,
