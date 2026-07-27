@@ -33,11 +33,14 @@ def code_documents(repo_path: str | Path) -> list[tuple[str, str]]:
     return documents
 
 
-def code_symbol_documents(repo_path: str | Path) -> list[tuple[str, str]]:
+def code_symbol_documents(repo_path: str | Path, context_lines: int = 0) -> list[tuple[str, str]]:
     """Return ``(node_id, symbol_source_text)`` per CLASS/FUNCTION symbol (#51).
 
     Reuses the tree-sitter extraction; the text is the CP-1 provenance span
-    sliced from the source file. Sorted by node id for determinism.
+    sliced from the source file. ``context_lines`` (#55 H1) pads the span with
+    that many neighbouring lines on each side, clamped to file bounds - fixed
+    chunks carry surrounding context that exact spans lack. Sorted by node id
+    for determinism.
     """
     from glyph.extract.code import CodeExtractor
 
@@ -51,7 +54,9 @@ def code_symbol_documents(repo_path: str | Path) -> list[tuple[str, str]]:
         file = node.attrs["file"]
         if file not in file_lines:
             file_lines[file] = (root / file).read_text(encoding="utf-8").splitlines(keepends=True)
-        text = "".join(file_lines[file][node.attrs["start_line"] - 1 : node.attrs["end_line"]])
+        start = max(node.attrs["start_line"] - 1 - context_lines, 0)
+        end = node.attrs["end_line"] + context_lines
+        text = "".join(file_lines[file][start:end])
         if text.strip():
             documents.append((node.id, text))
     return sorted(documents)

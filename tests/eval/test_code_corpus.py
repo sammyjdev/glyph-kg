@@ -67,3 +67,29 @@ def test_symbol_documents_java(tmp_path: Path) -> None:
 
     assert docs["W.java::W"] == "class W {\n    void run() {\n    }\n}\n"
     assert docs["W.java::W.run"] == "    void run() {\n    }\n"
+
+
+def test_symbol_documents_context_lines_pad_the_span(tmp_path: Path) -> None:
+    # #55 H1: fixed-size chunks carry neighboring context that exact symbol
+    # spans lack; context_lines pads the slice, clamped to file bounds.
+    pytest.importorskip("tree_sitter")
+    (tmp_path / "a.py").write_text(
+        "import os\n\ndef helper():\n    return 1\n\nHELPER_DOC = 'doc'\n",
+        encoding="utf-8",
+    )
+
+    docs = dict(code_symbol_documents(tmp_path, context_lines=2))
+
+    assert docs["a.py::helper"] == (
+        "import os\n\ndef helper():\n    return 1\n\nHELPER_DOC = 'doc'\n"
+    )
+
+
+def test_symbol_documents_context_lines_default_zero_keeps_exact_span(tmp_path: Path) -> None:
+    pytest.importorskip("tree_sitter")
+    (tmp_path / "a.py").write_text(
+        "import os\n\ndef helper():\n    return 1\n\nHELPER_DOC = 'doc'\n",
+        encoding="utf-8",
+    )
+
+    assert dict(code_symbol_documents(tmp_path))["a.py::helper"] == "def helper():\n    return 1\n"
