@@ -61,9 +61,7 @@ def test_symbol_documents_exclude_file_and_module_nodes(tmp_path: Path) -> None:
 
 def test_symbol_documents_java(tmp_path: Path) -> None:
     pytest.importorskip("tree_sitter")
-    (tmp_path / "W.java").write_text(
-        "class W {\n    void run() {\n    }\n}\n", encoding="utf-8"
-    )
+    (tmp_path / "W.java").write_text("class W {\n    void run() {\n    }\n}\n", encoding="utf-8")
 
     docs = dict(code_symbol_documents(tmp_path))
 
