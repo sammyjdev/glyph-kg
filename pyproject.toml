@@ -49,9 +49,11 @@ code = [
     "tree-sitter-python>=0.23",
     "tree-sitter-java>=0.23",
 ]
-eval = [
-    "gnomon-eval @ git+https://github.com/sammyjdev/gnomon-eval.git@15be2929be53c04b5f743b00d64dca3d355a208f",
-]
+# The eval harness needs gnomon-eval, which is not on PyPI - PyPI rejects
+# git direct dependencies in published metadata, so it cannot live in an
+# extra. Install it separately:
+#   pip install "gnomon-eval @ git+https://github.com/sammyjdev/gnomon-eval.git@15be2929be53c04b5f743b00d64dca3d355a208f"
+eval = []
 
 [project.urls]
 Homepage = "https://github.com/sammyjdev/glyph-kg"
