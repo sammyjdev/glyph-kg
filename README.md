@@ -4,7 +4,7 @@
 
 > GLYPH builds a knowledge graph from documents and code, then serves graph-aware context for retrieval. Document entities come from LLM extraction, code structure from tree-sitter, both behind one extractor port. Retrieval is benchmarked against a fair vector baseline with bootstrap confidence intervals — across **both** the document and code domains, with the honest result reported either way.
 
-**Part of the [AXON](https://github.com/sammyjdev/axon) stack** — GLYPH is the graph-retrieval layer that AXON (the product front) consumes to decide *what* context to bring; [rtkx](https://github.com/sammyjdev/rtkx) decides *how compact*. GLYPH also stands alone as a benchmarked knowledge-graph retrieval library.
+**Part of the [AXON](https://github.com/sammyjdev/axon) stack** — GLYPH is the graph-retrieval layer that AXON (the product front) consumes to decide *what* context to bring. GLYPH also stands alone as a benchmarked knowledge-graph retrieval library.
 
 ## Why it exists
 
