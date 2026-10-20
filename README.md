@@ -4,7 +4,7 @@
 
 > GLYPH builds a knowledge graph from documents and code, then serves graph-aware context for retrieval. Document entities come from LLM extraction, code structure from tree-sitter, both behind one extractor port. Retrieval is benchmarked against a fair vector baseline with bootstrap confidence intervals — across **both** the document and code domains, with the honest result reported either way.
 
-**Part of the [AXON](https://github.com/sammyjdev/axon) stack** — GLYPH is the graph-retrieval layer that AXON (the product front) consumes to decide *what* context to bring. GLYPH also stands alone as a benchmarked knowledge-graph retrieval library.
+GLYPH started as the graph-retrieval layer behind [AXON](https://github.com/sammyjdev/axon)'s code search. AXON retired code search in October 2026 (AXON dec-138), so GLYPH now stands alone as a benchmarked knowledge-graph retrieval library.
 
 ## Why it exists
 
@@ -20,7 +20,6 @@ Vector similarity retrieval ignores structure: who cites whom, what relates to w
 
 - Does not perform complete cross-language type inference in code. Symbol resolution is by name in the import graph and intra-file. Declared limitation (ADR-G5).
 - The *retrieval* token budget is estimated per character; **generation** tokens in the benchmark are actual model counts.
-- Does not replace AXON parsing; GLYPH is the canonical graph source and AXON delegates to it (dec-116 / ADR-G6).
 
 ## Current status
 
@@ -136,7 +135,7 @@ Results and reproduction: [METRICS.md](METRICS.md) (real run, n=25). Technical a
 
 ## Relationship to AXON
 
-AXON consumes GLYPH as a dependency: AXON's `GraphContextSource` (ADR-102 in the AXON repo) delegates to `glyph.integration.GraphContextSource` from this lib. Code-graph and document-graph become two uses of the same core. Contract and boundary in [docs/axon-integration.md](docs/axon-integration.md).
+GLYPH was built for AXON's code search, which consumed `glyph.integration.GraphContextSource` (ADR-G6). AXON retired code search and its vector and graph indexes in October 2026 (AXON dec-138), so it no longer depends on GLYPH. The `GraphContextSource` boundary stays as GLYPH's public product interface. The original contract is kept in [docs/axon-integration.md](docs/axon-integration.md) for history.
 
 ## Contributing
 
