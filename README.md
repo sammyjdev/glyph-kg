@@ -26,9 +26,10 @@ Vector similarity retrieval ignores structure: who cites whom, what relates to w
 **Phases 0–7 complete.** Model + ports + NetworkX adapter (F0); document extraction by LLM with persisted graph (F1); graph-aware retrieval + fair vector baseline + hybrid under a single contract (F2); benchmark against GNOMON with bootstrap CIs (F3); code extraction by tree-sitter (F4); product boundary `GraphContextSource` consumed by AXON (F5, ADR-G6); packaging & publication (F6); global community axis (F7, ADR-G7).
 
 **Published metrics (validation-first):**
-- **Documents** (Monster Manual, n=25): `reranked_vector` (cross-encoder reranker over the vector baseline) now leads context_precision (0.720, above the 0.55+ target); faithfulness ties at 1.000 across graph_pagerank/vector/hybrid (0.980 for graph/reranked_vector) — no single arm dominates. Generator for this run is `openai/gpt-oss-120b` (free-tier substitute for Claude Haiku 4.5, declared not assumed; judge unchanged, `deepseek/deepseek-chat`). [METRICS.md](METRICS.md).
+- **Documents** (Monster Manual, n=25): `reranked_vector` (cross-encoder reranker over the vector baseline) now leads context_precision (0.720 [0.560, 0.880] vs 0.400 [0.200, 0.600] for the vector baseline, above the 0.55+ target; the intervals overlap); faithfulness ties at 1.000 across graph_pagerank/vector/hybrid (0.980 for graph/reranked_vector) — no single arm dominates. Generator for this run is `openai/gpt-oss-120b` (free-tier substitute for Claude Haiku 4.5, declared not assumed; judge unchanged, `deepseek/deepseek-chat`). [METRICS.md](METRICS.md).
 - **Code** (AXON graph, n=14, judged by **two independent judges**, Gemini + Qwen): on **faithfulness** (robust metric — same ordering across both judges) the **vector baseline leads and graph ranks last** (vector > hybrid > graph); **context_precision is judge-dependent** (ordering reverses between judges → no reliable winner). The thesis "graph wins on code" did not hold up on the robust metric. [METRICS-code.md](METRICS-code.md) (Gemini) + [METRICS-code-qwen.md](METRICS-code-qwen.md) (Qwen).
 - **Global / sense-making** (community axis ADR-G7, n=8, two judges): no arm wins significantly in quality (overlapping CIs), but **community summary delivers equal-or-better quality at ~half the tokens** (5.3k vs 10k+) of vector/graph — *same answer, half the cost* for "how does this organize?" questions. [METRICS-code-global.md](METRICS-code-global.md) + `eval/code-global-qwen.json`.
+- **Tests**: 410 passed, 97% coverage (CI, 2026-10-30).
 
 Methodology in [ADR-G4](docs/decisions/dec-g4-eval-methodology.md). Plan in [docs/GLYPH_PLAN.md](docs/GLYPH_PLAN.md).
 
@@ -140,6 +141,10 @@ GLYPH was built for AXON's code search, which consumed `glyph.integration.GraphC
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). TDD per sub-task, ADR per architectural decision, invariants checked in CI.
+
+## Author
+
+Built by [sammyjdev](https://github.com/sammyjdev), Senior AI Engineer (Forward Deployed).
 
 ## License
 
