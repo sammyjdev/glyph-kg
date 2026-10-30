@@ -21,10 +21,26 @@ jobs:
           pip install --upgrade pip setuptools
           pip install -e ".[dev,document,retrieval,code,eval]"
 
+      # The filelock CVEs below are fixed in 4.0.9/4.2.1, but litellm (required by
+      # gnomon-eval) pins filelock<4.0 up to 1.106.6, so no compatible upgrade exists.
+      # Waived by ID so anything new still fails. Drop once litellm allows filelock>=4.2.1.
       - name: Security audit (pip-audit)
         run: |
           pip install pip-audit
-          pip-audit
+          pip-audit \
+            --ignore-vuln CVE-2026-112907 \
+            --ignore-vuln CVE-2026-112908 \
+            --ignore-vuln CVE-2026-112909 \
+            --ignore-vuln CVE-2026-112910 \
+            --ignore-vuln CVE-2026-112911 \
+            --ignore-vuln CVE-2026-112912 \
+            --ignore-vuln CVE-2026-112913 \
+            --ignore-vuln CVE-2026-112915 \
+            --ignore-vuln CVE-2026-112935 \
+            --ignore-vuln CVE-2026-112936 \
+            --ignore-vuln CVE-2026-112938 \
+            --ignore-vuln CVE-2026-112939 \
+            --ignore-vuln CVE-2026-112940
 
       - name: Lint (ruff)
         run: ruff check glyph tests
